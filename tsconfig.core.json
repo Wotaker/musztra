@@ -1,0 +1,9 @@
+{
+  "//": "Sprawdza, że src/core jest czystym TypeScriptem: bez DOM, Reacta i typów przeglądarki (CLAUDE.md).",
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023"],
+    "types": []
+  },
+  "include": ["src/core"]
+}

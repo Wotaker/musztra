@@ -1,0 +1,116 @@
+:root {
+  --color-plaza: #d8d2c1;
+  --color-sand: #e6dfcc;
+  --color-olive: #5b6338;
+  --color-olive-dark: #3f4527;
+  --color-graphite: #33352f;
+  --color-graphite-soft: #5d6056;
+  --surface-overlay: rgba(236, 231, 217, 0.82);
+  --border-overlay: rgba(51, 53, 47, 0.14);
+  --shadow-overlay: 0 1px 2px rgba(40, 40, 30, 0.12), 0 4px 16px rgba(40, 40, 30, 0.08);
+  --font-ui: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  color-scheme: light;
+  font-family: var(--font-ui);
+  color: var(--color-graphite);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--color-plaza);
+}
+
+.app {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.plaza-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.title-chip {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  padding: 10px 14px;
+  border: 1px solid var(--border-overlay);
+  border-radius: 8px;
+  background: var(--surface-overlay);
+  box-shadow: var(--shadow-overlay);
+  backdrop-filter: blur(4px);
+  pointer-events: none;
+  user-select: none;
+}
+
+.title-chip h1 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  color: var(--color-olive-dark);
+}
+
+.title-chip p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--color-graphite-soft);
+}
+
+.compass-rose {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 84px;
+  height: 84px;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 2px rgba(40, 40, 30, 0.18));
+}
+
+.compass-rose__disc {
+  fill: var(--surface-overlay);
+  stroke: var(--border-overlay);
+  stroke-width: 1;
+}
+
+.compass-rose__ring {
+  fill: none;
+  stroke: rgba(51, 53, 47, 0.18);
+  stroke-width: 1;
+}
+
+.compass-rose__minor path {
+  fill: rgba(91, 99, 56, 0.28);
+}
+
+.compass-rose__side,
+.compass-rose__south {
+  fill: var(--color-graphite-soft);
+  opacity: 0.55;
+}
+
+.compass-rose__north {
+  fill: var(--color-olive-dark);
+}
+
+.compass-rose__label {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--color-olive-dark);
+}
