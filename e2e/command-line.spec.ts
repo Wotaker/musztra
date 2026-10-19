@@ -21,17 +21,25 @@ test('wiersz poleceń ma fokus po otwarciu strony', async ({ page }) => {
   await expect(page.getByTestId('mode-lenient')).toHaveAttribute('aria-checked', 'true');
 });
 
-test('poprawna komenda: ✔, rozpoznany wpis katalogu z punktem regulaminu, wiersz wyczyszczony', async ({ page }) => {
+test('poprawna komenda: ✔ Wykonano, rozpoznany wpis katalogu z punktem regulaminu, wiersz wyczyszczony', async ({ page }) => {
   await send(page, 'Pierwsza drużyna, w szeregu – ZBIÓRKA');
   const feedback = page.getByTestId('feedback');
   await expect(feedback).toHaveAttribute('data-level', 'ok');
-  await expect(page.getByTestId('feedback-title')).toHaveText('Komenda poprawna');
+  // SPEC 3.4: od etapu E2 komenda jest wykonywana na placu — „✔ Wykonano”.
+  await expect(page.getByTestId('feedback-title')).toHaveText('Wykonano');
   await expect(page.getByTestId('feedback-entry')).toHaveText('ZB-1 · Zbiórka przy dowódcy · pkt 69');
   await expect(page.getByTestId('command-input')).toHaveValue('');
   await expect(page.getByTestId('command-input')).toBeFocused();
 });
 
+/** Zbiórka w szeregu i oczekiwanie na jej zakończenie — zwroty wymagają drużyny w szyku (od etapu E2). */
+async function assemble(page: Page) {
+  await send(page, 'Pierwsza drużyna, w szeregu – ZBIÓRKA');
+  await expect(page.getByTestId('plaza-canvas')).toHaveAttribute('data-activity', 'idle', { timeout: 20_000 });
+}
+
 test('tryb łagodny: zapis znormalizowany do formy kanonicznej', async ({ page }) => {
+  await assemble(page);
   await send(page, 'w prawo zwrot');
   await expect(page.getByTestId('feedback')).toHaveAttribute('data-level', 'ok');
   await expect(page.getByTestId('feedback-canonical')).toHaveText('Zapisano jako: W prawo – ZWROT');
@@ -39,6 +47,7 @@ test('tryb łagodny: zapis znormalizowany do formy kanonicznej', async ({ page }
 });
 
 test('tryb ścisły: błędy formy z podkreśleniem i przyciskiem „Użyj”', async ({ page }) => {
+  await assemble(page);
   await page.getByTestId('mode-strict').click();
   await expect(page.getByTestId('command-input')).toBeFocused();
   await send(page, 'w prawo zwrot');

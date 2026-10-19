@@ -1,4 +1,4 @@
-/** Stonowana paleta wojskowa: piasek, oliwka, grafit (SPEC 3.9, DECISIONS.md, D-007). */
+/** Stonowana paleta wojskowa: piasek, oliwka, grafit (SPEC 3.9, DECISIONS.md, D-007, D-028). */
 export const PALETTE = {
   plaza: '#d8d2c1',
   slabJoint: 'rgba(92, 84, 62, 0.06)',
@@ -6,4 +6,57 @@ export const PALETTE = {
   olive: '#5b6338',
   sand: '#e6dfcc',
   graphite: '#33352f',
+
+  shadow: 'rgba(38, 36, 26, 0.2)',
+  shadowSoft: 'rgba(38, 36, 26, 0.12)',
+
+  road: '#77746c',
+  roadEdge: '#b8b1a0',
+  roadLine: 'rgba(240, 236, 224, 0.85)',
+
+  concrete: '#cbc5b4',
+  concreteEdge: '#a39d8b',
+  metal: '#8c9196',
+  flagWhite: '#f5f3ee',
+  flagRed: '#c8313c',
+  standSeat: '#6e7650',
+  standStep: '#b9b2a0',
+  standStepDark: '#a59e8b',
+  roofTile: '#9a5b46',
+  roofTileDark: '#7f4838',
+  roofFlat: '#8f8c84',
+  roofFlatDark: '#76736c',
+  roofLight: '#a9a293',
+  hangar: '#9aa1a5',
+  hangarRib: '#7f878c',
+  door: '#c4c0b4',
+
+  uniform: '#5c6539',
+  uniformDark: '#3b4225',
+  uniformEase: '#6c7448',
+  uniformEaseEdge: '#a3a682',
+  commanderUniform: '#3c4628',
+  commanderEdge: '#1f2514',
+  epaulette: '#cfa63c',
+  boot: '#28261f',
+  skin: '#d6ad86',
+  beret: '#2c2f24',
+  beretCommander: '#5a2b2b',
+  badge: '#d7b54a',
+  frontMarker: 'rgba(240, 233, 210, 0.9)',
+  arm: '#535b33',
+  armRaised: '#7b8a3a',
+  gestureRing: 'rgba(214, 170, 50, 0.85)',
+
+  bubble: '#fbfaf5',
+  bubbleText: '#2b2d27',
+  bubbleEdge: 'rgba(51, 53, 47, 0.25)',
+  reportBubble: '#f7e7b5',
+  reportEdge: '#b98d22',
+
+  label: '#2f3328',
+  labelHalo: 'rgba(236, 231, 217, 0.9)',
+  role: '#8a5a00',
+  commanderRing: 'rgba(255, 252, 240, 0.55)',
+  arrow: '#3f4527',
 } as const;

@@ -1,15 +1,54 @@
 import { create } from 'zustand';
 import { DEFAULT_CAMERA, type Camera } from '../render/camera';
 
-interface ViewState {
-  camera: Camera;
-  setCamera: (camera: Camera) => void;
+/** Tryb fokusu klawiatury (SPEC 3.2): pisanie komend albo sterowanie dowódcą. */
+export type FocusMode = 'command' | 'move';
+
+/** Prędkości symulacji (SPEC 3.8). */
+export const SPEEDS = [0.5, 1, 2, 3] as const;
+export type Speed = (typeof SPEEDS)[number];
+
+export interface Hover {
+  readonly soldierId: number;
+  /** Położenie kursora na ekranie (px). */
+  readonly x: number;
+  readonly y: number;
 }
 
-/** Stan widoku placu. Renderer subskrybuje go poza cyklem Reacta. */
+interface ViewState {
+  camera: Camera;
+  focusMode: FocusMode;
+  speed: Speed;
+  /** Przełącznik „pokaż role” (SPEC 3.9): kierunkowy i skrzydłowi. */
+  showRoles: boolean;
+  hover: Hover | null;
+  setCamera: (camera: Camera) => void;
+  setFocusMode: (mode: FocusMode) => void;
+  setSpeed: (speed: Speed) => void;
+  toggleRoles: () => void;
+  setHover: (hover: Hover | null) => void;
+}
+
+/** Stan widoku placu. Renderer i pętla symulacji czytają go poza cyklem Reacta. */
 export const useViewStore = create<ViewState>()((set) => ({
   camera: DEFAULT_CAMERA,
+  focusMode: 'command',
+  speed: 1,
+  showRoles: false,
+  hover: null,
   setCamera: (camera) => {
     set({ camera });
+  },
+  setFocusMode: (focusMode) => {
+    set({ focusMode });
+  },
+  setSpeed: (speed) => {
+    set({ speed });
+  },
+  toggleRoles: () => {
+    set((s) => ({ showRoles: !s.showRoles }));
+  },
+  setHover: (hover) => {
+    set({ hover });
   },
 }));

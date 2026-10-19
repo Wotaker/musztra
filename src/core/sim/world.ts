@@ -77,3 +77,16 @@ export function anchorPoint(id: TerrainObjectId, terrain: 'PLAZA' | 'ROAD' | nul
   const object = worldObject(id);
   return terrain === 'ROAD' ? vec(object.position.x, ROAD.axisY) : object.anchor;
 }
+
+/** Obiekt terenowy pod punktem `p` (podgląd nazwy po najechaniu, SPEC 3.9). */
+export function objectAt(p: Vec2): WorldObject | undefined {
+  return WORLD_OBJECTS.find((o) => {
+    const dx = Math.abs(p.x - o.position.x);
+    const dy = Math.abs(p.y - o.position.y);
+    if (o.shape === 'mast') return Math.hypot(dx, dy) <= o.width / 2 + 0.6;
+    const alongFront = o.front % 180 === 0;
+    const halfX = (alongFront ? o.width : o.depth) / 2;
+    const halfY = (alongFront ? o.depth : o.width) / 2;
+    return dx <= halfX && dy <= halfY;
+  });
+}

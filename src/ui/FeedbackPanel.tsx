@@ -1,4 +1,4 @@
-import { formatPoints, groupName } from '../core/catalog';
+import { formatPoints, groupName, type Stage } from '../core/catalog';
 import { worstLevel, type Diagnostic, type InterpretResult } from '../core/interpreter';
 import { useCommandStore } from './commandStore';
 
@@ -18,10 +18,17 @@ function errorTitle(code: string | undefined): string {
   return TITLES.error.title;
 }
 
-function titleOf(result: InterpretResult) {
+type Outcome = { readonly executed: boolean; readonly pendingStage: Stage | null } | null;
+
+function titleOf(result: InterpretResult, outcome: Outcome) {
   const level = worstLevel(result);
   if (result.verdict === 'ignored') return { level, icon: '⚠', title: 'Nikt nie reaguje' };
-  if (result.verdict === 'accepted' && level === 'warning') return { level, icon: '⚠', title: 'Komenda poprawna, z uwagą' };
+  if (result.verdict === 'accepted') {
+    const noEffect = result.diagnostics.some((d) => d.code === 'W_NO_EFFECT');
+    if (noEffect) return { level, icon: '⚠', title: 'Bez zmian' };
+    if (outcome?.executed) return { level, icon: level === 'warning' ? '⚠' : '✔', title: level === 'warning' ? 'Wykonano, z uwagą' : 'Wykonano' };
+    if (level === 'warning') return { level, icon: '⚠', title: 'Komenda poprawna, z uwagą' };
+  }
   if (level === 'error') {
     const firstError = result.diagnostics.find((d) => d.level === 'error');
     return { level, icon: TITLES.error.icon, title: errorTitle(firstError?.code) };
@@ -50,10 +57,11 @@ function DiagnosticItem({ diagnostic }: { diagnostic: Diagnostic }) {
 /** Panel informacji zwrotnej po komendzie (SPEC 3.4). */
 export function FeedbackPanel() {
   const result = useCommandStore((s) => s.result);
+  const outcome = useCommandStore((s) => s.outcome);
   const setDraft = useCommandStore((s) => s.setDraft);
   if (!result) return null;
 
-  const { level, icon, title } = titleOf(result);
+  const { level, icon, title } = titleOf(result, outcome);
   const { entry } = result;
 
   return (
@@ -102,9 +110,10 @@ export function FeedbackPanel() {
           </button>
         </div>
       )}
-      {result.verdict === 'accepted' && entry && (
-        <p className="feedback__note">
-          {groupName(entry.group)}: {entry.description} Wykonanie na placu pojawi się w kolejnym etapie (E2).
+      {result.verdict === 'accepted' && entry && outcome?.pendingStage && (
+        <p className="feedback__note" data-testid="feedback-pending">
+          {groupName(entry.group)}: {entry.description} Komenda jest poprawna, ale jej wykonanie na placu dojdzie w
+          etapie {outcome.pendingStage} — drużyna jej jeszcze nie wykonuje.
         </p>
       )}
     </section>

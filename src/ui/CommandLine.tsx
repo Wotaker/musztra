@@ -2,6 +2,7 @@ import { useEffect, useRef, type KeyboardEvent, type ReactNode } from 'react';
 import type { Span } from '../core/grammar/normalize';
 import { useCommandStore } from './commandStore';
 import { ModeSwitch } from './ModeSwitch';
+import { useViewStore } from './store';
 import { mergeSpans } from './spans';
 
 function mirror(text: string, spans: readonly Span[]): ReactNode[] {
@@ -32,9 +33,14 @@ export function CommandLine() {
   const inputRef = useRef<HTMLInputElement>(null);
   const mirrorRef = useRef<HTMLDivElement>(null);
 
+  const focusMode = useViewStore((s) => s.focusMode);
+  const setFocusMode = useViewStore((s) => s.setFocusMode);
+
+  // Tryb fokusu (SPEC 3.2): w trybie Komenda kursor jest w wierszu, w trybie Ruch — klawisze sterują dowódcą.
   useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
+    if (focusMode === 'command') inputRef.current?.focus();
+    else inputRef.current?.blur();
+  }, [focusMode]);
 
   // Podkreślenie dotyczy tekstu, który został sprawdzony — znika po pierwszej zmianie.
   const showErrors = result !== null && result.verdict === 'rejected' && result.input === draft;
@@ -47,7 +53,10 @@ export function CommandLine() {
   };
 
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      setFocusMode('move');
+    } else if (event.key === 'Enter') {
       event.preventDefault();
       submit();
     } else if (event.key === 'ArrowUp') {
@@ -60,7 +69,7 @@ export function CommandLine() {
   };
 
   return (
-    <div className="cmdline">
+    <div className={`cmdline${focusMode === 'move' ? ' cmdline--inactive' : ''}`} data-focus-mode={focusMode}>
       <span className="cmdline__prompt" aria-hidden="true">
         ›
       </span>
@@ -73,7 +82,11 @@ export function CommandLine() {
           className="cmdline__input"
           data-testid="command-input"
           aria-label="Komenda"
-          placeholder="Wpisz komendę, np. Pierwsza drużyna, w szeregu – ZBIÓRKA"
+          placeholder={
+            focusMode === 'move'
+              ? 'Tryb Ruch — Enter lub / wraca do komend'
+              : 'Wpisz komendę, np. Pierwsza drużyna, w szeregu – ZBIÓRKA'
+          }
           autoComplete="off"
           autoCorrect="off"
           autoCapitalize="off"
@@ -83,6 +96,9 @@ export function CommandLine() {
             setDraft(event.target.value);
           }}
           onKeyDown={onKeyDown}
+          onFocus={() => {
+            setFocusMode('command');
+          }}
           onScroll={syncScroll}
           onSelect={syncScroll}
           onKeyUp={syncScroll}

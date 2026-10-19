@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  AUTO_ZOOM,
+  approachCamera,
   DEFAULT_CAMERA,
+  followTarget,
+  isLargeMove,
   GRID_SPACING_M,
   gridLines,
   screenToWorld,
@@ -91,5 +95,55 @@ describe('siatka placu', () => {
   it('odrzuca nieprawidłowy rozstaw', () => {
     expect(() => gridLines(0, 10, 0)).toThrow();
     expect(() => gridLines(0, 10, -5)).toThrow();
+  });
+});
+
+describe('kamera śledząca (SPEC 3.9)', () => {
+  const insets = { top: 60, right: 20, bottom: 160, left: 20 };
+
+  it('kadruje drużynę i dowódcę w widocznej części ekranu', () => {
+    const squad = [
+      { x: -0.6, y: 0 },
+      { x: -5.4, y: 0 },
+    ];
+    const target = followTarget(squad, { x: 0, y: 0 }, viewport, insets, null);
+    expect(target.squadOnly).toBe(false);
+    for (const p of [...squad, { x: 0, y: 0 }]) {
+      const s = worldToScreen(target.camera, viewport, p);
+      expect(s.x).toBeGreaterThanOrEqual(insets.left);
+      expect(s.x).toBeLessThanOrEqual(viewport.width - insets.right);
+      expect(s.y).toBeGreaterThanOrEqual(insets.top);
+      expect(s.y).toBeLessThanOrEqual(viewport.height - insets.bottom);
+    }
+    expect(target.camera.pixelsPerMeter).toBeLessThanOrEqual(AUTO_ZOOM.max);
+  });
+
+  it('gdy dowódca oddali się ponad limit, kamera śledzi samą drużynę', () => {
+    const target = followTarget([{ x: 0, y: 0 }], { x: 300, y: 0 }, viewport, insets, null);
+    expect(target.squadOnly).toBe(true);
+    expect(target.camera.pixelsPerMeter).toBeGreaterThanOrEqual(AUTO_ZOOM.min);
+  });
+
+  it('ręczny zoom zastępuje automatyczny', () => {
+    const target = followTarget([{ x: 0, y: 0 }], { x: 0, y: 0 }, viewport, insets, 80);
+    expect(target.camera.pixelsPerMeter).toBe(80);
+  });
+
+  it('kamera dochodzi do celu płynnie i zbieżnie', () => {
+    let camera = DEFAULT_CAMERA;
+    const target: Camera = { center: { x: 10, y: -4 }, pixelsPerMeter: 48 };
+    const first = approachCamera(camera, target, 1 / 60);
+    expect(first.center.x).toBeGreaterThan(0);
+    expect(first.center.x).toBeLessThan(10);
+    for (let i = 0; i < 600; i++) camera = approachCamera(camera, target, 1 / 60);
+    expect(camera.center.x).toBeCloseTo(10, 3);
+    expect(camera.pixelsPerMeter).toBeCloseTo(48, 3);
+  });
+
+  it('duży ruch: przesunięcie kadru lub wyraźna zmiana jego wielkości', () => {
+    const a = { focus: { x: 0, y: 0 }, size: 10 };
+    expect(isLargeMove(a, { focus: { x: 2, y: 1 }, size: 11 })).toBe(false);
+    expect(isLargeMove(a, { focus: { x: 12, y: 0 }, size: 10 })).toBe(true);
+    expect(isLargeMove(a, { focus: { x: 0, y: 0 }, size: 25 })).toBe(true);
   });
 });
