@@ -5,13 +5,27 @@ Etapy według `SPEC.md`, sekcja 10. Każdy etap kończy się wdrożoną wersją 
 | Etap | Stan | Data ukończenia |
 |---|---|---|
 | E0 Szkielet | ✔ ukończony | 2026-10-19 |
-| E1 Interpreter | — | |
+| E1 Interpreter | w toku | |
 | E2 Stan i obraz | — | |
 | E3 Szyki w miejscu | — | |
 | E4 Ruch | — | |
 | E5 Nauka | — | |
 | E6 LLM | — | |
 | E7 Szlif | — | |
+
+---
+
+## E1 Interpreter — stan prac (wznawianie)
+
+- [x] Katalog jako dane: `src/core/catalog` (komendy MVP, poza MVP, słownictwo), `src/core/roster/names.ts`.
+- [x] Gramatyka `src/core/grammar/musztra.ohm` + słownictwo generowane z katalogu (`parse.ts`).
+- [x] Normalizacja (`normalize.ts`), forma kanoniczna i kontrola formy (`form.ts`), reguły bez stanu (`semantics/static.ts`), potok (`interpreter.ts`).
+- [x] Testy: przykłady z katalogu w obu trybach, zgodność z `COMMANDS.md`, pokrycie gramatyki.
+- [ ] Testy normalizacji, diagnoz błędów i scenariuszy S16, S19–S21; wydajność.
+- [ ] Wiersz poleceń z informacją zwrotną (UI) + E2E.
+- [ ] `DECISIONS.md`, podsumowanie etapu.
+
+Środowisko w chmurze: Node 26.12.0 doinstalowany z nodejs.org (`/opt/node26`, dowiązania w `/root/.local/bin`). E2E lokalnie: konfiguracja w katalogu tymczasowym z `executablePath` do preinstalowanego Chromium; rozstrzyga CI.
 
 ---
 

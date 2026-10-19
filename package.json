@@ -17,6 +17,7 @@
     "lint": "eslint . --max-warnings 0 && tsc -p tsconfig.core.json"
   },
   "dependencies": {
+    "ohm-js": "^17.5.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "zustand": "^5.0.15"

@@ -1,0 +1,212 @@
+// Gramatyka Języka Musztry — komendy MVP z docs/COMMANDS.md i rozpoznawane komendy spoza MVP.
+//
+// Zasady zapisu (szczegóły: src/core/grammar/parse.ts, DECISIONS.md D-012):
+// - Literały są w formie kanonicznej (polskie znaki, hasła wielkimi literami). Przy wczytywaniu
+//   każdy literał zamieniany jest na postać złożoną: małe litery, bez znaków diakrytycznych,
+//   z jedną spacją na końcu. Tekst komendy jest składany tak samo (każde słowo, przecinek
+//   i myślnik z jedną spacją na końcu), więc literał dopasowuje się zawsze do całych słów.
+// - Exec<…> oznacza HASŁO komendy (forma kanoniczna: wielkie litery).
+// - Sep to miejsce przecinka albo myślnika; przyjmuje przecinek, myślnik lub nic (tryb łagodny).
+//   Formę kanoniczną ustala renderer: myślnik przed hasłem, w pozostałych miejscach przecinek.
+// - Gap to miejsce, w którym forma kanoniczna nie ma znaku; zbędny przecinek lub myślnik
+//   jest tam przyjmowany i usuwany przy normalizacji.
+// - Słownictwo z danych katalogu (obiekty terenowe, liczebniki, nazwy pododdziałów, nazwisko)
+//   pochodzi z gramatyki MusztraLexicon, generowanej z src/core/catalog.
+// - Każda alternatywa reguły Command kończy się na `end`, więc kolejność alternatyw nie wpływa
+//   na wynik dla poprawnych komend.
+
+Musztra <: MusztraLexicon {
+
+  Command
+    = P2_Attention end
+    | P3_AtEase end
+    | Z1_Turn end
+    | ZB1_Assembly end
+    | ZB2_AssemblyPlace end
+    | ZB3_AssemblyPrevious end
+    | ZB4_Dismiss end
+    | R1_Dress end
+    | R2_Count end
+    | O1_Extend end
+    | O2_Close end
+    | S1_TwosRight end
+    | S2_RankFront end
+    | S3_Shift end
+    | S4_Wheel end
+    | M1_March end
+    | M2_FollowMe end
+    | M3_MarkTime end
+    | M4_Forward end
+    | M5_Run end
+    | M6_QuickStep end
+    | M7_RouteStep end
+    | M8_Halt end
+    | M9_Direction end
+    | M10_HeadHalt end
+    | M11_HaltFace end
+    | MS1_FileBack end
+    | MS2_TwosForward end
+    | X1_Revert end
+    | P1_Summons end
+    | N1_CallOut end
+    | N2_EyesRight end
+    | N3_PortArms end
+    | N4_SlingArms end
+    | N5_BackArms end
+    | N6_GroundArms end
+    | N7_TakeArms end
+    | N8_OrderArms end
+    | N9_Bayonet end
+    | N10_SafeArms end
+    | N12_Headgear end
+    | N13_WingBend end
+    | N14_LeftClear end
+    | N16_StateDuties end
+    | N17_AssemblyOnMarch end
+    | N18_DismissDirection end
+    | N19_HigherUnit end
+    | N20_Vehicles end
+    | N11_OtherArms end
+    | N15_Song end
+
+  // ---------------------------------------------------------------- elementy wspólne
+
+  Exec<word> = word
+  Lead = Addressee Sep
+  Addressee = squadOrdinal? "drużyna"
+  Sep = sepMark?
+  Gap = sepMark?
+  sepMark = "," | "–"
+
+  Side = "w prawo" | "w lewo"
+  StepCount = stepNumeral? StepNoun
+  StepNoun = "kroków" | "kroki" | "krok"
+  Running = Sep "biegiem"
+  Flank = "prawoskrzydłowego" | "lewoskrzydłowego"
+
+  // ---------------------------------------------------------------- P. Wezwanie i postawy
+
+  P1_Summons = Addressee
+  P2_Attention = Lead? Exec<"BACZNOŚĆ">
+  P3_AtEase = Lead? Exec<"SPOCZNIJ">
+
+  // ---------------------------------------------------------------- Z. Zwroty
+
+  Z1_Turn = Lead? TurnDirection Sep Exec<"ZWROT">
+  TurnDirection = "w lewo" | "w prawo" | "w tył"
+
+  // ---------------------------------------------------------------- ZB. Zbiórki i rozejście
+
+  ZB1_Assembly = Lead? FormationIn Sep Exec<"ZBIÓRKA">
+  ZB2_AssemblyPlace = Lead? FormationIn (Sep Terrain)? Sep AssemblyAnchor (Sep FrontTo)? Sep Exec<"ZBIÓRKA">
+  ZB3_AssemblyPrevious = Lead? FormationIn Sep "na poprzednim miejscu" Sep Exec<"ZBIÓRKA">
+  ZB4_Dismiss = Lead? (DismissPlace Sep)? Exec<"ROZEJŚĆ SIĘ">
+
+  FormationIn = "w szeregu" | "w dwuszeregu" | "w rzędzie" | "w kolumnie dwójkowej"
+  Terrain = "na placu" | "na drodze"
+  AssemblyAnchor = AnchorPart "na wysokości" terrainObject
+  AnchorPart = "prawe skrzydło" | "czoło"
+  FrontTo = "frontem do" terrainObject
+  DismissPlace = "do" terrainObject Running?
+
+  // ---------------------------------------------------------------- R. Równanie i odliczanie
+
+  R1_Dress = Lead? "równaj" Sep Exec<DressSide>
+  DressSide = "W PRAWO" | "W LEWO"
+  R2_Count = Lead? CountSpec Sep Exec<"ODLICZ">
+  CountSpec
+    = "kolejno"            -- sequential
+    | "do" countNumeral    -- byN
+
+  // ---------------------------------------------------------------- O. Odstępowanie i łączenie
+
+  O1_Extend = Lead? "od" ExtendFrom Sep StepCount Running? Sep Exec<"ODSTĄP">
+  ExtendFrom
+    = Flank                                  -- flank
+    | "szeregowego" surname (Sep Side)?      -- soldier
+  O2_Close = Lead? "do" CloseTo Running? Sep Exec<"ŁĄCZ">
+  CloseTo
+    = Flank                                  -- flank
+    | "szeregowego" surname (Gap Side)?      -- soldier
+
+  // ---------------------------------------------------------------- S. Zmiany szyku w miejscu
+
+  S1_TwosRight = Lead? "w dwójki" Sep "w prawo" Sep Exec<"ZWROT">
+  S2_RankFront = Lead? "w szereg" Sep "w lewo" Sep Exec<"FRONT">
+  S3_Shift = Lead? StepCount ShiftDirection Sep Exec<"MARSZ">
+  ShiftDirection = "na wprost" | "w tył" | "w prawo" | "w lewo"
+  S4_Wheel = Lead? Side "zachodź" Sep Exec<"MARSZ">
+
+  // ---------------------------------------------------------------- M. Marsz i zatrzymanie
+
+  M1_March = Lead? "kierunek" MarchDirection Sep Exec<"MARSZ">
+  MarchDirection
+    = "na wprost" | "w tył na prawo" | "w tył na lewo" | "w prawo w skos" | "w lewo w skos" | "w prawo" | "w lewo"
+  M2_FollowMe = Lead? "za mną" Sep Exec<"MARSZ">
+  M3_MarkTime = Lead? "w miejscu" Sep Exec<"MARSZ">
+  M4_Forward = Lead? "na wprost" Sep Exec<"MARSZ">
+  M5_Run = Lead? "biegiem" Sep Exec<"MARSZ">
+  M6_QuickStep = Lead? "zwykły" Sep Exec<"KROK">
+  M7_RouteStep = Lead? "dowolny" Sep Exec<"KROK">
+  M8_Halt = Lead? Exec<"STÓJ">
+  M9_Direction = Lead? "kierunek" Sep Exec<DirectionChange>
+  DirectionChange
+    = "W TYŁ NA PRAWO" | "W TYŁ NA LEWO" | "W PRAWO W SKOS" | "W LEWO W SKOS" | "W PRAWO" | "W LEWO"
+  M10_HeadHalt = Lead? "czoło" Sep Exec<"STÓJ">
+  M11_HaltFace = Lead? "stawaj" Sep Exec<HaltSide>
+  HaltSide = "W LEWO" | "W PRAWO"
+
+  // ---------------------------------------------------------------- MS. Zmiany szyku w marszu
+
+  MS1_FileBack = Lead? "w rząd" Sep Exec<"W TYŁ">
+  MS2_TwosForward = Lead? "w dwójki" Sep Exec<"W PRZÓD">
+
+  // ---------------------------------------------------------------- X. Specjalne
+
+  X1_Revert = Lead? Exec<"WRÓĆ">
+
+  // ---------------------------------------------------------------- Poza MVP (E_OUT_OF_SCOPE)
+
+  N1_CallOut (poza MVP)
+    = "szeregowy" surname anyWord*     -- soldier
+    | Lead? Exec<"WYSTĄP">             -- stepOut
+    | Lead? Exec<"WSTĄP">              -- stepIn
+    | Lead? Exec<"DO MNIE">            -- toMe
+  N2_EyesRight = Lead? EyesSide Sep Exec<"PATRZ">
+  EyesSide = "na prawo" | "na lewo"
+  N3_PortArms = Lead? "przez pierś" Sep Exec<"BROŃ">
+  N4_SlingArms = Lead? "na pas" Sep Exec<"BROŃ">
+  N5_BackArms = Lead? "przez plecy" Sep Exec<"BROŃ">
+  N6_GroundArms = Lead? "połóż" Sep Exec<"BROŃ">
+  N7_TakeArms = Lead? "za" Sep Exec<"BROŃ">
+  N8_OrderArms = Lead? "do nogi" Sep Exec<"BROŃ">
+  N9_Bayonet
+    = Lead? "bagnet na" Sep Exec<"BROŃ">     -- fix
+    | Lead? "bagnet" Sep Exec<"ZDEJMIJ">     -- remove
+  N10_SafeArms
+    = Lead? SafetyWord Sep Exec<"BROŃ">      -- safety
+    | Lead? "kolbę" Sep Exec<StockAction>    -- stock
+  SafetyWord = "zabezpiecz" | "odbezpiecz"
+  StockAction = "ROZŁÓŻ" | "ZŁÓŻ"
+  N11_OtherArms (poza MVP) = (~(Exec<"BROŃ"> end) anyWord)+ Exec<"BROŃ">
+  N12_Headgear = Lead? HeadgearWord Sep Exec<HeadgearAction>
+  HeadgearWord = "czapkę" | "beret" | "furażerkę"
+  HeadgearAction = "ZDEJMIJ" | "WŁÓŻ"
+  N13_WingBend (poza MVP) = (~"zagiąć" anyWord)* "zagiąć" anyWord*
+  N14_LeftClear = Lead? "lewa" Sep Exec<"WOLNA">
+  N15_Song (poza MVP)
+    = Exec<"ŚPIEW">                                          -- song
+    | Exec<"DOŚĆ">                                           -- enough
+    | (~(Exec<"ŚPIEW"> end) anyWord)+ Exec<"ŚPIEW">          -- titled
+  N16_StateDuties = Lead? "funkcjami" Sep Exec<"OZNAJMIJ">
+  N17_AssemblyOnMarch (poza MVP) = (~"w marszu" anyWord)* "w marszu" Sep Exec<"ZBIÓRKA">
+  N18_DismissDirection = Lead? DismissDirection Sep Exec<"ROZEJŚĆ SIĘ">
+  DismissDirection
+    = "od czoła" Sep Side    -- fromHead
+    | "w tył"                -- back
+  N19_HigherUnit (poza MVP) = unitOrdinal? unitNoun anyWord*
+  N20_Vehicles
+    = Exec<"DO POJAZDÓW">                    -- board
+    | Exec<"Z POJAZDÓW">                     -- dismount
+    | "silniki" Sep Exec<"W RUCH">           -- engines
+}

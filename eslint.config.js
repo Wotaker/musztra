@@ -16,6 +16,10 @@ export default defineConfig([
         tsconfigRootDir: import.meta.dirname,
       },
     },
+    rules: {
+      // Parametry z „_” są celowo nieużywane (np. akcje semantyczne Ohm muszą mieć pełną listę dzieci węzła).
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+    },
   },
   {
     files: ['eslint.config.js'],
