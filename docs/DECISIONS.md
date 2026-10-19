@@ -6,13 +6,7 @@ Decyzje podjęte tam, gdzie `SPEC.md`, `COMMANDS.md` i regulamin milczą lub są
 
 Decyzje, które autor powinien potwierdzić lub odrzucić. Po akceptacji pozycja przechodzi do sekcji „Zatwierdzone” (wpis w dzienniku zostaje).
 
-| Decyzja | Czego dotyczy | Etap |
-|---|---|---|
-| [D-013](#d-013-myślnik-w-trybie-ścisłym) | tryb ścisły przyjmuje każdy znak myślnika („-”, „–”, „—”), byle otoczony spacjami | E1 |
-| [D-014](#d-014-co-wybacza-tryb-łagodny) | zakres tolerancji trybu łagodnego (m.in. kropka na końcu, „jeden krok”, zbędny przecinek) | E1 |
-| [D-017](#d-017-komendy-spoza-mvp) | lista komend rozpoznawanych jako „poza MVP”, w tym kilka spoza tabeli w COMMANDS.md | E1 |
-| [D-019](#d-019-adresat-i-nazwiska) | „Drużyna” bez liczebnika trafia zawsze; „Szeregowy X, …” to musztra indywidualna (poza MVP) | E1 |
-| [D-021](#d-021-propozycje-zmian-w-commandsmd) | propozycje drobnych poprawek w `COMMANDS.md` | E1 |
+Brak pozycji oczekujących.
 
 ## Zatwierdzone
 
@@ -22,6 +16,12 @@ Decyzje, które autor powinien potwierdzić lub odrzucić. Po akceptacji pozycja
 | [D-004](#d-004-adres-strony-i-ścieżka-bazowa) | publiczny adres `https://wotaker.github.io/musztra/` | 2026-10-19 |
 | [D-007](#d-007-wygląd-pustego-placu) | wygląd placu, w tym przybliżenie startowe 24 px/m bez zmian | 2026-10-19 |
 | [D-010](#d-010-content-security-policy-w-e6) | Content Security Policy dodawana w E6 | 2026-10-19 (decyzja autora) |
+| [D-013](#d-013-myślnik-w-trybie-ścisłym) | tryb ścisły przyjmuje każdy znak myślnika otoczony spacjami (nie wymagamy wyłącznie „–”) | 2026-10-19 |
+| [D-014](#d-014-co-wybacza-tryb-łagodny) | zakres tolerancji trybu łagodnego | 2026-10-19 |
+| [D-016](#d-016-przykłady-zależne-od-stanu-i-reguły-bez-stanu-w-e1) | 40 testów „todo” zależnych od stanu; każdy ma stać się zwykłym testem w etapie, w którym pojawi się potrzebny stan | 2026-10-19 |
+| [D-017](#d-017-komendy-spoza-mvp) | lista komend rozpoznawanych jako „poza MVP” | 2026-10-19 |
+| [D-019](#d-019-adresat-i-nazwiska) | „Drużyna” bez liczebnika trafia zawsze; „Szeregowy X, …” poza MVP | 2026-10-19 |
+| [D-021](#d-021-propozycje-zmian-w-commandsmd) | poprawki w `COMMANDS.md` (wprowadzone), „18a” → „18” | 2026-10-19 |
 
 ---
 
@@ -139,14 +139,14 @@ Decyzje, które autor powinien potwierdzić lub odrzucić. Po akceptacji pozycja
 
 ## D-013 Myślnik w trybie ścisłym
 
-- **Data:** 2026-10-19 · **Etap:** E1 · **Do akceptacji**
+- **Data:** 2026-10-19 · **Etap:** E1 · **Zatwierdzona 2026-10-19**
 - **Kontekst:** COMMANDS 0.1 podaje formę kanoniczną z myślnikiem „–” otoczonym spacjami. Na klawiaturze jest tylko „-”, a sam regulamin zapisuje komendy raz z „-”, raz z „—” (np. pkt 29, 30, 36).
 - **Decyzja:** tryb ścisły przyjmuje każdy znak myślnika (`-`, `–`, `—`), ale wymaga spacji po obu stronach i myślnika tylko przed hasłem. Forma kanoniczna jest zawsze wyświetlana z „–”.
 - **Alternatywy:** wymaganie wyłącznie „–” — zgodne z dosłownym brzmieniem COMMANDS 0.1, ale tryb ścisły byłby niewygodny i nie uczyłby niczego, czego wymaga regulamin.
 
 ## D-014 Co wybacza tryb łagodny
 
-- **Data:** 2026-10-19 · **Etap:** E1 · **Do akceptacji**
+- **Data:** 2026-10-19 · **Etap:** E1 · **Zatwierdzona 2026-10-19**
 - **Kontekst:** COMMANDS 0.1 wylicza tolerancje trybu łagodnego; kilka przypadków nie jest wymienionych.
 - **Decyzja:** tryb łagodny przyjmuje (z `I_NORMALIZED` i listą poprawek), a ścisły odrzuca:
   - wielkość liter, brak polskich znaków, dowolny myślnik lub jego brak, przecinek zamiast myślnika i odwrotnie, brak przecinka;
@@ -175,10 +175,11 @@ Decyzje, które autor powinien potwierdzić lub odrzucić. Po akceptacji pozycja
 - **Kontekst:** Wiele przykładów ✖ w COMMANDS.md zależy od stanu drużyny (postawa, szyk, ruch), którego w E1 jeszcze nie ma.
 - **Decyzja:** takie przykłady są w danych katalogu z opisem stanu i etapem (`inState`). W E1 test generowany sprawdza, że tekst jest rozpoznaną, poprawną komendą właściwego wpisu, a sam werdykt zależny od stanu jest zapisany jako test „do zrobienia” (`it.todo`) z numerem etapu — 40 takich pozycji (20 przykładów × 2 tryby), widocznych w wyniku `npm test`. Reguły niezależne od stanu działają już w E1: zbiórka „prawe skrzydło/czoło” niezgodne z szykiem (`E_PRECOND_FORMATION`, S16), przesunięcie w tył o więcej niż krok i w bok (`E_RULE`, pkt 74), adresat (`E_ADDRESSEE`, S20), komendy spoza MVP (S21).
 - **Alternatywy:** pominięcie tych przykładów do E2 — gorzej, bo zgodność danych z dokumentem nie byłaby sprawdzana.
+- **Zatwierdzona 2026-10-19 z wymogiem:** każdy z 40 testów „todo” ma stać się zwykłym testem w etapie, w którym pojawi się potrzebny stan (lista w `PROGRESS.md`).
 
 ## D-017 Komendy spoza MVP
 
-- **Data:** 2026-10-19 · **Etap:** E1 · **Do akceptacji**
+- **Data:** 2026-10-19 · **Etap:** E1 · **Zatwierdzona 2026-10-19**
 - **Kontekst:** COMMANDS „Poza MVP” podaje przykłady i zakresy punktów; S21 wymaga wskazania konkretnego punktu (34).
 - **Decyzja:** 20 wpisów `N-1…N-20` z punktami dla każdej komendy (np. „Przez pierś – BROŃ” pkt 34, „Na pas – BROŃ” pkt 36, „Połóż – BROŃ” pkt 42, 109). Poza tabelą COMMANDS dodane: „Przez plecy”, „Do nogi”, „Bagnet”, kolba i zabezpieczenie broni, dowolny inny chwyt „… – BROŃ” (pkt 31–47), rozejście w kierunku („Od czoła, w prawo – ROZEJŚĆ SIĘ”, „W tył – ROZEJŚĆ SIĘ”, pkt 70, backlog SPEC 2.2 p. 5), musztra z pojazdami („DO POJAZDÓW”, „Z POJAZDÓW”, „Silniki – W RUCH”), dowolna komenda z adresatem „Szeregowy …” (musztra indywidualna, pkt 57–59). Komenda do plutonu, kompanii, batalionu, brygady → poza MVP (pkt 78–99), nie `E_ADDRESSEE`.
 - **Alternatywy:** tylko przykłady z tabeli — użytkownik dostawałby „nie rozpoznano” przy prawdziwych komendach regulaminowych.
@@ -192,7 +193,7 @@ Decyzje, które autor powinien potwierdzić lub odrzucić. Po akceptacji pozycja
 
 ## D-019 Adresat i nazwiska
 
-- **Data:** 2026-10-19 · **Etap:** E1 · **Do akceptacji**
+- **Data:** 2026-10-19 · **Etap:** E1 · **Zatwierdzona 2026-10-19**
 - **Kontekst:** COMMANDS 0.1: adresat zgodny z ustawieniem nazwy; I-10.
 - **Decyzja:** „Drużyna” bez liczebnika dotyczy drużyny na placu niezależnie od jej nazwy. Liczebnik inny niż w nazwie (domyślnie „Pierwsza drużyna”) → `E_ADDRESSEE`, poziom uwagi, werdykt „nikt nie reaguje”. Nazwisko po „szeregowego” to dowolne słowo — sprawdzenie, czy żołnierz jest w składzie, wymaga stanu (E3, `E_PRECOND_STATE`).
 - **Alternatywy:** „Drużyna” trafia tylko, gdy nazwa to „Drużyna” — sprzeczne z przykładem P-1 (✔ `Drużyna` przy „Pierwszej drużynie”).
@@ -206,8 +207,8 @@ Decyzje, które autor powinien potwierdzić lub odrzucić. Po akceptacji pozycja
 
 ## D-021 Propozycje zmian w COMMANDS.md
 
-- **Data:** 2026-10-19 · **Etap:** E1 · **Do akceptacji** (dokumentu nie zmieniano)
-- P-1, pole **Pkt**: „18a” — punkt 18 regulaminu nie ma części „a”; prawdopodobnie chodzi o pkt 18 (postawa zasadnicza). Dane katalogu na razie powielają „18a”.
+- **Data:** 2026-10-19 · **Etap:** E1 · **Zatwierdzona 2026-10-19, wprowadzona** (zmiany w `COMMANDS.md` i danych katalogu)
+- P-1, pole **Pkt**: „18a” → „18” (literówka, potwierdzona przez autora); poprawione w dokumencie i danych.
 - ZB-3, **Przykłady**: „✔ jw. · ✖ jw. na początku sesji” — proponuję wpisać tekst w cudzysłowie (test zgodności pomija pozycje bez tekstu komendy).
 - „Poza MVP”: dopisać rozejście w kierunku (pkt 70) i komendy z pojazdami (pkt 121–126) z D-017.
 - 0.1: doprecyzować myślnik w trybie ścisłym (D-013) i tolerancje trybu łagodnego (D-014).

@@ -19,7 +19,7 @@ Etapy według `SPEC.md`, sekcja 10. Każdy etap kończy się wdrożoną wersją 
 
 ### Status
 
-**✔ Ukończony.** Przechodzą `npm run lint`, `npm test` (618 testów + 40 zaplanowanych na E2–E4, zob. niżej), `npm run build` i `npm run e2e` (12 testów; lokalnie na preinstalowanym Chromium). CI na GitHubie (lint, testy, build, E2E) jest zielone, strona wdrożona przez CI.
+**✔ Ukończony, przyjęty przez autora (bramka E1: ACCEPT, 2026-10-19).** Przechodzą `npm run lint`, `npm test` (618 testów + 40 zaplanowanych na E2–E4, zob. niżej), `npm run build` i `npm run e2e` (12 testów; lokalnie na preinstalowanym Chromium). CI na GitHubie (lint, testy, build, E2E) jest zielone, strona wdrożona przez CI.
 
 Środowisko w chmurze: Node 26.12.0 doinstalowany z nodejs.org (wymagania projektu bez zmian, D-011).
 
@@ -109,6 +109,21 @@ Testy oznaczone jako `todo` nie są pominiętymi testami: to werdykty zależne o
 ### 4. Adres wdrożenia
 
 **https://wotaker.github.io/musztra/** · CI: https://github.com/Wotaker/musztra/actions
+
+### 5. Po bramce E1 (2026-10-19)
+
+- Autor zatwierdził D-013, D-014, D-016, D-017, D-019 i D-021. W trybie ścisłym nie wymagamy wyłącznie półpauzy „–” (otwarte pytanie 2 zamknięte); „18a” w P-1 to literówka → „11, 18, 69” (pytanie 1 zamknięte).
+- Poprawki z D-021 wprowadzone do `docs/COMMANDS.md` i danych katalogu; żadna nie zmienia zachowania komend. Testy zgodności objęły nowe przykłady (625 testów).
+
+### Wymóg na kolejne etapy: testy „todo” z E1
+
+Każdy z 40 testów oznaczonych jako `todo` (20 przykładów zależnych od stanu × 2 tryby zapisu, D-016) **musi stać się zwykłym testem w etapie, w którym pojawi się potrzebny stan**. Etap jest zapisany w danych katalogu (pole `stage` przykładu `inState`) i w nazwie testu:
+
+- **E2** (4 przykłady, 8 testów): Z-1 w postawie swobodnej, ZB-1 bez wezwania, ZB-3 na początku sesji, X-1 na początku sesji.
+- **E3** (6 przykładów, 12 testów): R-1 w kolumnie, R-2 w postawie swobodnej, O-1 z nazwiskiem spoza składu, O-2 bez ODSTĄP, S-1 bez odliczenia, S-1 w dwuszeregu.
+- **E4** (10 przykładów, 20 testów): Z-1 w marszu, S-4 w rzędzie, M-2 w szeregu, M-3 w biegu, M-6 stojąc, M-8 w biegu, M-9 stojąc, M-10 w szeregu, MS-1 w rzędzie, MS-2 bez odliczenia w marszu.
+
+Etap nie jest ukończony, dopóki zostają w nim testy `todo` przypisane do tego etapu.
 
 ---
 

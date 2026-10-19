@@ -21,8 +21,8 @@ HASŁO_SAMODZIELNE = "BACZNOŚĆ" | "SPOCZNIJ" | "ROZEJŚĆ SIĘ" | "WRÓĆ" ;
 ```
 
 - **Forma kanoniczna:** pierwsza litera komendy wielka; zapowiedź małymi literami (poza nazwiskami); myślnik `–` otoczony spacjami; HASŁO wielkimi literami; przecinek po adresacie, gdy następuje zapowiedź.
-- **Tryb łagodny:** dopuszcza dowolną wielkość liter, dowolny myślnik lub jego brak, brak polskich znaków, cyfry zamiast liczebników, błędną odmianę liczebnika lub nazwiska; wynik ✔ z `I_NORMALIZED` i formą kanoniczną.
-- **Tryb ścisły:** wymaga formy kanonicznej; każda rozbieżność to `E_STRICT_FORM` (odmiana: `E_GRAMMAR_AGREEMENT`).
+- **Tryb łagodny:** dopuszcza dowolną wielkość liter, dowolny myślnik lub jego brak, przecinek zamiast myślnika i odwrotnie, brak przecinka lub zbędny przecinek, brak polskich znaków, cyfry zamiast liczebników, błędną odmianę liczebnika, nazwy obiektu lub nazwiska, „jeden krok” zamiast „krok”, kropkę lub wykrzyknik na końcu; wynik ✔ z `I_NORMALIZED` i formą kanoniczną. Samo `STÓJ`: zob. M-8.
+- **Tryb ścisły:** wymaga formy kanonicznej; każda rozbieżność to `E_STRICT_FORM` (odmiana: `E_GRAMMAR_AGREEMENT`). Myślnik może być dowolnym znakiem (`-`, `–`, `—`), ale zawsze otoczonym spacjami; forma kanoniczna jest wyświetlana z `–`.
 - **Adresat** jest opcjonalny (na placu jest jedna drużyna). Adresat wskazujący inny pododdział: `E_ADDRESSEE`, nikt nie reaguje.
 
 ### 0.2 Reguła BACZNOŚĆ (pkt 11)
@@ -50,7 +50,7 @@ Skróty stanu: *rozwinięty* = szereg lub dwuszereg; *marszowy* = rząd lub kolu
 
 ### P-1 Wezwanie
 - **Składnia:** `Pierwsza drużyna` (sam adresat, bez hasła)
-- **Pkt:** 11, 18a, 69
+- **Pkt:** 11, 18, 69
 - **Warunki:** brak (dowolny stan).
 - **Efekt:** drużyna rozproszona: żołnierze zatrzymują się, zwracają frontem do dowódcy, przyjmują postawę zasadniczą; drużyna oznaczona jako „uważna” (`attending`), co uprawnia do zbiórki bez adresata. Drużyna w szyku: postawa zasadnicza. W marszu: bez zmian (uwaga `W_NO_EFFECT`).
 - **Przykłady:** ✔ `Pierwsza drużyna` · ✔ `Drużyna` · ✖ `Druga drużyna` (gdy na placu jest pierwsza) → `E_ADDRESSEE`
@@ -133,7 +133,7 @@ Wspólne dla ZB-1…ZB-3:
 - **Pkt:** 69
 - **Warunki:** zapisane miejsce poprzedniej zbiórki → inaczej `E_PRECOND_STATE`.
 - **Efekt:** jak ZB-2 z zapisanym punktem zaczepienia i frontem; szyk z bieżącej komendy (może różnić się od poprzedniego).
-- **Przykłady:** ✔ jw. · ✖ jw. na początku sesji → `E_PRECOND_STATE`
+- **Przykłady:** ✔ `Pierwsza drużyna, w dwuszeregu, na poprzednim miejscu – ZBIÓRKA` · ✖ `Pierwsza drużyna, w dwuszeregu, na poprzednim miejscu – ZBIÓRKA` na początku sesji → `E_PRECOND_STATE`
 
 ### ZB-4 Rozejście
 - **Składnia:** `ROZEJŚĆ SIĘ` · `Drużyna – ROZEJŚĆ SIĘ` · `Do koszar – ROZEJŚĆ SIĘ` · `Do koszar, biegiem – ROZEJŚĆ SIĘ` (regulamin zapisuje „(biegiem)” w nawiasie)
@@ -151,7 +151,7 @@ Wspólne dla ZB-1…ZB-3:
 - **Pkt:** 71
 - **Warunki:** rozwinięty; stoi; zasadnicza.
 - **Efekt:** wszyscy oprócz skrzydłowego (prawego / lewego) zwracają głowy w nakazaną stronę; pozycje korygowane do regulaminowych względem tego skrzydłowego; `irregularSpacing` czyszczone; `headTurned` ustawione. **Dopóki głowy są zwrócone,** dozwolone tylko BACZNOŚĆ, WRÓĆ i ROZEJŚĆ SIĘ; inne komendy → `E_PRECOND_STATE` („po wyrównaniu podaj BACZNOŚĆ”, pkt 71).
-- **Przykłady:** ✔ `Równaj – W PRAWO` · ✖ `Równaj w prawo – ZWROT` → `E_SYNTAX_EXPECTED` · ✖ w kolumnie → `E_PRECOND_FORMATION` (w kolumnie żołnierze kryją, nie równają)
+- **Przykłady:** ✔ `Równaj – W PRAWO` · ✖ `Równaj w prawo – ZWROT` → `E_SYNTAX_EXPECTED` (w trybie łagodnym „Równaj w prawo” to już pełna komenda, „– ZWROT” jest zbędne) · ✖ w kolumnie → `E_PRECOND_FORMATION` (w kolumnie żołnierze kryją, nie równają)
 
 ### R-2 Odliczanie
 - **Składnia:** `Kolejno – ODLICZ` · `Do dwóch (trzech, … dziesięciu) – ODLICZ` · z adresatem: `Drużyna, kolejno – ODLICZ`
@@ -345,7 +345,8 @@ Gramatyka rozpoznaje te komendy i zwraca `E_OUT_OF_SCOPE` z numerem punktu, żeb
 | `Lewa – WOLNA`, `ŚPIEW`, `DOŚĆ` | 103–104 |
 | `Funkcjami – OZNAJMIJ` | 72 |
 | zbiórka w marszu (`…, za mną, w marszu – ZBIÓRKA`) | 69 |
-| komendy plutonu, kompanii, batalionu, z pojazdami | 78–130 |
+| rozejście we wskazanym kierunku: `Od czoła, w prawo – ROZEJŚĆ SIĘ`, `W tył – ROZEJŚĆ SIĘ` | 70 |
+| komendy plutonu, kompanii, batalionu; z pojazdami: `DO POJAZDÓW`, `Z POJAZDÓW`, `Silniki – W RUCH` | 78–130 |
 
 ---
 

@@ -31,7 +31,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
     pattern: 'Pierwsza drużyna',
     forms: ['Pierwsza drużyna', 'Drużyna'],
     executives: [],
-    points: ['11', '18a', '69'],
+    points: ['11', '18', '69'],
     quote:
       'Na zapowiedź komendy, np.: „Pierwsza drużyna”, lub na komendę „BACZNOŚĆ” żołnierze zwracają się frontem do dowódcy i przyjmują postawę zasadniczą.',
     description: 'Sam adresat, bez hasła: zwraca uwagę drużyny przed kolejną komendą.',
