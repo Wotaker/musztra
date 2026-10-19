@@ -6,7 +6,13 @@ Decyzje podjęte tam, gdzie `SPEC.md`, `COMMANDS.md` i regulamin milczą lub są
 
 Decyzje, które autor powinien potwierdzić lub odrzucić. Po akceptacji pozycja przechodzi do sekcji „Zatwierdzone” (wpis w dzienniku zostaje).
 
-Brak pozycji oczekujących.
+| Decyzja | Czego dotyczy | Etap |
+|---|---|---|
+| [D-013](#d-013-myślnik-w-trybie-ścisłym) | tryb ścisły przyjmuje każdy znak myślnika („-”, „–”, „—”), byle otoczony spacjami | E1 |
+| [D-014](#d-014-co-wybacza-tryb-łagodny) | zakres tolerancji trybu łagodnego (m.in. kropka na końcu, „jeden krok”, zbędny przecinek) | E1 |
+| [D-017](#d-017-komendy-spoza-mvp) | lista komend rozpoznawanych jako „poza MVP”, w tym kilka spoza tabeli w COMMANDS.md | E1 |
+| [D-019](#d-019-adresat-i-nazwiska) | „Drużyna” bez liczebnika trafia zawsze; „Szeregowy X, …” to musztra indywidualna (poza MVP) | E1 |
+| [D-021](#d-021-propozycje-zmian-w-commandsmd) | propozycje drobnych poprawek w `COMMANDS.md` | E1 |
 
 ## Zatwierdzone
 
@@ -109,3 +115,100 @@ Brak pozycji oczekujących.
 - **Kontekst:** SPEC 8.3 wymaga CSP ograniczającej połączenia do `api.anthropic.com`. W E0 aplikacja nie łączy się z niczym, a CSP w `index.html` blokowałaby skrypty wstrzykiwane przez serwer deweloperski Vite.
 - **Decyzja:** CSP zostanie dodana w E6, razem z klientem API.
 - **Alternatywy:** CSP od razu, tylko w buildzie produkcyjnym — odłożone, bo bez połączeń sieciowych nic by nie chroniła.
+
+## D-011 Zależność `ohm-js`
+
+- **Data:** 2026-10-19 · **Etap:** E1
+- **Kontekst:** SPEC 4.1 wybiera Ohm.js do gramatyki; D-002 zapowiadało dodanie w E1.
+- **Decyzja:** `ohm-js` 17.5 jako zależność uruchomieniowa (gramatyka działa w przeglądarce). Bez innych nowych zależności. W chmurze doinstalowano Node 26.12.0 z nodejs.org — wymagania projektu (D-001) bez zmian.
+- **Alternatywy:** własny parser — sprzeczny ze SPEC 4.1.
+
+## D-012 Budowa gramatyki
+
+- **Data:** 2026-10-19 · **Etap:** E1
+- **Kontekst:** Tryb łagodny wymaga dopuszczenia dowolnej wielkości liter, braku polskich znaków i myślnika, a tryb ścisły — wskazania każdej rozbieżności. Listy obiektów, liczebników i nazwisk mają mieć jedno źródło (CLAUDE.md).
+- **Decyzja:**
+  - Gramatyka `musztra.ohm` działa na **postaci złożonej** tekstu: małe litery, bez znaków diakrytycznych, każde słowo i znak z jedną spacją na końcu. Literały w pliku gramatyki są zapisane czytelnie, w formie kanonicznej (z polskimi znakami, hasła wielkimi literami) i zamieniane przy wczytaniu. Dzięki spacji na końcu literał dopasowuje się zawsze do całych słów.
+  - `Exec<…>` oznacza HASŁO; `Sep` to miejsce przecinka lub myślnika (oba przyjmowane, także brak); `Gap` — miejsce bez znaku w formie kanonicznej, gdzie zbędny przecinek jest przyjmowany i usuwany.
+  - Słownictwo (obiekty terenowe w mianowniku i dopełniaczu, liczebniki, liczebniki porządkowe, nazwy wyższych pododdziałów) to gramatyka `MusztraLexicon` **generowana z danych katalogu**. Nazwisko to dowolne słowo; znane nazwiska są odmieniane wg danych składu (COMMANDS, „Skład osobowy”), nieznane zostają jak wpisane.
+  - Forma kanoniczna powstaje z drzewa składni: wielkość liter wynika z roli słowa (hasło — wielkie, nazwisko — z wielkiej, reszta małe, pierwsza litera komendy wielka), separator przed hasłem to myślnik, w pozostałych miejscach przecinek.
+  - Kontrola formy porównuje każde wpisane słowo i każdy separator z formą kanoniczną; każda rozbieżność to osobny komunikat z zaznaczonym fragmentem. Błędna odmiana (inne słowo po złożeniu) → `E_GRAMMAR_AGREEMENT`, pozostałe → `E_STRICT_FORM`.
+  - Każda alternatywa reguły `Command` kończy się na `end`, więc kolejność alternatyw nie wpływa na rozbiór poprawnych komend.
+  - Testy: każda reguła gramatyki (z alternatywami nazwanymi i słownictwem) pokryta przykładem z katalogu; słownik pisowni bez niejednoznaczności; każdy wariant z pola `forms` przechodzi tryb ścisły bez zmian.
+- **Alternatywy:** gramatyka z wariantami pisowni wpisanymi ręcznie (bez polskich znaków, wielkości liter) — wielokrotnie dłuższa i łatwa do rozspójnienia z katalogiem.
+
+## D-013 Myślnik w trybie ścisłym
+
+- **Data:** 2026-10-19 · **Etap:** E1 · **Do akceptacji**
+- **Kontekst:** COMMANDS 0.1 podaje formę kanoniczną z myślnikiem „–” otoczonym spacjami. Na klawiaturze jest tylko „-”, a sam regulamin zapisuje komendy raz z „-”, raz z „—” (np. pkt 29, 30, 36).
+- **Decyzja:** tryb ścisły przyjmuje każdy znak myślnika (`-`, `–`, `—`), ale wymaga spacji po obu stronach i myślnika tylko przed hasłem. Forma kanoniczna jest zawsze wyświetlana z „–”.
+- **Alternatywy:** wymaganie wyłącznie „–” — zgodne z dosłownym brzmieniem COMMANDS 0.1, ale tryb ścisły byłby niewygodny i nie uczyłby niczego, czego wymaga regulamin.
+
+## D-014 Co wybacza tryb łagodny
+
+- **Data:** 2026-10-19 · **Etap:** E1 · **Do akceptacji**
+- **Kontekst:** COMMANDS 0.1 wylicza tolerancje trybu łagodnego; kilka przypadków nie jest wymienionych.
+- **Decyzja:** tryb łagodny przyjmuje (z `I_NORMALIZED` i listą poprawek), a ścisły odrzuca:
+  - wielkość liter, brak polskich znaków, dowolny myślnik lub jego brak, przecinek zamiast myślnika i odwrotnie, brak przecinka;
+  - cyfry zamiast liczebników (`5 kroków`, `Do 3`), błędną odmianę liczebnika, nazwy obiektu i znanego nazwiska (`pięć kroki`, `Do dwa`, `maszt`, `Nowak`);
+  - zbędny przecinek tam, gdzie forma kanoniczna go nie ma (`Do szeregowego Stępnia, w lewo – ŁĄCZ`);
+  - `jeden krok` (kanonicznie „krok”), kropkę lub wykrzyknik na końcu.
+  - Samo `STÓJ`: łagodny wykonuje z uwagą `W_MISSING_ADDRESSEE` (I-16), ścisły odrzuca (`E_STRICT_FORM`).
+  - Nie są przyjmowane słowa spoza gramatyki, np. „w szereg” zamiast „w szeregu” (COMMANDS ZB-1: `E_SYNTAX_EXPECTED`).
+- **Alternatywy:** węższa tolerancja (np. bez kropki na końcu) — wpisanie „BACZNOŚĆ!” to naturalny odruch, a tryb łagodny ma uczyć formy, nie karać.
+
+## D-015 Klasyfikacja błędów składni
+
+- **Data:** 2026-10-19 · **Etap:** E1
+- **Kontekst:** SPEC 4.4 rozróżnia `E_SYNTAX_UNKNOWN`, `E_SYNTAX_EXPECTED`, `E_SYNTAX_INCOMPLETE`, nie mówi, jak je odróżnić ani które miejsce wskazać.
+- **Decyzja:** diagnoza „prowadzona hasłem”:
+  1. tekst urywa się, a gramatyka oczekuje dalszego ciągu → `E_SYNTAX_INCOMPLETE` (np. `W prawo`);
+  2. jeśli na końcu jest rozpoznane HASŁO, a zapowiedź pasuje do innej komendy, której brakuje tylko właściwego hasła → `E_SYNTAX_EXPECTED` na haśle (np. `W prawo – MARSZ` → oczekiwano ZWROT);
+  3. w przeciwnym razie błędu szukamy w zapowiedziach komend z tym hasłem: brak całej zapowiedzi → `E_SYNTAX_INCOMPLETE` (np. samo `ZBIÓRKA`), błędne słowo → `E_SYNTAX_EXPECTED` na tym słowie z listą możliwych (np. `w szereg` → „w szeregu”, „w dwuszeregu”…);
+  4. nic nie pasuje od pierwszego słowa → `E_SYNTAX_UNKNOWN`.
+  Punkty regulaminu w komunikacie: komendy, której dotyczy błąd; bez rozpoznanej komendy — pkt 10 (budowa komendy). Propozycje „czy chodziło o” (odległość edycyjna) zostają na E5 zgodnie ze SPEC 10.
+- **Alternatywy:** sam komunikat Ohm („najdalsze miejsce błędu”) — przy „Pierwsza drużyna, w szereg – ZBIÓRKA” wskazywał hasło zamiast „w szereg”.
+
+## D-016 Przykłady zależne od stanu i reguły bez stanu w E1
+
+- **Data:** 2026-10-19 · **Etap:** E1
+- **Kontekst:** Wiele przykładów ✖ w COMMANDS.md zależy od stanu drużyny (postawa, szyk, ruch), którego w E1 jeszcze nie ma.
+- **Decyzja:** takie przykłady są w danych katalogu z opisem stanu i etapem (`inState`). W E1 test generowany sprawdza, że tekst jest rozpoznaną, poprawną komendą właściwego wpisu, a sam werdykt zależny od stanu jest zapisany jako test „do zrobienia” (`it.todo`) z numerem etapu — 40 takich pozycji (20 przykładów × 2 tryby), widocznych w wyniku `npm test`. Reguły niezależne od stanu działają już w E1: zbiórka „prawe skrzydło/czoło” niezgodne z szykiem (`E_PRECOND_FORMATION`, S16), przesunięcie w tył o więcej niż krok i w bok (`E_RULE`, pkt 74), adresat (`E_ADDRESSEE`, S20), komendy spoza MVP (S21).
+- **Alternatywy:** pominięcie tych przykładów do E2 — gorzej, bo zgodność danych z dokumentem nie byłaby sprawdzana.
+
+## D-017 Komendy spoza MVP
+
+- **Data:** 2026-10-19 · **Etap:** E1 · **Do akceptacji**
+- **Kontekst:** COMMANDS „Poza MVP” podaje przykłady i zakresy punktów; S21 wymaga wskazania konkretnego punktu (34).
+- **Decyzja:** 20 wpisów `N-1…N-20` z punktami dla każdej komendy (np. „Przez pierś – BROŃ” pkt 34, „Na pas – BROŃ” pkt 36, „Połóż – BROŃ” pkt 42, 109). Poza tabelą COMMANDS dodane: „Przez plecy”, „Do nogi”, „Bagnet”, kolba i zabezpieczenie broni, dowolny inny chwyt „… – BROŃ” (pkt 31–47), rozejście w kierunku („Od czoła, w prawo – ROZEJŚĆ SIĘ”, „W tył – ROZEJŚĆ SIĘ”, pkt 70, backlog SPEC 2.2 p. 5), musztra z pojazdami („DO POJAZDÓW”, „Z POJAZDÓW”, „Silniki – W RUCH”), dowolna komenda z adresatem „Szeregowy …” (musztra indywidualna, pkt 57–59). Komenda do plutonu, kompanii, batalionu, brygady → poza MVP (pkt 78–99), nie `E_ADDRESSEE`.
+- **Alternatywy:** tylko przykłady z tabeli — użytkownik dostawałby „nie rozpoznano” przy prawdziwych komendach regulaminowych.
+
+## D-018 Punkty regulaminu jako tekst
+
+- **Data:** 2026-10-19 · **Etap:** E1
+- **Kontekst:** COMMANDS podaje punkty w postaci „18a”, „25b” i zakresów.
+- **Decyzja:** punkty są w danych tekstem (`'18a'`, `'31–47'`), dokładnie jak w dokumencie; test zgodności porównuje je z `COMMANDS.md`. Do promptu LLM (E6, `regulationPoints: number[]`) zostaną zamienione na liczby.
+- **Alternatywy:** liczby — gubią „18a” i zakresy.
+
+## D-019 Adresat i nazwiska
+
+- **Data:** 2026-10-19 · **Etap:** E1 · **Do akceptacji**
+- **Kontekst:** COMMANDS 0.1: adresat zgodny z ustawieniem nazwy; I-10.
+- **Decyzja:** „Drużyna” bez liczebnika dotyczy drużyny na placu niezależnie od jej nazwy. Liczebnik inny niż w nazwie (domyślnie „Pierwsza drużyna”) → `E_ADDRESSEE`, poziom uwagi, werdykt „nikt nie reaguje”. Nazwisko po „szeregowego” to dowolne słowo — sprawdzenie, czy żołnierz jest w składzie, wymaga stanu (E3, `E_PRECOND_STATE`).
+- **Alternatywy:** „Drużyna” trafia tylko, gdy nazwa to „Drużyna” — sprzeczne z przykładem P-1 (✔ `Drużyna` przy „Pierwszej drużynie”).
+
+## D-020 Wiersz poleceń w E1
+
+- **Data:** 2026-10-19 · **Etap:** E1
+- **Kontekst:** SPEC 10 (E1): „prosty wiersz poleceń z informacją zwrotną (bez symulacji)”; pełne ustawienia to E5.
+- **Decyzja:** wiersz poleceń u dołu ekranu z panelem informacji zwrotnej nad nim (układ SPEC 3.1): ikona i tytuł wg rodzaju wyniku, rozpoznany wpis katalogu z punktami (cytat po najechaniu), forma kanoniczna, komunikaty z punktem regulaminu i kodem, lista poprawek normalizacji, przycisk „Użyj” w trybie ścisłym. Błędny fragment podkreślony falistą linią w samym wierszu; po błędzie tekst zostaje do poprawy, po przyjęciu wiersz się czyści. Historia ↑/↓. Przełącznik trybu zapisu (łagodny/ścisły) obok wiersza, zapamiętany w przeglądarce — tymczasowo, do panelu ustawień w E5. Kolorowanie składni na żywo i podpowiedzi — E5.
+- **Alternatywy:** przełącznik trybu dopiero w E5 — autor nie mógłby sprawdzić trybu ścisłego w E1.
+
+## D-021 Propozycje zmian w COMMANDS.md
+
+- **Data:** 2026-10-19 · **Etap:** E1 · **Do akceptacji** (dokumentu nie zmieniano)
+- P-1, pole **Pkt**: „18a” — punkt 18 regulaminu nie ma części „a”; prawdopodobnie chodzi o pkt 18 (postawa zasadnicza). Dane katalogu na razie powielają „18a”.
+- ZB-3, **Przykłady**: „✔ jw. · ✖ jw. na początku sesji” — proponuję wpisać tekst w cudzysłowie (test zgodności pomija pozycje bez tekstu komendy).
+- „Poza MVP”: dopisać rozejście w kierunku (pkt 70) i komendy z pojazdami (pkt 121–126) z D-017.
+- 0.1: doprecyzować myślnik w trybie ścisłym (D-013) i tolerancje trybu łagodnego (D-014).
+- R-1, **Przykłady**: `Równaj w prawo – ZWROT` w trybie łagodnym jest rozbierane jako pełna komenda „Równaj – W PRAWO” z nadmiarowym „– ZWROT”; kod `E_SYNTAX_EXPECTED` się zgadza, ale komunikat brzmi „zbędny dalszy ciąg”.

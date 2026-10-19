@@ -5,7 +5,7 @@ Etapy według `SPEC.md`, sekcja 10. Każdy etap kończy się wdrożoną wersją 
 | Etap | Stan | Data ukończenia |
 |---|---|---|
 | E0 Szkielet | ✔ ukończony | 2026-10-19 |
-| E1 Interpreter | w toku | |
+| E1 Interpreter | ✔ ukończony | 2026-10-19 |
 | E2 Stan i obraz | — | |
 | E3 Szyki w miejscu | — | |
 | E4 Ruch | — | |
@@ -15,17 +15,100 @@ Etapy według `SPEC.md`, sekcja 10. Każdy etap kończy się wdrożoną wersją 
 
 ---
 
-## E1 Interpreter — stan prac (wznawianie)
+## E1 Interpreter — podsumowanie (2026-10-19)
 
-- [x] Katalog jako dane: `src/core/catalog` (komendy MVP, poza MVP, słownictwo), `src/core/roster/names.ts`.
-- [x] Gramatyka `src/core/grammar/musztra.ohm` + słownictwo generowane z katalogu (`parse.ts`).
-- [x] Normalizacja (`normalize.ts`), forma kanoniczna i kontrola formy (`form.ts`), reguły bez stanu (`semantics/static.ts`), potok (`interpreter.ts`).
-- [x] Testy: przykłady z katalogu w obu trybach, zgodność z `COMMANDS.md`, pokrycie gramatyki.
-- [ ] Testy normalizacji, diagnoz błędów i scenariuszy S16, S19–S21; wydajność.
-- [ ] Wiersz poleceń z informacją zwrotną (UI) + E2E.
-- [ ] `DECISIONS.md`, podsumowanie etapu.
+### Status
 
-Środowisko w chmurze: Node 26.12.0 doinstalowany z nodejs.org (`/opt/node26`, dowiązania w `/root/.local/bin`). E2E lokalnie: konfiguracja w katalogu tymczasowym z `executablePath` do preinstalowanego Chromium; rozstrzyga CI.
+**✔ Ukończony.** Przechodzą `npm run lint`, `npm test` (618 testów + 40 zaplanowanych na E2–E4, zob. niżej), `npm run build` i `npm run e2e` (12 testów; lokalnie na preinstalowanym Chromium). CI na GitHubie (lint, testy, build, E2E) jest zielone, strona wdrożona przez CI.
+
+Środowisko w chmurze: Node 26.12.0 doinstalowany z nodejs.org (wymagania projektu bez zmian, D-011).
+
+### 1. Co działa
+
+- Na dole ekranu jest **wiersz poleceń** (od razu z kursorem). Wpisujesz komendę i naciskasz Enter.
+- Interpreter rozpoznaje **każdą komendę z katalogu MVP** (31 komend: postawy, zwroty, zbiórki, rozejście, równanie, odliczanie, odstępowanie i łączenie, zmiany szyku, przesunięcie, zachodzenie, marsz, bieg, zatrzymania, zmiany kierunku, WRÓĆ) oraz rozpoznaje — i oznacza jako „jeszcze nieobsługiwane” — ok. 40 komend regulaminu spoza MVP (chwyty bronią, honory, wywołanie z szyku, śpiew, pluton/kompania, pojazdy…), z numerem punktu.
+- Nad wierszem pojawia się **panel informacji zwrotnej**:
+  - ✔ zielony „Komenda poprawna” — z nazwą komendy, jej numerem w katalogu i punktami regulaminu (najedź myszą — zobaczysz cytat z regulaminu), formą kanoniczną i krótkim opisem;
+  - ✖ czerwony błąd — tytuł mówi, jaki to błąd (składni, formy w trybie ścisłym, sprzeczność z regulaminem), każdy komunikat ma punkt regulaminu i kod; **błędny fragment jest podkreślony falistą linią w samym wierszu**, a tekst zostaje do poprawienia;
+  - ⚠ żółty „Nikt nie reaguje” — komenda do innej drużyny niż ta na placu; ⚠ także przy „STÓJ” bez adresata;
+  - ℹ niebieski — komenda z regulaminu spoza zakresu symulatora.
+- **Dwa tryby zapisu**, przełącznik „Łagodny | Ścisły” po prawej stronie wiersza (zapamiętywany w przeglądarce; pełne ustawienia przyjdą w E5):
+  - łagodny przyjmuje małe/wielkie litery, brak polskich znaków, brak lub inny myślnik, brak przecinków, cyfry zamiast liczebników, błędną odmianę — i pokazuje „Zapisano jako: …” z listą poprawek;
+  - ścisły wymaga formy kanonicznej i każdą rozbieżność pokazuje osobno, z podkreśleniem i przyciskiem **„Użyj: …”**, który wstawia poprawną komendę.
+- **Historia komend**: strzałka ↑ przywraca poprzednie komendy, ↓ wraca.
+- Drużyna na placu jeszcze się nie rusza — wykonanie komend to etap E2 (panel o tym przypomina).
+
+### 2. Lista kontrolna do ręcznego sprawdzenia w przeglądarce
+
+Otwórz **https://wotaker.github.io/musztra/**. Każdą komendę wpisz i zatwierdź Enterem. Kod komunikatu jest w panelu drobnym pismem.
+
+**A. Tryb łagodny** (domyślny; przycisk „Łagodny” podświetlony na oliwkowo)
+
+1. `Pierwsza drużyna, w szeregu – ZBIÓRKA` → ✔ „Komenda poprawna”, po prawej „ZB-1 · Zbiórka przy dowódcy · pkt 69”, „Forma kanoniczna: Pierwsza drużyna, w szeregu – ZBIÓRKA”; wiersz się czyści.
+2. `pierwsza druzyna w dwuszeregu zbiorka` → ✔, „Zapisano jako: **Pierwsza drużyna, w dwuszeregu – ZBIÓRKA**” i lista poprawek (wielka litera, polskie znaki „drużyna”, brak przecinka, brak myślnika przed hasłem, hasło wielkimi literami, polskie znaki „ZBIÓRKA”), kod `I_NORMALIZED`.
+3. `w prawo zwrot` → ✔, „Zapisano jako: W prawo – ZWROT”, trzy poprawki.
+4. `Od prawoskrzydłowego, 5 kroków – ODSTĄP` → ✔, „Zapisano jako: Od prawoskrzydłowego, pięć kroków – ODSTĄP”, poprawka „Liczebnik słownie: „pięć” zamiast „5””.
+5. `Do dwa – ODLICZ` → ✔, „Zapisano jako: Do dwóch – ODLICZ”, poprawka „Odmiana: „dwóch” zamiast „dwa””.
+6. `STÓJ` → ⚠ „Komenda poprawna, z uwagą”: „Regulamin podaje zatrzymanie z adresatem: „Drużyna – STÓJ”.”, pkt 100, `W_MISSING_ADDRESSEE`.
+7. `Druga drużyna – BACZNOŚĆ` → ⚠ „Nikt nie reaguje”: „Na placu jest „Pierwsza drużyna”, a komenda jest do „Druga drużyna” — nikt nie reaguje.”, `E_ADDRESSEE`.
+8. `Przez pierś – BROŃ` → ℹ „Komenda spoza zakresu symulatora”: „To komenda z regulaminu (Przez pierś – BROŃ, pkt 34), ale symulator jej jeszcze nie obsługuje…”, `E_OUT_OF_SCOPE`.
+9. `W prawo – MARSZ` → ✖ „Błąd składni”: „W miejscu „MARSZ” oczekiwano: „ZWROT”.”, pkt 22, 76, 83; słowo **MARSZ** podkreślone, tekst zostaje w wierszu.
+10. `Pierwsza drużyna, w szereg – ZBIÓRKA` → ✖ „Błąd składni”: „W miejscu „w szereg” oczekiwano: „w szeregu”, „w dwuszeregu”, „w rzędzie” albo „w kolumnie dwójkowej”.”, pkt 69; podkreślone **w szereg**.
+11. `ZBIÓRKA` → ✖ „Przed hasłem „ZBIÓRKA” brakuje części zapowiedzi. Oczekiwano: „w szeregu”, …”, `E_SYNTAX_INCOMPLETE`.
+12. `Drużyna, w dwuszeregu, prawe skrzydło na wysokości lotniska – ZBIÓRKA` → ✖ „W miejscu „lotniska” oczekiwano: nazwa obiektu (masztu, trybuny, koszar, garaży, hangaru, magazynu).”; podkreślone **lotniska**.
+13. `Do jednego – ODLICZ` → ✖ „W miejscu „jednego” oczekiwano: liczebnik w dopełniaczu (dwóch, trzech, …).”, pkt 72, 76, 77.
+14. `Drużyna, trzy kroki w tył – MARSZ` → ✖ „Komenda sprzeczna z regulaminem”: „Szyk przesuwa się w tył najwyżej o krok. Aby przesunąć go dalej, najpierw „W tył – ZWROT”, potem przesunięcie na wprost.”, pkt 74, `E_RULE`.
+15. `Drużyna, w szeregu, czoło na wysokości masztu – ZBIÓRKA` → ✖ „Komenda niewykonalna”: „„Czoło” dotyczy kolumny (rząd, kolumna dwójkowa)…”, pkt 69, `E_PRECOND_FORMATION`.
+16. `zrób coś` → ✖ „Nie rozpoznano komendy. Komenda składa się z zapowiedzi i hasła, np. „W prawo – ZWROT”…”, pkt 10, `E_SYNTAX_UNKNOWN`; podkreślony cały tekst.
+
+**B. Tryb ścisły** (kliknij „Ścisły”; kursor zostaje w wierszu)
+
+17. `Pierwsza drużyna, w szeregu – ZBIÓRKA` → ✔ jak w p. 1.
+18. `W prawo - ZWROT` (zwykły minus z klawiatury, ze spacjami) → ✔, „Forma kanoniczna: W prawo – ZWROT” (decyzja D-013).
+19. `w prawo zwrot` → ✖ „Niezgodność z formą kanoniczną (tryb ścisły)”, trzy komunikaty `E_STRICT_FORM`: „Komenda zaczyna się wielką literą: „W”.”, „Brak myślnika przed hasłem: „prawo – ZWROT”.”, „Hasło wielkimi literami: „ZWROT”.”; podkreślone „w”, odstęp przed „zwrot” i „zwrot”. Kliknij **„Użyj: W prawo – ZWROT”** → w wierszu pojawia się poprawna komenda, podkreślenia znikają; Enter → ✔.
+20. `Baczność` → ✖ „Hasło wielkimi literami: „BACZNOŚĆ”.”
+21. `Drużyna, spocznij` → ✖ „Przed hasłem myślnik, nie przecinek: „Drużyna – SPOCZNIJ”.” oraz „Hasło wielkimi literami: „SPOCZNIJ”.”
+22. `W prawo–ZWROT` (myślnik bez spacji) → ✖ „Myślnik otoczony spacjami: „prawo – ZWROT”.”
+23. `Do dwa – ODLICZ` → ✖ `E_GRAMMAR_AGREEMENT`: „Odmiana: „dwóch” zamiast „dwa”.”; podkreślone „dwa”.
+24. `Od prawoskrzydłowego, 5 kroków – ODSTĄP` → ✖ „Liczebnik słownie: „pięć” zamiast „5”.”
+25. `STÓJ` → ✖ „Brak adresata: regulamin podaje „Drużyna – STÓJ” (pkt 100).”
+26. `pierwsza druzyna w dwuszeregu zbiorka` → ✖ sześć osobnych komunikatów (jak lista poprawek z p. 2), przycisk „Użyj: Pierwsza drużyna, w dwuszeregu – ZBIÓRKA”.
+27. `Druga drużyna – BACZNOŚĆ`, `Przez pierś – BROŃ`, `W prawo – MARSZ` → te same wyniki co w p. 7, 8, 9 (tryb nie ma na nie wpływu).
+
+**C. Pozostałe**
+
+28. Naciśnij ↑ kilka razy → wracają poprzednie komendy (od najnowszej); ↓ przewija z powrotem aż do pustego wiersza.
+29. Odśwież stronę (F5) w trybie ścisłym → przełącznik nadal na „Ścisły”.
+30. Najedź myszą na „ZB-1 · Zbiórka przy dowódcy · pkt 69” w panelu → dymek z cytatem z pkt 69 regulaminu.
+
+### 3. Decyzje i otwarte pytania
+
+Decyzje (szczegóły w `docs/DECISIONS.md`):
+
+- D-011 Zależność `ohm-js` (SPEC 4.1); Node 26 doinstalowany w chmurze.
+- D-012 Budowa gramatyki: postać złożona tekstu, słownictwo generowane z danych katalogu, forma kanoniczna z drzewa składni.
+- D-013 Tryb ścisły przyjmuje każdy znak myślnika ze spacjami — **do akceptacji**.
+- D-014 Zakres tolerancji trybu łagodnego (m.in. kropka/wykrzyknik na końcu, „jeden krok”, zbędny przecinek) — **do akceptacji**.
+- D-015 Rozróżnianie błędów składni i wskazywanie miejsca błędu („diagnoza prowadzona hasłem”).
+- D-016 Przykłady zależne od stanu: w E1 sprawdzane jako rozpoznane komendy; werdykt (np. `E_PRECOND_POSTURE`) — 40 testów zaplanowanych (`todo`) na E2–E4. Reguły bez stanu (S16, S19–S21, `E_RULE` z pkt 74) działają już teraz.
+- D-017 Lista komend spoza MVP, szersza niż tabela w COMMANDS.md — **do akceptacji**.
+- D-018 Punkty regulaminu zapisane tekstem („18a”, „31–47”).
+- D-019 „Drużyna” bez liczebnika zawsze trafia; „Szeregowy X, …” to musztra indywidualna (poza MVP) — **do akceptacji**.
+- D-020 Wygląd i zachowanie wiersza poleceń w E1 (przełącznik trybu tymczasowo przy wierszu).
+- D-021 Propozycje drobnych zmian w `COMMANDS.md` — **do akceptacji**.
+
+Otwarte pytania:
+
+- P-1 ma w polu „Pkt” wartość „18a” — w regulaminie pkt 18 nie ma części „a”. Czy chodzi o pkt 18? (D-021)
+- Czy w trybie ścisłym wymagać wyłącznie półpauzy „–”? (D-013; obecnie wystarczy „-” ze spacjami.)
+
+Propozycje zmian w `SPEC.md` / `COMMANDS.md`: zob. D-021 (dokumentów nie zmieniano).
+
+Testy oznaczone jako `todo` nie są pominiętymi testami: to werdykty zależne od stanu drużyny, których w E1 nie da się sprawdzić; staną się zwykłymi testami w etapach E2–E4.
+
+### 4. Adres wdrożenia
+
+**https://wotaker.github.io/musztra/** · CI: https://github.com/Wotaker/musztra/actions
 
 ---
 

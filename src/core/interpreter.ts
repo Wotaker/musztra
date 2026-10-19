@@ -146,7 +146,9 @@ export function interpret(input: string, options: InterpreterOptions = DEFAULT_O
       ...known,
       verdict: 'rejected',
       suggestion: canonical,
-      diagnostics: issues.map((issue) => diagnostic(issue.code, issue.message, issue.span, ['10'])),
+      diagnostics: issues.map((issue) =>
+        diagnostic(issue.code, issue.message, issue.span, issue.kind === 'missing-addressee' ? ['100'] : ['10']),
+      ),
     };
   }
 
