@@ -4,7 +4,7 @@ Etapy według `SPEC.md`, sekcja 10. Każdy etap kończy się wdrożoną wersją 
 
 | Etap | Stan | Data ukończenia |
 |---|---|---|
-| E0 Szkielet | ✔ ukończony | 2026-10-19 |
+| E0 Szkielet | ✔ ukończony poza potwierdzeniem wdrożenia (awaria GitHuba) | 2026-10-19 |
 | E1 Interpreter | — | |
 | E2 Stan i obraz | — | |
 | E3 Szyki w miejscu | — | |
@@ -16,6 +16,22 @@ Etapy według `SPEC.md`, sekcja 10. Każdy etap kończy się wdrożoną wersją 
 ---
 
 ## E0 Szkielet — podsumowanie (2026-10-19)
+
+### Status
+
+**Ukończony poza potwierdzeniem wdrożenia.** Potwierdzimy je po zakończeniu awarii GitHuba.
+
+- Lokalnie przechodzą `npm run lint`, `npm test` (14 testów), `npm run build`, `npm run e2e` (3 testy).
+- W CI (przebieg #2, https://github.com/Wotaker/musztra/actions/runs/39281068485) zadanie „Lint, testy, build, E2E” jest zielone.
+- Strona jest już publicznie dostępna pod https://wotaker.github.io/musztra/ (sprawdzone 2026-10-19 16:22 UTC: odpowiedź 200, wszystkie zasoby się ładują, w Chromium plac się rysuje, konsola bez błędów).
+- **Niepotwierdzone:** zadanie „Wdrożenie na GitHub Pages” ma od 16:14 UTC status `waiting`, więc przebieg nie jest jeszcze zielony. Przyczyna leży po stronie GitHuba: od 15:49 UTC trwa awaria „Degraded availability for GitHub Actions, GitHub Pages and Webhooks” (githubstatus.com). Konfiguracji CI ani wdrożenia nie zmieniano.
+- Przebieg #1 anulowano, bo jego wdrożenie zawisło w kolejce w trakcie tej samej awarii.
+
+**Do zrobienia po zakończeniu awarii:**
+
+1. Sprawdzić przebieg #2 w zakładce Actions: oba zadania zielone. Jeśli wdrożenie skończyło się błędem albo zostało porzucone, uruchomić je ponownie („Re-run failed jobs”) bez zmian w konfiguracji.
+2. Otworzyć https://wotaker.github.io/musztra/ i przejść listę kontrolną poniżej.
+3. Zmienić stan E0 w tabeli powyżej na „✔ ukończony”.
 
 ### 1. Co działa
 
