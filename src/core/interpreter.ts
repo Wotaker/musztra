@@ -157,7 +157,7 @@ export function interpret(input: string, options: InterpreterOptions = DEFAULT_O
     diagnostics.push(
       diagnostic(
         'I_NORMALIZED',
-        `Zapisano jako: ${q(canonical)}.`,
+        'Zapis poprawiony do formy kanonicznej. W trybie ścisłym te różnice byłyby błędami:',
         null,
         ['10'],
         normalizations.map((issue) => issue.message),

@@ -543,7 +543,11 @@ function findExecutive(folded: string): ExecutiveMatch | null {
 }
 
 function display(info: FailureInfo): string[] {
-  const words = info.literals.filter((l) => !/^[,-] $/.test(l)).map(displayLiteral);
+  // Ohm podaje oczekiwane elementy od ostatnio sprawdzonej alternatywy — odwracamy do kolejności gramatyki.
+  const words = [...info.literals]
+    .reverse()
+    .filter((l) => !/^[,-] $/.test(l))
+    .map(displayLiteral);
   const slots = info.descriptions.map((d) => (d === 'end of input' ? 'koniec komendy' : (SLOT_DESCRIPTIONS[d] ?? d)));
   const all = [...new Set([...words, ...slots])];
   return all.length > 0 ? all : [...new Set(info.literals.map(displayLiteral))];
@@ -582,30 +586,35 @@ function diagnose(normalized: NormalizedInput, match: ohm.MatchResult): ParseFai
     const execSpan = spanOfTokens(normalized, execIndex, tokens.length - 1);
     // Zapowiedź pasuje do innej komendy, a hasło jest złe: „W prawo – MARSZ” → oczekiwano ZWROT.
     if (global.pos === executive.start && global.literals.length > 0 && global.literals.every(isExecutiveLiteral)) {
-      return failure(normalized, 'E_SYNTAX_EXPECTED', global, executive.entries, execSpan);
+      const expectedEntries = COMMANDS.filter((e) => e.executives.some((x) => global.literals.includes(`${fold(x)} `)));
+      return failure(normalized, 'E_SYNTAX_EXPECTED', global, expectedEntries, execSpan);
     }
-    // Hasło jest dobre: szukamy błędu w zapowiedzi komend z tym hasłem.
+    // Hasło jest dobre: szukamy błędu w zapowiedzi komend z tym hasłem (najdalej dopasowanych).
     let guided: FailureInfo | null = null;
+    let closest: CatalogEntry[] = [];
     for (const entry of executive.entries) {
       const info = failureInfo(grammar.match(folded, entry.rule));
-      if (!guided || info.pos > guided.pos) guided = info;
-      else if (info.pos === guided.pos) {
+      if (!guided || info.pos > guided.pos) {
+        guided = info;
+        closest = [entry];
+      } else if (info.pos === guided.pos) {
         guided = {
           pos: info.pos,
           literals: [...guided.literals, ...info.literals],
           descriptions: [...guided.descriptions, ...info.descriptions],
         };
+        closest.push(entry);
       }
     }
     if (guided && guided.pos === executive.start) {
-      return failure(normalized, 'E_SYNTAX_INCOMPLETE', guided, executive.entries, execSpan);
+      return failure(normalized, 'E_SYNTAX_INCOMPLETE', guided, closest, execSpan);
     }
-    if (guided && guided.pos > 0) return failure(normalized, 'E_SYNTAX_EXPECTED', guided, executive.entries);
+    if (guided && guided.pos > 0) return failure(normalized, 'E_SYNTAX_EXPECTED', guided, closest);
   }
   if (global.pos === 0) {
     return failure(normalized, 'E_SYNTAX_UNKNOWN', global, [], spanOfTokens(normalized, 0, tokens.length - 1));
   }
-  return failure(normalized, 'E_SYNTAX_EXPECTED', global, executive?.entries ?? []);
+  return failure(normalized, 'E_SYNTAX_EXPECTED', global, []);
 }
 
 export function parse(input: string): ParseResult {

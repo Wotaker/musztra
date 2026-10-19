@@ -32,6 +32,9 @@ export interface FormIssue {
   readonly code: Extract<MessageCode, 'E_STRICT_FORM' | 'E_GRAMMAR_AGREEMENT'>;
   readonly message: string;
   readonly span: Span;
+  /** Dla rozbieżności w słowach: forma kanoniczna i wpisana. */
+  readonly expected?: string;
+  readonly found?: string;
 }
 
 interface CanonicalWord {
@@ -78,42 +81,85 @@ function q(text: string): string {
   return `„${text}”`;
 }
 
+function wordMessage(kind: FormIssueKind, expected: string, found: string): string {
+  switch (kind) {
+    case 'digits':
+      return `Liczebnik słownie: ${q(expected)} zamiast ${q(found)}.`;
+    case 'agreement':
+      return `Odmiana: ${q(expected)} zamiast ${q(found)}.`;
+    case 'case-executive':
+      return `Hasło wielkimi literami: ${q(expected)}.`;
+    case 'case-first':
+      return `Komenda zaczyna się wielką literą: ${q(expected)}.`;
+    case 'case-surname':
+      return `Nazwisko wielką literą: ${q(expected)}.`;
+    case 'case-preparatory':
+      return `Zapowiedź małymi literami: ${q(expected)} zamiast ${q(found)}.`;
+    default:
+      return `Polskie znaki: ${q(expected)} zamiast ${q(found)}.`;
+  }
+}
+
+function wordIssue(kind: FormIssueKind, token: Token, expected: string): FormIssue {
+  return {
+    kind,
+    code: kind === 'agreement' ? 'E_GRAMMAR_AGREEMENT' : 'E_STRICT_FORM',
+    span: { start: token.start, end: token.end },
+    message: wordMessage(kind, expected, token.text),
+    expected,
+    found: token.text,
+  };
+}
+
 function wordIssues(word: CanonicalWord, token: Token, isFirst: boolean): FormIssue[] {
   const original = token.text;
   const expected = word.text;
-  const span = { start: token.start, end: token.end };
   if (original === expected) return [];
-  if (/^\p{Nd}+$/u.test(original)) {
-    return [{ kind: 'digits', code: 'E_STRICT_FORM', span, message: `Liczebnik słownie: ${q(expected)} zamiast ${q(original)}.` }];
-  }
-  if (fold(original) !== fold(expected)) {
-    return [{ kind: 'agreement', code: 'E_GRAMMAR_AGREEMENT', span, message: `Odmiana: ${q(expected)} zamiast ${q(original)}.` }];
-  }
+  if (/^\p{Nd}+$/u.test(original)) return [wordIssue('digits', token, expected)];
+  if (fold(original) !== fold(expected)) return [wordIssue('agreement', token, expected)];
   const issues: FormIssue[] = [];
   const plainOriginal = stripDiacritics(original);
   const plainExpected = stripDiacritics(expected);
   if (plainOriginal !== plainExpected) {
-    let kind: FormIssueKind;
-    let message: string;
-    if (word.role === 'exec') {
-      kind = 'case-executive';
-      message = `Hasło wielkimi literami: ${q(expected)}.`;
-    } else if (isFirst && plainOriginal.slice(1) === plainExpected.slice(1)) {
-      kind = 'case-first';
-      message = `Komenda zaczyna się wielką literą: ${q(expected)}.`;
-    } else if (word.role === 'proper') {
-      kind = 'case-surname';
-      message = `Nazwisko wielką literą: ${q(expected)}.`;
-    } else {
-      kind = 'case-preparatory';
-      message = `Zapowiedź małymi literami: ${q(expected)} zamiast ${q(original)}.`;
-    }
-    issues.push({ kind, code: 'E_STRICT_FORM', span, message });
+    let kind: FormIssueKind = 'case-preparatory';
+    if (word.role === 'exec') kind = 'case-executive';
+    else if (isFirst && plainOriginal.slice(1) === plainExpected.slice(1)) kind = 'case-first';
+    else if (word.role === 'proper') kind = 'case-surname';
+    issues.push(wordIssue(kind, token, expected));
   }
-  if (original.toLocaleLowerCase('pl') !== expected.toLocaleLowerCase('pl')) {
-    issues.push({ kind: 'diacritics', code: 'E_STRICT_FORM', span, message: `Polskie znaki: ${q(expected)} zamiast ${q(original)}.` });
-  }
+  if (original.toLocaleLowerCase('pl') !== expected.toLocaleLowerCase('pl')) issues.push(wordIssue('diacritics', token, expected));
   return issues;
+}
+
+const MERGEABLE: ReadonlySet<FormIssueKind> = new Set(['case-executive', 'case-preparatory', 'diacritics', 'agreement']);
+
+/** Sąsiednie słowa z tą samą rozbieżnością (np. „rozejsc sie”) to jeden komunikat. */
+function mergeAdjacent(issues: readonly FormIssue[], input: string): FormIssue[] {
+  const merged: FormIssue[] = [];
+  for (const issue of issues) {
+    const previous = merged.findLast((m) => m.kind === issue.kind);
+    const adjacent =
+      previous !== undefined &&
+      MERGEABLE.has(issue.kind) &&
+      previous.expected !== undefined &&
+      issue.expected !== undefined &&
+      previous.span.end <= issue.span.start &&
+      input.slice(previous.span.end, issue.span.start).trim() === '';
+    if (adjacent) {
+      const expected = `${previous.expected ?? ''} ${issue.expected ?? ''}`;
+      const found = input.slice(previous.span.start, issue.span.end);
+      merged[merged.indexOf(previous)] = {
+        ...previous,
+        span: { start: previous.span.start, end: issue.span.end },
+        message: wordMessage(issue.kind, expected, found),
+        expected,
+        found,
+      };
+    } else {
+      merged.push(issue);
+    }
+  }
+  return merged;
 }
 
 function separatorIssues(normalized: NormalizedInput, previous: CanonicalWord, word: CanonicalWord): FormIssue[] {
@@ -227,5 +273,8 @@ export function formIssues(normalized: NormalizedInput, items: readonly Canonica
       message: 'Komenda bez kropki i wykrzyknika na końcu.',
     });
   }
-  return issues.sort((x, y) => x.span.start - y.span.start);
+  return mergeAdjacent(
+    issues.sort((x, y) => x.span.start - y.span.start),
+    normalized.input,
+  );
 }

@@ -1,5 +1,7 @@
 import { REGULATION } from '../core/regulation';
+import { CommandLine } from './CommandLine';
 import { CompassRose } from './CompassRose';
+import { FeedbackPanel } from './FeedbackPanel';
 import { PlazaCanvas } from './PlazaCanvas';
 
 export function App() {
@@ -13,6 +15,10 @@ export function App() {
         </p>
       </header>
       <CompassRose />
+      <div className="command-dock">
+        <FeedbackPanel />
+        <CommandLine />
+      </div>
     </main>
   );
 }
