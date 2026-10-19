@@ -26,6 +26,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
   {
     id: 'P-1',
     group: 'P',
+    stage: 'E2',
     name: 'Wezwanie',
     rule: 'P1_Summons',
     pattern: 'Pierwsza drużyna',
@@ -48,6 +49,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
   {
     id: 'P-2',
     group: 'P',
+    stage: 'E2',
     name: 'BACZNOŚĆ',
     rule: 'P2_Attention',
     pattern: '(Drużyna –) BACZNOŚĆ',
@@ -70,6 +72,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
   {
     id: 'P-3',
     group: 'P',
+    stage: 'E2',
     name: 'SPOCZNIJ',
     rule: 'P3_AtEase',
     pattern: '(Drużyna –) SPOCZNIJ',
@@ -89,6 +92,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
   {
     id: 'Z-1',
     group: 'Z',
+    stage: 'E2',
     name: 'Zwroty w miejscu',
     rule: 'Z1_Turn',
     pattern: 'W lewo (w prawo, w tył) – ZWROT',
@@ -103,7 +107,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
     examples: [
       ok('W prawo – ZWROT'),
       ok('Drużyna, w tył – ZWROT'),
-      inState('W prawo – ZWROT', 'postawa swobodna', 'E_PRECOND_POSTURE', 'E2'),
+      inState('W prawo – ZWROT', 'postawa swobodna', 'E_PRECOND_POSTURE', 'E2', ['Pierwsza drużyna, w szeregu – ZBIÓRKA', 'SPOCZNIJ']),
       inState('W prawo – ZWROT', 'drużyna maszeruje', 'E_PRECOND_MOTION', 'E4'),
       bad('W prawo – MARSZ', 'E_SYNTAX_EXPECTED'),
       normalized('w prawo zwrot', 'W prawo – ZWROT'),
@@ -114,6 +118,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
   {
     id: 'ZB-1',
     group: 'ZB',
+    stage: 'E2',
     name: 'Zbiórka przy dowódcy',
     rule: 'ZB1_Assembly',
     pattern: 'Pierwsza drużyna, w szeregu (w dwuszeregu, w rzędzie, w kolumnie dwójkowej) – ZBIÓRKA',
@@ -143,6 +148,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
   {
     id: 'ZB-2',
     group: 'ZB',
+    stage: 'E2',
     name: 'Zbiórka we wskazanym miejscu',
     rule: 'ZB2_AssemblyPlace',
     pattern:
@@ -179,6 +185,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
   {
     id: 'ZB-3',
     group: 'ZB',
+    stage: 'E2',
     name: 'Zbiórka na poprzednim miejscu',
     rule: 'ZB3_AssemblyPrevious',
     pattern: 'Pierwsza drużyna, w dwuszeregu, na poprzednim miejscu – ZBIÓRKA',
@@ -203,6 +210,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
   {
     id: 'ZB-4',
     group: 'ZB',
+    stage: 'E2',
     name: 'Rozejście',
     rule: 'ZB4_Dismiss',
     pattern: '(Do koszar, biegiem –) ROZEJŚĆ SIĘ',
@@ -227,6 +235,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
   {
     id: 'R-1',
     group: 'R',
+    stage: 'E3',
     name: 'Równanie',
     rule: 'R1_Dress',
     pattern: 'Równaj – W PRAWO (W LEWO)',
@@ -242,13 +251,16 @@ export const COMMANDS: readonly CatalogEntry[] = [
     examples: [
       ok('Równaj – W PRAWO'),
       bad('Równaj w prawo – ZWROT', 'E_SYNTAX_EXPECTED'),
-      inState('Równaj – W PRAWO', 'kolumna dwójkowa (w kolumnie żołnierze kryją, nie równają)', 'E_PRECOND_FORMATION', 'E3'),
+      inState('Równaj – W PRAWO', 'kolumna dwójkowa (w kolumnie żołnierze kryją, nie równają)', 'E_PRECOND_FORMATION', 'E3', [
+        'Pierwsza drużyna, w kolumnie dwójkowej – ZBIÓRKA',
+      ]),
       ok('Drużyna, równaj – W LEWO'),
     ],
   },
   {
     id: 'R-2',
     group: 'R',
+    stage: 'E3',
     name: 'Odliczanie',
     rule: 'R2_Count',
     pattern: 'Kolejno – ODLICZ · Do dwóch (trzech, … dziesięciu) – ODLICZ',
@@ -265,7 +277,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
       ok('Kolejno – ODLICZ'),
       ok('Do dwóch – ODLICZ'),
       normalized('Do dwa – ODLICZ', 'Do dwóch – ODLICZ', 'E_GRAMMAR_AGREEMENT'),
-      inState('Kolejno – ODLICZ', 'postawa swobodna', 'E_PRECOND_POSTURE', 'E3'),
+      inState('Kolejno – ODLICZ', 'postawa swobodna', 'E_PRECOND_POSTURE', 'E3', ['Pierwsza drużyna, w szeregu – ZBIÓRKA', 'SPOCZNIJ']),
       bad('Do jednego – ODLICZ', 'E_SYNTAX_EXPECTED'),
       normalized('do 3 odlicz', 'Do trzech – ODLICZ'),
       ok('Drużyna, kolejno – ODLICZ'),
@@ -276,6 +288,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
   {
     id: 'O-1',
     group: 'O',
+    stage: 'E3',
     name: 'Odstępowanie',
     rule: 'O1_Extend',
     pattern:
@@ -302,7 +315,9 @@ export const COMMANDS: readonly CatalogEntry[] = [
         'Od prawoskrzydłowego, pięć kroków – ODSTĄP',
         'E_GRAMMAR_AGREEMENT',
       ),
-      inState('Od szeregowego Zawadzkiego, krok – ODSTĄP', 'szeregowego Zawadzkiego nie ma w składzie', 'E_PRECOND_STATE', 'E3'),
+      inState('Od szeregowego Zawadzkiego, krok – ODSTĄP', 'szeregowego Zawadzkiego nie ma w składzie', 'E_PRECOND_STATE', 'E3', [
+        'Pierwsza drużyna, w szeregu – ZBIÓRKA',
+      ]),
       ok('Od lewoskrzydłowego, pięć kroków, biegiem – ODSTĄP'),
       normalized('od szeregowego nowak 2 kroki odstap', 'Od szeregowego Nowaka, dwa kroki – ODSTĄP', 'E_GRAMMAR_AGREEMENT'),
     ],
@@ -310,6 +325,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
   {
     id: 'O-2',
     group: 'O',
+    stage: 'E3',
     name: 'Łączenie',
     rule: 'O2_Close',
     pattern:
@@ -331,7 +347,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
     examples: [
       ok('Do prawoskrzydłowego – ŁĄCZ'),
       ok('Do szeregowego Nowaka, biegiem – ŁĄCZ'),
-      inState('Do prawoskrzydłowego – ŁĄCZ', 'bez wcześniejszego ODSTĄP', 'E_PRECOND_STATE', 'E3'),
+      inState('Do prawoskrzydłowego – ŁĄCZ', 'bez wcześniejszego ODSTĄP', 'E_PRECOND_STATE', 'E3', ['Pierwsza drużyna, w szeregu – ZBIÓRKA']),
       ok('Do szeregowego Stępnia w lewo – ŁĄCZ'),
       normalized('do szeregowego stepnia, w lewo, lacz', 'Do szeregowego Stępnia w lewo – ŁĄCZ'),
     ],
@@ -341,6 +357,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
   {
     id: 'S-1',
     group: 'S',
+    stage: 'E3',
     name: 'Z szeregu w kolumnę dwójkową',
     rule: 'S1_TwosRight',
     pattern: 'W dwójki, w prawo – ZWROT',
@@ -354,14 +371,17 @@ export const COMMANDS: readonly CatalogEntry[] = [
     effect: 'Kolumna dwójkowa, front +90°: prawy rząd = jedynki, lewy = dwójki; przy nieparzystym N ostatnia jedynka bez pary.',
     examples: [
       ok('W dwójki, w prawo – ZWROT'),
-      inState('W dwójki, w prawo – ZWROT', 'szereg bez odliczenia „do dwóch”', 'E_PRECOND_COUNT', 'E3'),
-      inState('W dwójki, w prawo – ZWROT', 'dwuszereg (z dwuszeregu: „W prawo – ZWROT”)', 'E_PRECOND_FORMATION', 'E3'),
+      inState('W dwójki, w prawo – ZWROT', 'szereg bez odliczenia „do dwóch”', 'E_PRECOND_COUNT', 'E3', ['Pierwsza drużyna, w szeregu – ZBIÓRKA']),
+      inState('W dwójki, w prawo – ZWROT', 'dwuszereg (z dwuszeregu: „W prawo – ZWROT”)', 'E_PRECOND_FORMATION', 'E3', [
+        'Pierwsza drużyna, w dwuszeregu – ZBIÓRKA',
+      ]),
       ok('Drużyna, w dwójki, w prawo – ZWROT'),
     ],
   },
   {
     id: 'S-2',
     group: 'S',
+    stage: 'E3',
     name: 'Z kolumny dwójkowej do szeregu',
     rule: 'S2_RankFront',
     pattern: 'W szereg, w lewo – FRONT',
@@ -378,6 +398,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
   {
     id: 'S-3',
     group: 'S',
+    stage: 'E3',
     name: 'Przesunięcie szyku',
     rule: 'S3_Shift',
     pattern: 'Drużyna, krok na wprost (w tył) – MARSZ · Drużyna, sześć kroków na wprost – MARSZ',
@@ -406,6 +427,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
   {
     id: 'S-4',
     group: 'S',
+    stage: 'E4',
     name: 'Zmiana frontu (zachodzenie)',
     rule: 'S4_Wheel',
     pattern: 'Drużyna, w prawo (w lewo) zachodź – MARSZ',
@@ -428,6 +450,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
   {
     id: 'M-1',
     group: 'M',
+    stage: 'E4',
     name: 'Rozpoczęcie marszu',
     rule: 'M1_March',
     pattern:
@@ -458,6 +481,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
   {
     id: 'M-2',
     group: 'M',
+    stage: 'E4',
     name: 'Za mną',
     rule: 'M2_FollowMe',
     pattern: 'Drużyna, za mną – MARSZ',
@@ -478,6 +502,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
   {
     id: 'M-3',
     group: 'M',
+    stage: 'E4',
     name: 'Marsz w miejscu',
     rule: 'M3_MarkTime',
     pattern: 'W miejscu – MARSZ',
@@ -493,6 +518,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
   {
     id: 'M-4',
     group: 'M',
+    stage: 'E4',
     name: 'Na wprost',
     rule: 'M4_Forward',
     pattern: 'Na wprost – MARSZ',
@@ -508,6 +534,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
   {
     id: 'M-5',
     group: 'M',
+    stage: 'E4',
     name: 'Bieg',
     rule: 'M5_Run',
     pattern: 'Biegiem – MARSZ',
@@ -523,6 +550,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
   {
     id: 'M-6',
     group: 'M',
+    stage: 'E4',
     name: 'Krok zwykły',
     rule: 'M6_QuickStep',
     pattern: 'Zwykły – KROK',
@@ -544,6 +572,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
   {
     id: 'M-7',
     group: 'M',
+    stage: 'E4',
     name: 'Krok dowolny',
     rule: 'M7_RouteStep',
     pattern: 'Dowolny – KROK',
@@ -559,6 +588,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
   {
     id: 'M-8',
     group: 'M',
+    stage: 'E4',
     name: 'Zatrzymanie',
     rule: 'M8_Halt',
     pattern: 'Drużyna – STÓJ',
@@ -579,6 +609,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
   {
     id: 'M-9',
     group: 'M',
+    stage: 'E4',
     name: 'Zmiana kierunku w marszu',
     rule: 'M9_Direction',
     pattern: 'Kierunek – W LEWO (W PRAWO, W TYŁ NA PRAWO, W TYŁ NA LEWO, W LEWO W SKOS, W PRAWO W SKOS)',
@@ -608,6 +639,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
   {
     id: 'M-10',
     group: 'M',
+    stage: 'E4',
     name: 'Czoło stój',
     rule: 'M10_HeadHalt',
     pattern: 'Czoło – STÓJ',
@@ -623,6 +655,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
   {
     id: 'M-11',
     group: 'M',
+    stage: 'E4',
     name: 'Stawaj',
     rule: 'M11_HaltFace',
     pattern: 'Stawaj – W LEWO (W PRAWO)',
@@ -641,6 +674,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
   {
     id: 'MS-1',
     group: 'MS',
+    stage: 'E4',
     name: 'Z kolumny dwójkowej w rząd',
     rule: 'MS1_FileBack',
     pattern: 'W rząd – W TYŁ',
@@ -656,6 +690,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
   {
     id: 'MS-2',
     group: 'MS',
+    stage: 'E4',
     name: 'Z rzędu w kolumnę dwójkową',
     rule: 'MS2_TwosForward',
     pattern: 'W dwójki – W PRZÓD',
@@ -676,6 +711,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
   {
     id: 'X-1',
     group: 'X',
+    stage: 'E2',
     name: 'WRÓĆ',
     rule: 'X1_Revert',
     pattern: 'WRÓĆ',

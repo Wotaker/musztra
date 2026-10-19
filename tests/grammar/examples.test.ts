@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { ALL_ENTRIES, type ExpectedOutcome, type WritingMode } from '../../src/core/catalog';
 import { interpret } from '../../src/core/interpreter';
+import { runScript } from '../../src/core/script';
+import { isSimulated } from '../../src/core/sim/stage';
 
 // Testy generowane z przykładów katalogu (SPEC 7, 9.1): każdy przykład ✔/✖ z docs/COMMANDS.md,
 // w obu trybach zapisu. Na placu stoi „Pierwsza drużyna” (ustawienie domyślne, SPEC 3.8).
@@ -50,7 +52,21 @@ for (const entry of ALL_ENTRIES) {
           }
         });
         if (expected.kind === 'state') {
-          it.todo(`[${MODE_NAME[mode]}] ${example.text} w stanie „${expected.state}” → ${expected.code} (semantyka, etap ${expected.stage})`);
+          const name = `[${MODE_NAME[mode]}] ${example.text} w stanie „${expected.state}” → ${expected.code} (semantyka, etap ${expected.stage})`;
+          if (isSimulated(expected.stage)) {
+            it(name, () => {
+              // Stan przygotowany komendami `setup` od stanu początkowego (drużyna rozproszona).
+              const run = runScript([...expected.setup, { command: example.text, mode }]);
+              const setupResults = run.records.slice(0, -1).map((r) => r.result?.verdict);
+              expect(setupResults.every((v) => v === 'accepted'), JSON.stringify(setupResults)).toBe(true);
+              const result = run.records[run.records.length - 1]?.result;
+              expect(result?.verdict).toBe('rejected');
+              expect(result?.command?.id).toBe(entry.id);
+              expect(result?.diagnostics.map((d) => d.code)).toContain(expected.code);
+            });
+          } else {
+            it.todo(name);
+          }
         }
       }
     }

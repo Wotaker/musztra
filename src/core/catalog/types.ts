@@ -18,7 +18,14 @@ export type GroupId = 'P' | 'Z' | 'ZB' | 'R' | 'O' | 'S' | 'M' | 'MS' | 'X' | 'N
 export type ExpectedOutcome =
   | { readonly kind: 'accepted'; readonly canonical: string; readonly codes: readonly MessageCode[] }
   | { readonly kind: 'rejected'; readonly code: MessageCode }
-  | { readonly kind: 'state'; readonly code: MessageCode; readonly state: string; readonly stage: Stage };
+  | {
+      readonly kind: 'state';
+      readonly code: MessageCode;
+      readonly state: string;
+      readonly stage: Stage;
+      /** Komendy, które od stanu początkowego (drużyna rozproszona) prowadzą do opisanego stanu. */
+      readonly setup: readonly string[];
+    };
 
 export interface CommandExample {
   /** Tekst wpisywany w wierszu poleceń. */
@@ -34,6 +41,8 @@ export interface CatalogEntry {
   readonly id: string;
   readonly group: GroupId;
   readonly name: string;
+  /** Etap, w którym komenda jest wykonywana na placu (SPEC 10); `null` — poza MVP. */
+  readonly stage: Stage | null;
   /** Nazwa reguły w `src/core/grammar/musztra.ohm`. */
   readonly rule: string;
   /** Wzorzec z wariantami, jak w regulaminie (do wyświetlania). */
@@ -86,9 +95,15 @@ export function bad(text: string, code: MessageCode, doc?: string): CommandExamp
   return { text, ...(doc === undefined ? {} : { doc }), lenient: rejected(code), strict: rejected(code) };
 }
 
-/** Poprawna komenda, której werdykt zależy od stanu drużyny. */
-export function inState(text: string, state: string, code: MessageCode, stage: Stage): CommandExample {
-  const outcome: ExpectedOutcome = { kind: 'state', code, state, stage };
+/** Poprawna komenda, której werdykt zależy od stanu drużyny (`setup` — komendy przygotowujące ten stan). */
+export function inState(
+  text: string,
+  state: string,
+  code: MessageCode,
+  stage: Stage,
+  setup: readonly string[] = [],
+): CommandExample {
+  const outcome: ExpectedOutcome = { kind: 'state', code, state, stage, setup };
   return { text, lenient: outcome, strict: outcome };
 }
 

@@ -1,21 +1,29 @@
 import { formatPoints, squadName, type CatalogEntry, type SquadOrdinal, type WritingMode } from './catalog';
-import type { Addressee, ParsedCommand } from './grammar/ast';
+import type { ParsedCommand } from './grammar/ast';
 import { formIssues, renderCanonical } from './grammar/form';
 import type { Span } from './grammar/normalize';
 import { parse, type ParseFailure } from './grammar/parse';
 import { levelOf, type MessageCode, type MessageLevel } from './messages';
+import { addresseeMismatch } from './interpretations';
+import { checkState } from './semantics/preconditions';
 import { staticViolations } from './semantics/static';
+import type { SimState } from './sim/state';
 
 /**
  * Potok interpretera (SPEC 4.3): normalizacja → parsowanie → kontrola formy → semantyka.
- * Etap E1: bez stanu drużyny i symulacji — semantyka obejmuje reguły niezależne od stanu
- * (zob. `semantics/static.ts`) i adresata.
+ * Semantyka obejmuje reguły niezależne od stanu (`semantics/static.ts`), adresata, a gdy podano stan
+ * drużyny — warunki wstępne zależne od stanu (`semantics/preconditions.ts`). Wykonanie (krok 5)
+ * należy do symulacji (`sim/execute.ts`, `session.ts`).
  */
 
 export interface InterpreterOptions {
   readonly mode: WritingMode;
   /** Nazwa drużyny na placu: liczebnik porządkowy albo `null` dla „Drużyna” (SPEC 3.8). */
   readonly squad: SquadOrdinal | null;
+  /** Stan drużyny do sprawdzenia warunków wstępnych; bez niego tylko reguły niezależne od stanu. */
+  readonly state?: SimState;
+  /** Liczba komend do cofnięcia przez WRÓĆ. */
+  readonly historyLength?: number;
 }
 
 export const DEFAULT_OPTIONS: InterpreterOptions = { mode: 'lenient', squad: 1 };
@@ -103,11 +111,6 @@ function syntaxDiagnostic(failure: ParseFailure): Diagnostic {
 function addresseeSpan(input: string): Span {
   const match = /dru[zż]yn[a-ząęółśżźćń]*/iu.exec(input);
   return match ? { start: 0, end: match.index + match[0].length } : { start: 0, end: input.length };
-}
-
-function addresseeMismatch(addressee: Addressee | null, squad: SquadOrdinal | null): boolean {
-  // „Drużyna” bez liczebnika dotyczy drużyny na placu niezależnie od jej nazwy.
-  return addressee !== null && addressee.ordinal !== null && addressee.ordinal !== squad;
 }
 
 export function interpret(input: string, options: InterpreterOptions = DEFAULT_OPTIONS): InterpretResult {
@@ -201,6 +204,18 @@ export function interpret(input: string, options: InterpreterOptions = DEFAULT_O
         ...diagnostics,
       ],
     };
+  }
+
+  if (options.state) {
+    const verdict = checkState(command, options.state, { historyLength: options.historyLength ?? 0 });
+    if (verdict.errors.length > 0) {
+      return {
+        ...known,
+        verdict: 'rejected',
+        diagnostics: [...verdict.errors.map((v) => diagnostic(v.code, v.message, null, v.points)), ...diagnostics],
+      };
+    }
+    diagnostics.push(...verdict.warnings.map((v) => diagnostic(v.code, v.message, null, v.points)));
   }
 
   return { ...known, verdict: 'accepted', diagnostics };

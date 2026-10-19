@@ -21,6 +21,7 @@ function outOfScope(
     id,
     group: 'N',
     name,
+    stage: null,
     rule,
     pattern: examples[0] ?? name,
     forms: [],
