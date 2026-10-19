@@ -4,7 +4,7 @@ Etapy według `SPEC.md`, sekcja 10. Każdy etap kończy się wdrożoną wersją 
 
 | Etap | Stan | Data ukończenia |
 |---|---|---|
-| E0 Szkielet | ✔ ukończony poza potwierdzeniem wdrożenia (awaria GitHuba) | 2026-10-19 |
+| E0 Szkielet | ✔ ukończony | 2026-10-19 |
 | E1 Interpreter | — | |
 | E2 Stan i obraz | — | |
 | E3 Szyki w miejscu | — | |
@@ -19,19 +19,7 @@ Etapy według `SPEC.md`, sekcja 10. Każdy etap kończy się wdrożoną wersją 
 
 ### Status
 
-**Ukończony poza potwierdzeniem wdrożenia.** Potwierdzimy je po zakończeniu awarii GitHuba.
-
-- Lokalnie przechodzą `npm run lint`, `npm test` (14 testów), `npm run build`, `npm run e2e` (3 testy).
-- W CI (przebieg #2, https://github.com/Wotaker/musztra/actions/runs/39281068485) zadanie „Lint, testy, build, E2E” jest zielone.
-- Strona jest już publicznie dostępna pod https://wotaker.github.io/musztra/ (sprawdzone 2026-10-19 16:22 UTC: odpowiedź 200, wszystkie zasoby się ładują, w Chromium plac się rysuje, konsola bez błędów).
-- **Niepotwierdzone:** zadanie „Wdrożenie na GitHub Pages” ma od 16:14 UTC status `waiting`, więc przebieg nie jest jeszcze zielony. Przyczyna leży po stronie GitHuba: od 15:49 UTC trwa awaria „Degraded availability for GitHub Actions, GitHub Pages and Webhooks” (githubstatus.com). Konfiguracji CI ani wdrożenia nie zmieniano.
-- Przebieg #1 anulowano, bo jego wdrożenie zawisło w kolejce w trakcie tej samej awarii.
-
-**Do zrobienia po zakończeniu awarii:**
-
-1. Sprawdzić przebieg #2 w zakładce Actions: oba zadania zielone. Jeśli wdrożenie skończyło się błędem albo zostało porzucone, uruchomić je ponownie („Re-run failed jobs”) bez zmian w konfiguracji.
-2. Otworzyć https://wotaker.github.io/musztra/ i przejść listę kontrolną poniżej.
-3. Zmienić stan E0 w tabeli powyżej na „✔ ukończony”.
+**✔ Ukończony.** Lokalnie przechodzą `npm run lint`, `npm test` (14 testów), `npm run build`, `npm run e2e` (3 testy). Przebieg CI #2 jest zielony (oba zadania). Wdrożenie opóźniła awaria GitHub Actions i Pages 2026-10-19 (od 15:49 UTC), konfiguracji nie zmieniano. Autor sprawdził stronę według listy kontrolnej, wszystko się zgadza.
 
 ### 1. Co działa
 
@@ -67,13 +55,11 @@ Decyzje (szczegóły w `docs/DECISIONS.md`):
 - D-007 Wygląd pustego placu (kolory, siatka, przybliżenie startowe, położenie róży wiatrów).
 - D-008 Jeden workflow CI z wdrożeniem dokładnie przetestowanego buildu.
 - D-009 Rygor TypeScript i lint ponad samo `strict`.
+- D-010 Content Security Policy dodawana w E6 (decyzja autora).
 
-Do akceptacji (sekcja „Do akceptacji” w `DECISIONS.md`): wygląd placu (D-007), adres strony (D-004), wersja Node (D-001).
+Zatwierdzone przez autora (2026-10-19): D-001, D-004, D-007 (przybliżenie startowe bez zmian) oraz D-010 — CSP dodajemy w E6.
 
-Otwarte pytania:
-
-- Czy przybliżenie startowe (ok. 53 × 30 m na ekranie 1280×720) jest dobre? W E2 kamera i tak będzie śledzić drużynę z automatycznym zoomem.
-- Content Security Policy (SPEC 8.3) dodam w E6 razem z klientem API; teraz utrudniałaby pracę serwera deweloperskiego, a aplikacja nie łączy się jeszcze z niczym.
+Otwarte pytania: brak.
 
 Propozycje zmian w `SPEC.md` / `COMMANDS.md`: brak.
 

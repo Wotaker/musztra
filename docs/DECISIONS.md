@@ -4,13 +4,18 @@ Decyzje podjęte tam, gdzie `SPEC.md`, `COMMANDS.md` i regulamin milczą lub są
 
 ## Do akceptacji
 
-Decyzje, które autor powinien potwierdzić lub odrzucić. Po akceptacji pozycja znika z tej listy (wpis w dzienniku zostaje).
+Decyzje, które autor powinien potwierdzić lub odrzucić. Po akceptacji pozycja przechodzi do sekcji „Zatwierdzone” (wpis w dzienniku zostaje).
 
-| Decyzja | Czego dotyczy | Co sprawdzić |
+Brak pozycji oczekujących.
+
+## Zatwierdzone
+
+| Decyzja | Czego dotyczy | Zatwierdzona |
 |---|---|---|
-| [D-007](#d-007-wygląd-pustego-placu) | wygląd placu: kolory, gęstość siatki, przybliżenie startowe, róża wiatrów w prawym górnym rogu, plakietka z tytułem w lewym górnym | czy plac wygląda „delikatnie” i po wojskowemu; czy coś zmienić |
-| [D-004](#d-004-adres-strony-i-ścieżka-bazowa) | publiczny adres `https://wotaker.github.io/musztra/` | czy nazwa repozytorium i adres odpowiadają |
-| [D-001](#d-001-wersja-nodejs) | Node.js 26 w CI i lokalnie | brak uwag = akceptacja |
+| [D-001](#d-001-wersja-nodejs) | Node.js 26 w CI i lokalnie | 2026-10-19 |
+| [D-004](#d-004-adres-strony-i-ścieżka-bazowa) | publiczny adres `https://wotaker.github.io/musztra/` | 2026-10-19 |
+| [D-007](#d-007-wygląd-pustego-placu) | wygląd placu, w tym przybliżenie startowe 24 px/m bez zmian | 2026-10-19 |
+| [D-010](#d-010-content-security-policy-w-e6) | Content Security Policy dodawana w E6 | 2026-10-19 (decyzja autora) |
 
 ---
 
@@ -97,3 +102,10 @@ Decyzje, które autor powinien potwierdzić lub odrzucić. Po akceptacji pozycja
 - **Kontekst:** CLAUDE.md wymaga trybu strict.
 - **Decyzja:** poza `strict` włączone także `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `noUnusedLocals/Parameters`, `erasableSyntaxOnly`; ESLint w zestawie `strictTypeChecked`, ostrzeżenia traktowane jak błędy (`--max-warnings 0`).
 - **Alternatywy:** samo `strict` — słabsza ochrona przed błędami indeksowania tablic, które w kodzie szyków (pozycje, kolejność żołnierzy) będą częste.
+
+## D-010 Content Security Policy w E6
+
+- **Data:** 2026-10-19 · **Etap:** E0 (decyzja autora)
+- **Kontekst:** SPEC 8.3 wymaga CSP ograniczającej połączenia do `api.anthropic.com`. W E0 aplikacja nie łączy się z niczym, a CSP w `index.html` blokowałaby skrypty wstrzykiwane przez serwer deweloperski Vite.
+- **Decyzja:** CSP zostanie dodana w E6, razem z klientem API.
+- **Alternatywy:** CSP od razu, tylko w buildzie produkcyjnym — odłożone, bo bez połączeń sieciowych nic by nie chroniła.
