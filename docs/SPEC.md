@@ -284,13 +284,13 @@ Po zakończeniu każdej czynności przejściowej drużyna w szyku innym niż `DI
 - wszyscy żołnierze mają ten sam `facing` (tolerancja 1°), poza czasem trwania zmiany kierunku kolumny;
 - pozycje leżą na liniach szyku (tolerancja 5 cm), a kolejność od prawego skrzydła (czoła) odpowiada kolejności w stanie;
 - odstępy i odległości są regulaminowe (tolerancja 5 cm), chyba że `irregularSpacing` lub stan odstępowania mówi inaczej;
-- w dwuszeregu i kolumnie dwójkowej żołnierze drugiego szeregu (rzędu) kryją poprzedników; co najwyżej jeden żołnierz bez pary, zawsze na lewym skrzydle pierwszego szeregu (w dwuszeregu) lub na końcu kolumny.
+- w dwuszeregu i kolumnie dwójkowej żołnierze drugiego szeregu (rzędu) kryją poprzedników; co najwyżej jeden żołnierz bez pary, zawsze na lewym skrzydle pierwszego szeregu (w dwuszeregu) lub na końcu kolumny — a w szyku odwróconym (po „W tył – ZWROT” lub zwrocie w nieregulaminową stronę, pkt 76) na przeciwnym skraju szyku (DECISIONS.md, D-026).
 
 ### 5.5 Symulacja
 
 - Stały krok czasu (np. 1/60 s), niezależny od klatek renderowania; renderer interpoluje.
 - Funkcja czysta `simulate(state, dt) → state` oraz pomocnicza `runScript(initialState, commands[], options) → { states, feedback }` do testów scenariuszowych, w tym przewijanie do zakończenia czynności przejściowych.
-- **Czynności przejściowe** (zwrot, zbiórka, zmiana szyku, odstępowanie, łączenie, przesunięcie o N kroków, odliczanie z dymkami): w trakcie dozwolone tylko WRÓĆ, pozostałe komendy → `E_BUSY`.
+- **Czynności przejściowe** (zwrot, zbiórka, zmiana szyku, odstępowanie, łączenie, przesunięcie o N kroków, odliczanie z dymkami, równanie, wezwanie drużyny rozproszonej, SPOCZNIJ z korektą odstępów, WRÓĆ): w trakcie dozwolone tylko WRÓĆ, pozostałe komendy → `E_BUSY`. Rozejście nie jest czynnością przejściową — drużynę można od razu wezwać (DECISIONS.md, D-025).
 - **Ruchy ciągłe** (marsz, marsz w miejscu, bieg, zachodzenie, „na wprost” bez liczby kroków, „Za mną”): przyjmują kolejne komendy.
 - **Prowadzenie kolumny:** kierunkowy wyznacza ścieżkę, każdy żołnierz podąża śladem z opóźnieniem odpowiadającym jego odległości w szyku i przesunięciem bocznym wynikającym z rzędu.
 - **Rozwieranie odległości:** w ugrupowaniu marszowym po ruszeniu każdy żołnierz rusza, gdy poprzednik oddali się na 1,2 m.

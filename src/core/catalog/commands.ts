@@ -108,7 +108,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
       ok('W prawo – ZWROT'),
       ok('Drużyna, w tył – ZWROT'),
       inState('W prawo – ZWROT', 'postawa swobodna', 'E_PRECOND_POSTURE', 'E2', ['Pierwsza drużyna, w szeregu – ZBIÓRKA', 'SPOCZNIJ']),
-      inState('W prawo – ZWROT', 'drużyna maszeruje', 'E_PRECOND_MOTION', 'E4'),
+      inState('W prawo – ZWROT', 'drużyna maszeruje', 'E_PRECOND_MOTION', 'E4', ['Pierwsza drużyna, w szeregu – ZBIÓRKA', 'Drużyna, kierunek na wprost – MARSZ']),
       bad('W prawo – MARSZ', 'E_SYNTAX_EXPECTED'),
       normalized('w prawo zwrot', 'W prawo – ZWROT'),
     ],
@@ -442,7 +442,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
       'Skrzydłowy nieruchomego skrzydła obraca się w miejscu, pozostali maszerują krokiem zwykłym po łukach; ruch trwa do „Drużyna – STÓJ” (I-13).',
     examples: [
       ok('Drużyna, w prawo zachodź – MARSZ'),
-      inState('Drużyna, w prawo zachodź – MARSZ', 'rząd (w marszu: „Kierunek – W PRAWO”)', 'E_PRECOND_FORMATION', 'E4'),
+      inState('Drużyna, w prawo zachodź – MARSZ', 'rząd (w marszu: „Kierunek – W PRAWO”)', 'E_PRECOND_FORMATION', 'E4', ['Pierwsza drużyna, w rzędzie – ZBIÓRKA']),
     ],
   },
 
@@ -495,7 +495,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
       'Kierunkowy podąża śladem dowódcy w odległości 3 kroków, reszta jak w kolumnie. Gdy dowódca stanie, drużyna maszeruje w miejscu (W_FOLLOW_HALT).',
     examples: [
       ok('Za mną – MARSZ'),
-      inState('Za mną – MARSZ', 'szereg', 'E_PRECOND_FORMATION', 'E4'),
+      inState('Za mną – MARSZ', 'szereg', 'E_PRECOND_FORMATION', 'E4', ['Pierwsza drużyna, w szeregu – ZBIÓRKA']),
       ok('Drużyna, za mną – MARSZ'),
     ],
   },
@@ -513,7 +513,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
     description: 'Marsz w miejscu z postoju albo z marszu.',
     preconditions: 'Drużyna stoi w postawie zasadniczej (w szyku) albo maszeruje.',
     effect: 'Z miejsca: marsz w miejscu od lewej nogi. Z ruchu: jeszcze jeden krok, potem marsz w miejscu.',
-    examples: [ok('W miejscu – MARSZ'), inState('W miejscu – MARSZ', 'bieg (najpierw „Zwykły – KROK”)', 'E_PRECOND_MOTION', 'E4')],
+    examples: [ok('W miejscu – MARSZ'), inState('W miejscu – MARSZ', 'bieg (najpierw „Zwykły – KROK”)', 'E_PRECOND_MOTION', 'E4', ['Pierwsza drużyna, w szeregu – ZBIÓRKA', 'Biegiem – MARSZ'])],
   },
   {
     id: 'M-4',
@@ -565,7 +565,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
     effect: 'Z biegu: trzy kroki biegiem, potem krok zwykły; z kroku dowolnego: marsz w nogę; po MS-2: pełna długość kroku czoła.',
     examples: [
       ok('Zwykły – KROK'),
-      inState('Zwykły – KROK', 'drużyna stoi', 'E_PRECOND_MOTION', 'E4'),
+      inState('Zwykły – KROK', 'drużyna stoi', 'E_PRECOND_MOTION', 'E4', ['Pierwsza drużyna, w szeregu – ZBIÓRKA']),
       normalized('zwykly krok', 'Zwykły – KROK'),
     ],
   },
@@ -602,7 +602,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
     effect: 'Jeszcze jeden krok, zatrzymanie, postawa zasadnicza.',
     examples: [
       ok('Drużyna – STÓJ'),
-      inState('Drużyna – STÓJ', 'bieg', 'E_RULE', 'E4'),
+      inState('Drużyna – STÓJ', 'bieg', 'E_RULE', 'E4', ['Pierwsza drużyna, w szeregu – ZBIÓRKA', 'Biegiem – MARSZ']),
       modes('STÓJ', outcome.accepted('Drużyna – STÓJ', ['W_MISSING_ADDRESSEE']), outcome.rejected('E_STRICT_FORM')),
     ],
   },
@@ -632,7 +632,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
     examples: [
       ok('Kierunek – W LEWO'),
       normalized('Kierunek – w lewo', 'Kierunek – W LEWO'),
-      inState('Kierunek – W LEWO', 'drużyna stoi (z miejsca: „Kierunek w lewo – MARSZ”)', 'E_PRECOND_MOTION', 'E4'),
+      inState('Kierunek – W LEWO', 'drużyna stoi (z miejsca: „Kierunek w lewo – MARSZ”)', 'E_PRECOND_MOTION', 'E4', ['Pierwsza drużyna, w szeregu – ZBIÓRKA']),
       ok('Kierunek – W TYŁ NA PRAWO'),
     ],
   },
@@ -650,7 +650,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
     description: 'Niejednoczesne zatrzymanie kolumny: czoło staje, reszta dochodzi.',
     preconditions: 'Szyk marszowy, marsz.',
     effect: 'Czoło zatrzymuje się, następni dochodzą na 1,2 m i zatrzymują się; wszyscy przyjmują postawę swobodną (I-17).',
-    examples: [ok('Czoło – STÓJ'), inState('Czoło – STÓJ', 'szereg', 'E_PRECOND_FORMATION', 'E4')],
+    examples: [ok('Czoło – STÓJ'), inState('Czoło – STÓJ', 'szereg', 'E_PRECOND_FORMATION', 'E4', ['Pierwsza drużyna, w szeregu – ZBIÓRKA'])],
   },
   {
     id: 'M-11',
@@ -685,7 +685,7 @@ export const COMMANDS: readonly CatalogEntry[] = [
     description: 'Lewy rząd przesuwa się w marszu za prawych sąsiadów.',
     preconditions: 'Kolumna dwójkowa, marsz.',
     effect: 'Rząd z odległościami 1,2 m.',
-    examples: [ok('W rząd – W TYŁ'), inState('W rząd – W TYŁ', 'rząd w marszu', 'E_PRECOND_FORMATION', 'E4')],
+    examples: [ok('W rząd – W TYŁ'), inState('W rząd – W TYŁ', 'rząd w marszu', 'E_PRECOND_FORMATION', 'E4', ['Pierwsza drużyna, w rzędzie – ZBIÓRKA', 'Drużyna, kierunek na wprost – MARSZ'])],
   },
   {
     id: 'MS-2',
@@ -703,7 +703,10 @@ export const COMMANDS: readonly CatalogEntry[] = [
     effect: 'Kolumna dwójkowa; czoło skraca krok do komendy „Zwykły – KROK” (W_AWAIT_QUICK_STEP, pkt 77).',
     examples: [
       ok('W dwójki – W PRZÓD'),
-      inState('W dwójki – W PRZÓD', 'rząd w marszu bez odliczenia „do dwóch” w marszu', 'E_PRECOND_COUNT', 'E4'),
+      inState('W dwójki – W PRZÓD', 'rząd w marszu bez odliczenia „do dwóch” w marszu', 'E_PRECOND_COUNT', 'E4', [
+        'Pierwsza drużyna, w rzędzie – ZBIÓRKA',
+        'Drużyna, kierunek na wprost – MARSZ',
+      ]),
     ],
   },
 

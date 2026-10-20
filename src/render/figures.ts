@@ -21,7 +21,16 @@ export interface FigureView {
 }
 
 /** Długość pełnego cyklu kroku (dwa kroki) w metrach dla danego chodu. */
-const CYCLE: Partial<Record<Gait, number>> = { QUICK: 1.4, PARADE: 1.4, RUN: 1.8, SIDESTEP: 0.9, BACKSTEP: 1.2, SHUFFLE: 0.6 };
+const CYCLE: Partial<Record<Gait, number>> = {
+  QUICK: 1.4,
+  ROUTE: 1.4,
+  PARADE: 1.4,
+  RUN: 1.8,
+  SIDESTEP: 0.9,
+  BACKSTEP: 1.2,
+  SHUFFLE: 0.6,
+  MARK: 0.8,
+};
 
 function phaseOf(gait: Gait, stride: number): number {
   const cycle = CYCLE[gait];
@@ -83,7 +92,7 @@ export function drawFigure(ctx: CanvasRenderingContext2D, view: FigureView, comm
 
   // Stopy: w ruchu na przemian przed i za ramionami; w kroku defiladowym wyżej (dłuższy wykrok).
   if (moving) {
-    const reach = running ? 0.22 : parade ? 0.24 : view.gait === 'SHUFFLE' ? 0.08 : 0.17;
+    const reach = running ? 0.22 : parade ? 0.24 : view.gait === 'SHUFFLE' ? 0.08 : view.gait === 'MARK' ? 0.05 : 0.17;
     ctx.fillStyle = PALETTE.boot;
     ellipse(ctx, -0.09, -swing * reach, 0.05, 0.095);
     ctx.fill();

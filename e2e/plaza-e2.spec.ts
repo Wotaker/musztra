@@ -119,13 +119,13 @@ test('zbiórka przy dowódcy obróconym w prawo (E): szereg frontem na wschód',
   await expect(page.getByTestId('status-text')).toContainText('front 90°');
 });
 
-test('komenda kolejnego etapu: poprawna, ale drużyna jej jeszcze nie wykonuje', async ({ page }) => {
+test('komenda marszowa (od E4): drużyna rusza, pasek pokazuje marsz', async ({ page }) => {
   await send(page, 'Pierwsza drużyna, w rzędzie – ZBIÓRKA');
   await idle(page);
   await send(page, 'Drużyna, kierunek na wprost – MARSZ');
-  await expect(page.getByTestId('feedback-title')).toHaveText('Komenda poprawna');
-  await expect(page.getByTestId('feedback-pending')).toContainText('E4');
-  await expect(page.getByTestId('status-text')).toContainText('rząd · zasadnicza · stoi');
+  await expect(page.getByTestId('feedback-title')).toHaveText('Wykonano');
+  await expect(page.getByTestId('feedback-pending')).toHaveCount(0);
+  await expect(page.getByTestId('status-text')).toContainText('rząd · zasadnicza · marsz');
 });
 
 test('prędkość symulacji i przełącznik ról', async ({ page }) => {

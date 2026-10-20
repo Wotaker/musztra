@@ -94,6 +94,7 @@ export function createInitialState(options: InitialOptions = DEFAULT_INITIAL): S
     headsTurned: null,
     lastAssembly: null,
     activity: null,
+    march: null,
   };
   return {
     time: 0,

@@ -2,6 +2,7 @@ import { FACING_TOLERANCE, INTERVAL, POSITION_TOLERANCE, STEP } from './constant
 import { FORMATION_NAMES } from './describe';
 import { filesOf, fileGapsOf, hasRegulationSpacing, isDeployed, layoutFromPositions, ranksOf, slotPosition } from './formation';
 import { angleDelta, distance } from './geometry';
+import { followersConverged } from './march';
 import type { SimState } from './state';
 
 /**
@@ -19,6 +20,15 @@ export function checkInvariants(state: SimState): string[] {
   if (!layout) return ['Drużyna w szyku bez układu.'];
   const problems: string[] = [];
   const name = FORMATION_NAMES[squad.formation];
+
+  // W marszu (SPEC 5.4): kolumna sprawdzana, gdy idzie prosto i każdy jest na swoim miejscu; w trakcie
+  // zmiany kierunku, rozwierania lub zmiany szyku — tylko gdy ruch się ustali.
+  const march = squad.march;
+  if (march?.kind === 'TRAIL') {
+    const head = march.trail[march.trail.length - 1]?.s ?? 0;
+    const straight = soldiers.every((s) => Math.abs(angleDelta(s.facing, layout.facing)) <= FACING_TOLERANCE);
+    if (!straight || !followersConverged(march, head)) return [];
+  }
 
   // Ten sam front.
   for (const s of soldiers) {

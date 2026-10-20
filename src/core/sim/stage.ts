@@ -5,7 +5,7 @@ import type { Stage } from '../catalog';
  * są rozpoznawane i sprawdzane, ale nie zmieniają stanu — panel informuje, w którym etapie dojdą;
  * przykłady katalogu zależne od ich stanu pozostają testami „do zrobienia”.
  */
-export const SIMULATED_STAGE: Stage = 'E3';
+export const SIMULATED_STAGE: Stage = 'E4';
 
 const ORDER: readonly Stage[] = ['E2', 'E3', 'E4'];
 

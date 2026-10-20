@@ -17,6 +17,7 @@ import type { Layout, SimState, Soldier, Squad } from './state';
 import { anchorPoint, worldObject } from './world';
 import { activity, halted, planFor, shuffleTo } from './actions';
 import { executePlaceCommand } from './executePlace';
+import { executeMarchCommand } from './marchCommands';
 
 /**
  * Wykonanie komendy (SPEC 4.3, krok 5): komenda zamieniana na plan działań dla każdego żołnierza (SIMD).
@@ -40,6 +41,10 @@ const ASSEMBLY_TURN = 0.3;
 
 function summon(state: SimState, commandId: CommandAst['id']): SimState {
   const { squad, commander } = state;
+  if (squad.march) {
+    // Pkt 25b: BACZNOŚĆ w marszu — przejście na krok defiladowy (do SPOCZNIJ).
+    return commandId === 'P-2' ? { ...state, squad: { ...squad, march: { ...squad.march, step: 'PARADE' } } } : state;
+  }
   if (squad.formation === 'DISPERSED') {
     // Pkt 69: żołnierze zwracają się frontem do dowódcy i przyjmują postawę zasadniczą.
     const soldiers = state.soldiers.map((s) => {
@@ -54,6 +59,10 @@ function summon(state: SimState, commandId: CommandAst['id']): SimState {
 
 function atEase(state: SimState): SimState {
   const { squad } = state;
+  if (squad.march) {
+    // Pkt 26: SPOCZNIJ w marszu krokiem defiladowym — przejście na krok zwykły.
+    return { ...state, squad: { ...squad, march: { ...squad.march, step: 'QUICK' } } };
+  }
   if (squad.formation === 'DISPERSED' || !squad.layout) {
     return { ...state, soldiers: state.soldiers.map((s) => ({ ...s, posture: 'AT_EASE' as const })) };
   }
@@ -148,6 +157,7 @@ function assemble(state: SimState, command: CommandAst, formation: FormationName
       formedFromTwos: false,
       headsTurned: null,
       lastAssembly: { anchor, facing: layout.facing },
+      march: null,
       activity: activity(command.id),
     },
   };
@@ -181,7 +191,10 @@ function dismiss(state: SimState, command: Extract<CommandAst, { id: 'ZB-4' }>):
       .turnTo(bearing(s.position, target), ASSEMBLY_TURN)
       .move(target, speedOf(command.running), command.running ? 'RUN' : 'QUICK')
       .turnTo(normalizeAngle(Math.round(rng.range(0, 360))), 0.5);
-    return withPlan({ ...halted(s), posture: 'AT_EASE' as const, countNumber: null, head: 'FRONT' as const }, plan.build());
+    return withPlan(
+      { ...halted(s), posture: 'AT_EASE' as const, motion: 'STANDING' as const, countNumber: null, head: 'FRONT' as const },
+      plan.build(),
+    );
   });
   return {
     ...state,
@@ -197,6 +210,7 @@ function dismiss(state: SimState, command: Extract<CommandAst, { id: 'ZB-4' }>):
       irregularSpacing: false,
       formedFromTwos: false,
       headsTurned: null,
+      march: null,
       // Rozejście nie jest czynnością przejściową: można od razu wezwać drużynę.
       activity: activity('ZB-4', false),
     },
@@ -218,7 +232,7 @@ export function revert(state: SimState, snapshot: Snapshot): SimState {
       plan.lerp(target.position, turnBy, duration, d > 1.5 ? 'RUN' : d > 0.01 ? 'SHUFFLE' : 'STAND', true);
     }
     plan.act({ posture: target.posture, head: target.head, countNumber: target.countNumber });
-    return withPlan({ ...s, bubble: null, armRaisedUntil: null }, plan.build());
+    return withPlan({ ...s, motion: target.motion, bubble: null, armRaisedUntil: null }, plan.build());
   });
   return { ...state, soldiers, squad: { ...snapshot.squad, activity: activity('X-1') } };
 }
@@ -253,8 +267,24 @@ export function execute(state: SimState, command: CommandAst): SimState {
     }
     case 'ZB-4':
       return dismiss(state, command);
+    case 'R-2':
+      return state.squad.march ? executeMarchCommand(state, command) : executePlaceCommand(state, command);
+    case 'S-4':
+    case 'M-1':
+    case 'M-2':
+    case 'M-3':
+    case 'M-4':
+    case 'M-5':
+    case 'M-6':
+    case 'M-7':
+    case 'M-8':
+    case 'M-9':
+    case 'M-10':
+    case 'M-11':
+    case 'MS-1':
+    case 'MS-2':
+      return executeMarchCommand(state, command);
     default:
-      // Komendy w miejscu etapu E3; komendy marszowe (E4) nie zmieniają jeszcze stanu.
       return executePlaceCommand(state, command);
   }
 }

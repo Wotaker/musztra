@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { continueScript, runScript } from '../../src/core/script';
 import { createSession, submit } from '../../src/core/session';
+import { COMMANDS } from '../../src/core/catalog';
+import { isSimulated } from '../../src/core/sim/stage';
 import { codes, scenario, squadShape, verdict, ASSEMBLE_RANK } from '../scenarios/helpers';
 
 // Reguły warunków wstępnych zależnych od stanu (SPEC 9.2): każda reguła ma test pozytywny i negatywny.
@@ -145,13 +147,19 @@ describe('rozejście (ZB-4)', () => {
   });
 });
 
-describe('komendy kolejnych etapów', () => {
-  it('poprawna komenda marszowa jest rozpoznana, ale jeszcze nie zmienia stanu', () => {
+describe('etapy wykonania (D-023)', () => {
+  // Do E3 ten test sprawdzał, że komenda marszowa nie zmienia stanu (wykonanie dopiero w E4).
+  // Od E4 wszystkie komendy MVP są wykonywane — żadna nie czeka na kolejny etap.
+  it('od E4 komenda marszowa jest wykonywana (nie czeka na kolejny etap)', () => {
     const before = runScript([ASSEMBLE_RANK]);
     const outcome = submit(before.session, 'Drużyna, kierunek na wprost – MARSZ', 'lenient');
     expect(outcome.result.verdict).toBe('accepted');
-    expect(outcome.executed).toBe(false);
-    expect(outcome.pendingStage).toBe('E4');
-    expect(squadShape(outcome.session.sim)).toEqual(squadShape(before.state));
+    expect(outcome.executed).toBe(true);
+    expect(outcome.pendingStage).toBeNull();
+    expect(outcome.session.sim.squad.march).not.toBeNull();
+  });
+  it('każda komenda MVP ma etap wykonania nie późniejszy niż E4', () => {
+    expect(COMMANDS.every((entry) => isSimulated(entry.stage))).toBe(true);
+    expect(isSimulated(null)).toBe(false);
   });
 });

@@ -1,6 +1,7 @@
 import { entryById, type Stage, type WritingMode } from './catalog';
 import { revertTarget } from './interpretations';
 import { interpret, worstLevel, type InterpretResult } from './interpreter';
+import type { MessageCode } from './messages';
 import { execute, revert, snapshotOf, type Snapshot } from './sim/execute';
 import { createInitialState, DEFAULT_INITIAL, type InitialOptions } from './sim/initial';
 import { simulate } from './sim/simulate';
@@ -33,6 +34,14 @@ export type JournalEntry =
       readonly soldier: string;
       readonly text: string;
       readonly reportKind: ReportKind;
+    }
+  | {
+      readonly id: number;
+      readonly time: number;
+      readonly kind: 'note';
+      /** Uwaga symulacji (np. W_FOLLOW_HALT, W_AWAIT_QUICK_STEP). */
+      readonly code: MessageCode | null;
+      readonly text: string;
     };
 
 export interface Session {
@@ -120,6 +129,14 @@ export function absorbReports(session: Session): Session {
   if (sim.reports.length === session.reportsSeen) return session;
   let journal = session.journal;
   for (const report of sim.reports.slice(session.reportsSeen)) {
+    if (report.soldierId === null) {
+      journal = append(
+        journal,
+        { id: nextId(journal), time: report.time, kind: 'note', code: report.code ?? null, text: report.text },
+        JOURNAL_LIMIT,
+      );
+      continue;
+    }
     const soldier = sim.soldiers.find((s) => s.id === report.soldierId);
     journal = append(
       journal,

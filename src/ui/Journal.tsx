@@ -33,6 +33,7 @@ function clock(seconds: number): string {
 type Row =
   | { readonly kind: 'command'; readonly entry: Extract<JournalEntry, { kind: 'command' }> }
   | { readonly kind: 'report'; readonly entry: Extract<JournalEntry, { kind: 'report' }> }
+  | { readonly kind: 'note'; readonly entry: Extract<JournalEntry, { kind: 'note' }> }
   | { readonly kind: 'count'; readonly id: number; readonly time: number; readonly items: readonly Extract<JournalEntry, { kind: 'report' }>[] };
 
 /** Kolejne liczby z jednego odliczania łączone w jeden wpis — Dziennik pozostaje czytelny. */
@@ -41,6 +42,10 @@ function rows(journal: readonly JournalEntry[]): Row[] {
   for (const entry of journal) {
     if (entry.kind === 'command') {
       result.push({ kind: 'command', entry });
+      continue;
+    }
+    if (entry.kind === 'note') {
+      result.push({ kind: 'note', entry });
       continue;
     }
     if (entry.reportKind === 'count') {
@@ -131,6 +136,20 @@ export function Journal() {
                   <span className="journal__report">
                     <span className="journal__speech" aria-hidden="true" />
                     Odliczanie: {row.items.map((r) => `${r.soldier} ${r.text}`).join(' · ')}
+                  </span>
+                </li>
+              );
+            }
+            if (row.kind === 'note') {
+              return (
+                <li key={row.entry.id} className="journal__item journal__item--warning" data-testid="journal-note">
+                  <time className="journal__time">{clock(row.entry.time)}</time>
+                  <span className="journal__report">
+                    <span className="journal__icon" aria-hidden="true">
+                      ⚠
+                    </span>{' '}
+                    {row.entry.text}
+                    {row.entry.code && <code className="journal__note"> {row.entry.code}</code>}
                   </span>
                 </li>
               );

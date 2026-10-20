@@ -1,7 +1,7 @@
 import type { CommandAst, CommandId, FormationName } from './grammar/ast';
 import type { SquadOrdinal } from './catalog';
 import type { Addressee } from './grammar/ast';
-import { COMMANDER_LEAD, INTERVAL } from './sim/constants';
+import { COMMANDER_LEAD, DISTANCE, INTERVAL } from './sim/constants';
 import { add, rightOf, scale, forward, type Vec2 } from './sim/geometry';
 import type { Formation, Posture } from './sim/state';
 
@@ -52,9 +52,14 @@ export function irregularAfterTurn(spacingIsRegular: boolean): boolean {
   return !spacingIsRegular;
 }
 
-/** I-4: odliczanie w miejscu tylko w szyku rozwiniętym (w marszu tylko w rzędzie — E4). */
+/** I-4: odliczanie w miejscu tylko w szyku rozwiniętym. */
 export function countAllowedInPlace(formation: Formation): boolean {
   return DEPLOYED.includes(formation);
+}
+
+/** I-4: odliczanie w marszu tylko w rzędzie. */
+export function countAllowedInMarch(formation: Formation): boolean {
+  return formation === 'FILE';
 }
 
 /**
@@ -111,3 +116,36 @@ export const REVERT_MAX_DURATION = 1.2;
 
 /** I-14: postawa po ŁĄCZ — swobodna, przez analogię do ODSTĄP (pkt 73). */
 export const POSTURE_AFTER_CLOSE: Posture = 'AT_EASE';
+
+/**
+ * I-2 (marsz): po ruszeniu każdy żołnierz kolumny dąży do odległości regulaminowej 1,2 m za poprzednikiem
+ * (rząd) albo za poprzednią parą (kolumna dwójkowa) — rusza, gdy poprzednik oddali się na tę odległość.
+ */
+export function marchDepth(formation: FormationName, index: number, rankIndex: number): number {
+  return (formation === 'FILE' ? index : rankIndex) * DISTANCE;
+}
+
+/**
+ * I-3: „kierunek w lewo/prawo – MARSZ” w szyku rozwiniętym jest wykonywany indywidualnie wg pkt 24 — każdy
+ * żołnierz zmienia kierunek, a szyk staje się marszowym (uwaga W_DIRECTION_DEPLOYED).
+ */
+export function deployedDirectionIsIndividual(): boolean {
+  return true;
+}
+
+/** I-5: zmiana kierunku kolumny — kierunkowy zmienia kierunek, reszta idzie po jego śladzie. */
+export const COLUMN_FOLLOWS_GUIDE_TRAIL = true;
+
+/** I-13: zachodzenie trwa aż do „Drużyna – STÓJ”, bez limitu kąta (`null` — bez limitu). */
+export const WHEEL_ANGLE_LIMIT: number | null = null;
+
+/** I-15: „Za mną – MARSZ” tylko w ugrupowaniu marszowym (rząd, kolumna dwójkowa). */
+export function followAllowed(formation: Formation): boolean {
+  return formation === 'FILE' || formation === 'COLUMN_OF_TWOS';
+}
+
+/** I-17: po „Czoło – STÓJ” wszyscy, łącznie z czołem, przyjmują postawę swobodną (także po „Stawaj”, pkt 100). */
+export const POSTURE_AFTER_HEAD_HALT: Posture = 'AT_EASE';
+
+/** „Stawaj”: żołnierze dochodzą do poprzedników na odstęp szeregu (0,6 m), by po zwrocie stanąć obok nich. */
+export const COLUMN_DEPTH_WHEN_HALTING_FACED = INTERVAL;

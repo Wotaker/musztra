@@ -6,18 +6,7 @@ Decyzje podjęte tam, gdzie `SPEC.md`, `COMMANDS.md` i regulamin milczą lub są
 
 Decyzje, które autor powinien potwierdzić lub odrzucić. Po akceptacji pozycja przechodzi do sekcji „Zatwierdzone” (wpis w dzienniku zostaje).
 
-| Decyzja | Czego dotyczy | Etap |
-|---|---|---|
-| [D-024](#d-024-obiekty-terenowe-i-punkty-zaczepienia) | wymiary obiektów, front do środka placu wzdłuż osi siatki, przedpole, „na drodze” | E2 |
-| [D-025](#d-025-czynności-przejściowe-i-kolejność-warunków) | które komendy blokują (E_BUSY), pierwszy naruszony warunek, W_NO_EFFECT bez wpisu do historii WRÓĆ | E2 |
-| [D-026](#d-026-żołnierz-bez-pary-w-szyku-odwróconym) | niezmiennik „żołnierz bez pary” po zwrocie w tył / w nieregulaminową stronę | E2 |
-| [D-027](#d-027-skutki-zwrotów-dla-odliczenia-odstępowania-i-odległości) | każdy zwrot unieważnia odliczenie; zwrot zmieniający ugrupowanie kasuje odstąpienie; rząd 0,6 m oznaczony jako nieregularny | E2 |
-| [D-029](#d-029-wezwanie-drużyny-attending) | kiedy drużyna jest „wezwana” (zbiórka bez adresata) | E2 |
-| [D-032](#d-032-propozycje-zmian-w-commandsmd-i-specmd-po-e2) | propozycje doprecyzowań w `COMMANDS.md` (bez zmian w dokumencie) | E2 |
-| [D-033](#d-033-odstępowanie-i-łączenie) | kierunek odstępowania, „Jestem”, łączenie zawsze do odstępów regulaminowych w całym szyku | E3 |
-| [D-034](#d-034-odliczanie) | czas i kolejność odzywek, liczby drugiego szeregu, kiedy odliczenie zostaje ważne | E3 |
-| [D-036](#d-036-dwójki-w-miejscu) | geometria „W dwójki, w prawo – ZWROT” i „W szereg, w lewo – FRONT” (pary według liczb z odliczania) | E3 |
-| [D-039](#d-039-propozycje-zmian-w-commandsmd-po-e3) | propozycje doprecyzowań w `COMMANDS.md` po E3 | E3 |
+Brak pozycji oczekujących.
 
 ## Zatwierdzone
 
@@ -33,6 +22,10 @@ Decyzje, które autor powinien potwierdzić lub odrzucić. Po akceptacji pozycja
 | [D-017](#d-017-komendy-spoza-mvp) | lista komend rozpoznawanych jako „poza MVP” | 2026-10-19 |
 | [D-019](#d-019-adresat-i-nazwiska) | „Drużyna” bez liczebnika trafia zawsze; „Szeregowy X, …” poza MVP | 2026-10-19 |
 | [D-021](#d-021-propozycje-zmian-w-commandsmd) | poprawki w `COMMANDS.md` (wprowadzone), „18a” → „18” | 2026-10-19 |
+| D-022 … D-031 | wszystkie decyzje etapu E2 (model stanu, etapy w katalogu, obiekty, czynności przejściowe, niezmiennik pary, skutki zwrotów, wygląd, wezwanie, interfejs, dowódca) | 2026-10-20 |
+| [D-032](#d-032-propozycje-zmian-w-commandsmd-i-specmd-po-e2) | propozycje po E2 — wprowadzone do `COMMANDS.md` i `SPEC.md` | 2026-10-20 |
+| D-033 … D-038 | wszystkie decyzje etapu E3 (odstępowanie i łączenie, odliczanie, równanie, dwójki, przesunięcie, Dziennik) | 2026-10-20 |
+| [D-039](#d-039-propozycje-zmian-w-commandsmd-po-e3) | propozycje po E3 — wprowadzone do `COMMANDS.md` | 2026-10-20 |
 
 ---
 

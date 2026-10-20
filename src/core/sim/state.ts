@@ -1,5 +1,6 @@
 import type { SquadOrdinal } from '../catalog';
 import type { CommandId, FormationName, Side } from '../grammar/ast';
+import type { MessageCode } from '../messages';
 import type { Surname } from '../roster/names';
 import type { Vec2 } from './geometry';
 
@@ -9,7 +10,7 @@ export type Formation = FormationName | 'DISPERSED';
 export type Posture = 'ATTENTION' | 'AT_EASE';
 export type Motion = 'STANDING' | 'MARCHING' | 'MARCHING_IN_PLACE' | 'RUNNING';
 /** Sposób poruszania się w danej chwili — dla animacji (krok defiladowy, zwykły, bieg, wykrok, cofanie). */
-export type Gait = 'STAND' | 'QUICK' | 'PARADE' | 'RUN' | 'SIDESTEP' | 'BACKSTEP' | 'SHUFFLE';
+export type Gait = 'STAND' | 'QUICK' | 'PARADE' | 'RUN' | 'SIDESTEP' | 'BACKSTEP' | 'SHUFFLE' | 'MARK' | 'ROUTE';
 /** Położenie głowy (równanie, odliczanie). */
 export type Head = 'FRONT' | 'LEFT' | 'RIGHT';
 
@@ -21,7 +22,8 @@ export interface Bubble {
   readonly until: number;
 }
 
-export type ReportKind = 'count' | 'incomplete' | 'present';
+/** Odzywki żołnierzy i uwagi symulacji (np. W_FOLLOW_HALT, W_AWAIT_QUICK_STEP) do Dziennika. */
+export type ReportKind = 'count' | 'incomplete' | 'present' | 'note';
 
 /** Natychmiastowe skutki w planie żołnierza. */
 export interface Effects {
@@ -128,6 +130,8 @@ export interface Squad {
   /** Miejsce ostatniej zbiórki: punkt prawoskrzydłowego (kierunkowego) i front (ZB-3). */
   readonly lastAssembly: { readonly anchor: Vec2; readonly facing: number } | null;
   readonly activity: Activity | null;
+  /** Ruch ciągły; `null` — drużyna stoi (albo jest rozproszona). */
+  readonly march: MarchState | null;
 }
 
 export interface CommanderInput {
@@ -150,9 +154,77 @@ export interface Commander {
 
 export interface Report {
   readonly time: number;
-  readonly soldierId: number;
+  /** Żołnierz, który melduje; `null` — uwaga dotycząca całej drużyny. */
+  readonly soldierId: number | null;
   readonly text: string;
   readonly kind: ReportKind;
+  /** Kod uwagi (SPEC 4.4) dla `kind: 'note'`. */
+  readonly code?: MessageCode;
+}
+
+/** Punkt śladu prowadzącego: położenie i droga od początku śladu (m). */
+export interface TrailPoint {
+  readonly s: number;
+  readonly p: Vec2;
+}
+
+/** Żołnierz w kolumnie idącej po śladzie (SPEC 5.5, „Prowadzenie kolumny”). */
+export interface Follower {
+  readonly id: number;
+  /** Droga po śladzie (m). */
+  readonly s: number;
+  /** Przesunięcie w lewo od śladu (m). */
+  readonly lateral: number;
+  /** Docelowa odległość za prowadzącym, mierzona po śladzie (m). */
+  readonly depth: number;
+  readonly targetLateral: number;
+}
+
+/** Zaplanowana zmiana w marszu: po przejściu przez prowadzącego drogi `at` (albo po czasie). */
+export type MarchEvent =
+  | { readonly kind: 'TURN'; readonly delta: number }
+  | { readonly kind: 'RUN' }
+  | { readonly kind: 'QUICK' }
+  | { readonly kind: 'FORWARD' }
+  | { readonly kind: 'MARK_TIME' }
+  | { readonly kind: 'HALT' };
+
+export interface PendingMarchEvent {
+  /** Droga prowadzącego (`distance`) albo czas symulacji, po którym zdarzenie zachodzi. */
+  readonly at: number;
+  readonly basis: 'distance' | 'time';
+  readonly event: MarchEvent;
+}
+
+/** Ruch ciągły drużyny (SPEC 5.5): marsz, marsz w miejscu, bieg, zachodzenie, „Za mną”. */
+export interface MarchState {
+  /**
+   * `RIGID` — cały szyk przesuwa się równolegle (szyk rozwinięty, wykonanie indywidualne);
+   * `TRAIL` — kolumna po śladzie kierunkowego (albo dowódcy przy „Za mną”); `WHEEL` — zachodzenie.
+   */
+  readonly kind: 'RIGID' | 'TRAIL' | 'WHEEL';
+  readonly motion: Exclude<Motion, 'STANDING'>;
+  readonly step: 'PARADE' | 'QUICK' | 'ROUTE';
+  /** Kierunek ruchu prowadzącego (szyku). */
+  readonly heading: number;
+  /** Pozostały obrót prowadzącego (°, ze znakiem) przy zmianie kierunku po łuku. */
+  readonly turnLeft: number;
+  /** Droga przebyta przez prowadzącego od rozpoczęcia marszu. */
+  readonly distance: number;
+  /** Do tej drogi prowadzący idzie krokiem defiladowym (pkt 24: pierwsze trzy kroki). */
+  readonly paradeUntil: number;
+  readonly trail: readonly TrailPoint[];
+  readonly followers: readonly Follower[];
+  /** „Za mną”: prowadzi dowódca, kierunkowy 3 kroki za nim (M-2). */
+  readonly follow: boolean;
+  readonly followHalted: boolean;
+  /** Po „W dwójki – W PRZÓD” czoło skraca krok do „Zwykły – KROK” (pkt 77). */
+  readonly awaitingQuickStep: boolean;
+  readonly quickStepWarned: boolean;
+  /** Zatrzymanie niejednoczesne: czoło stoi, reszta dochodzi (M-10), opcjonalnie ze zwrotem (M-11). */
+  readonly headHalt: { readonly face: number | null } | null;
+  readonly wheel: { readonly pivot: Vec2; readonly sign: 1 | -1; readonly rate: number; readonly pivotId: number } | null;
+  readonly pending: readonly PendingMarchEvent[];
 }
 
 export interface SimState {

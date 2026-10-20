@@ -160,7 +160,8 @@ Wspólne dla ZB-1…ZB-3:
 - **Efekt w miejscu:** żołnierze pierwszego szeregu kolejno od prawego skrzydła podają liczby (dymki co ok. 0,5 s); żołnierze drugiego szeregu przejmują liczbę poprzednika. Numer: kolejno 1…k; „do n”: ((i−1) mod n)+1. Jeśli dwuszereg niepełny, lewoskrzydłowy drugiego szeregu melduje **„Niepełny”**. Potem wszyscy przyjmują postawę swobodną. Zapisane `countMode` i `countInMarch = false`.
 - **Efekt w marszu (rząd):** liczby podawane bez zmiany tempa, `countInMarch = true`.
 - **Odzywki:** liczby, „Niepełny”; wpisy w Dzienniku.
-- **Unieważnienie odliczenia:** zbiórka, rozejście, WRÓĆ do stanu sprzed odliczenia, zwroty Z-1 zmieniające ugrupowanie.
+- **Unieważnienie odliczenia:** zbiórka, rozejście, WRÓĆ do stanu sprzed odliczenia, każdy zwrot Z-1 (także „W tył – ZWROT” — zmienia się prawe skrzydło). Odliczenie pozostaje ważne po SPOCZNIJ, BACZNOŚĆ, równaniu, przesunięciu, odstępowaniu i łączeniu oraz po S-1 i powrocie S-2 (kolejność żołnierzy się nie zmienia).
+- **Szyk odwrócony:** w dwuszeregu po „W tył – ZWROT” odlicza szereg, który jest z przodu.
 - **Przykłady:** ✔ `Kolejno – ODLICZ` · ✔ `Do dwóch – ODLICZ` · ✖ `Do dwa – ODLICZ` → `E_GRAMMAR_AGREEMENT` (ścisły) / `I_NORMALIZED` (łagodny) · ✖ w swobodnej → `E_PRECOND_POSTURE` · ✖ `Do jednego – ODLICZ` → `E_SYNTAX_EXPECTED`
 
 ---
@@ -175,6 +176,7 @@ Wspólne dla ZB-1…ZB-3:
   - Kanonicznie wariant biegiem: `…, biegiem – ODSTĄP` (regulamin zapisuje „(biegiem – ODSTĄP)”).
 - **Pkt:** 73
 - **Warunki:** rozwinięty; stoi; zasadnicza; drużyna nie jest już w stanie odstąpionym (`E_PRECOND_STATE`, „najpierw ŁĄCZ”); wskazany żołnierz istnieje i stoi w pierwszym szeregu (`E_PRECOND_STATE`).
+- **Strona:** „w prawo” / „w lewo” to kierunek ruchu odstępujących — odstępują tylko żołnierze po tej stronie wskazanego; bez strony — obie strony. Od prawoskrzydłowego wszyscy odstępują w lewo, od lewoskrzydłowego — w prawo.
 - **Efekt:** żołnierz, od którego odstępuje się, pozostaje. Wskazany po nazwisku melduje **„Jestem”** i na sekundę unosi lewą rękę (w dwuszeregu także kryjący go żołnierz drugiego szeregu unosi rękę). Pozostali robią zwrot w stronę odstępowania, maszerują (biegną) i zatrzymują się kolejno, aż odstęp między sąsiadami wyniesie 0,6 m + n × 0,7 m; zwrot do frontu, postawa swobodna. Drugi szereg kryje. Zapisany stan odstępowania (od kogo, n, strona).
 - **Przykłady:** ✔ `Od prawoskrzydłowego, dwa kroki – ODSTĄP` · ✔ `Od szeregowego Nowaka, w lewo, trzy kroki – ODSTĄP` · ✖ `Od prawoskrzydłowego, pięć kroki – ODSTĄP` → `E_GRAMMAR_AGREEMENT` · ✖ `Od szeregowego Zawadzkiego, krok – ODSTĄP` (brak w składzie) → `E_PRECOND_STATE`
 
@@ -182,7 +184,7 @@ Wspólne dla ZB-1…ZB-3:
 - **Składnia:** `Do prawoskrzydłowego (lewoskrzydłowego) – ŁĄCZ` · `Do szeregowego Malinowskiego – ŁĄCZ` · `Do szeregowego Stępnia w lewo (w prawo) – ŁĄCZ` · warianty `biegiem – ŁĄCZ`
 - **Pkt:** 73
 - **Warunki:** stan odstąpiony (`E_PRECOND_STATE`, „nie było odstępowania”); stoi; zasadnicza (po odstępowaniu drużyna stoi swobodnie, więc najpierw BACZNOŚĆ — pkt 11).
-- **Efekt:** ruch odwrotny do odstępowania w stronę wskazanego żołnierza (skrzydłowego) do odstępów regulaminowych; zwrot do frontu, postawa swobodna (I-14). Stan odstępowania wyczyszczony.
+- **Efekt:** ruch odwrotny do odstępowania w stronę wskazanego żołnierza (skrzydłowego) do odstępów regulaminowych; zwrot do frontu, postawa swobodna (I-14). Stan odstępowania wyczyszczony. Łączenie zawsze przywraca odstępy regulaminowe w całym szyku względem wskazanego żołnierza (który stoi w miejscu); strona w komendzie opisuje kierunek ruchu łączących się i nie zmienia wyniku. Wskazany po nazwisku musi być w składzie i w pierwszym szeregu (`E_PRECOND_STATE`).
 - **Przykłady:** ✔ `Do prawoskrzydłowego – ŁĄCZ` · ✔ `Do szeregowego Nowaka, biegiem – ŁĄCZ` · ✖ bez wcześniejszego ODSTĄP → `E_PRECOND_STATE`
 
 ---
@@ -195,6 +197,7 @@ Przejścia przez zwroty (szereg ↔ rząd, dwuszereg ↔ kolumna dwójkowa) opis
 - **Składnia:** `W dwójki, w prawo – ZWROT` · `Drużyna, w dwójki, w prawo – ZWROT`
 - **Pkt:** 76
 - **Warunki:** szereg (`E_PRECOND_FORMATION`); stoi; zasadnicza; odliczenie „do dwóch” wykonane w miejscu w obecnym szyku (`E_PRECOND_COUNT`, „najpierw Do dwóch – ODLICZ”).
+- **Pary:** według liczb z odliczania — dwójka staje na lewo od swojego prawego sąsiada (jedynki).
 - **Efekt:** jedynki: zwrot w prawo w miejscu. Dwójki: zwrot w prawo z wykrokiem w lewo w skos, stają na lewo od swojego prawego sąsiada (jedynki). Wynik: kolumna dwójkowa, front +90°, prawy rząd = jedynki, lewy = dwójki; przy nieparzystym N ostatnia jedynka bez pary. `formedFrom = BY_TWOS`.
 - **Przykłady:** ✔ `W dwójki, w prawo – ZWROT` · ✖ bez odliczenia → `E_PRECOND_COUNT` · ✖ w dwuszeregu → `E_PRECOND_FORMATION` (z dwuszeregu: „W prawo – ZWROT”)
 
@@ -402,6 +405,8 @@ Stan początkowy (o ile nie podano inaczej): N = 9, ziarno 1, dowódca w (0, 0) 
 | droga | — („na drodze”) | teren, oś wschód–zachód | y = −15 |
 
 Przedpole obiektu (punkt zaczepienia „na placu”): 3 m od frontu obiektu w stronę środka placu.
+
+Wymiary i orientacja (DECISIONS.md, D-024): budynki równoległe do siatki placu, front zwrócony do środka placu wzdłuż dominującej osi (koszary i maszt — na południe, trybuna i magazyn — na wschód, garaże i hangar — na zachód). Szerokość × głębokość: maszt — podstawa ⌀ 2,4 m; trybuna 16 × 6 m; koszary 42 × 14 m; garaże 24 × 7 m; hangar 30 × 24 m; magazyn 18 × 11 m. Droga: szerokość 7 m. „Na drodze” — punkt osi drogi na wysokości obiektu (x obiektu; −15); bez „na placu / na drodze” — na placu. „Frontem do X” — kierunek od punktu zaczepienia do środka obiektu X.
 
 ### Skład osobowy (nazwiska z odmianą)
 

@@ -1,4 +1,5 @@
 import type { CommandId } from '../grammar/ast';
+import { squadMotion } from './march';
 import type { Formation, Motion, Posture, SimState } from './state';
 
 /** Opis stanu drużyny po polsku — pasek stanu (SPEC 3.1), komunikaty, prompt LLM. */
@@ -41,6 +42,10 @@ export const ACTIVITY_NAMES: Partial<Readonly<Record<CommandId, string>>> = {
   'S-2': 'formowanie szeregu',
   'S-3': 'przesunięcie',
   'X-1': 'powrót (WRÓĆ)',
+  'M-10': 'zatrzymanie czoła',
+  'M-11': 'stawanie',
+  'MS-1': 'formowanie rzędu',
+  'MS-2': 'formowanie dwójek',
 };
 
 export interface StatusSummary {
@@ -56,7 +61,7 @@ export interface StatusSummary {
 export function describeStatus(state: SimState): StatusSummary {
   const { squad, soldiers } = state;
   const postures = new Set(soldiers.map((s) => s.posture));
-  const motions = new Set(soldiers.map((s) => s.motion));
+  const motion = squadMotion(state);
   const flags: string[] = [];
   if (squad.formation === 'DOUBLE_RANK' && soldiers.length % 2 === 1) flags.push('niepełny');
   if (squad.formation === 'COLUMN_OF_TWOS' && soldiers.length % 2 === 1) flags.push('niepełna');
@@ -64,10 +69,17 @@ export function describeStatus(state: SimState): StatusSummary {
   if (squad.extension) flags.push('odstąpiona');
   if (squad.irregularSpacing) flags.push('odstępy nieregulaminowe');
   if (squad.headsTurned) flags.push('głowy zwrócone');
+  const march = squad.march;
+  if (march && march.kind !== 'WHEEL' && march.motion !== 'RUNNING') {
+    if (march.step === 'PARADE' || march.distance < march.paradeUntil) flags.push('krok defiladowy');
+    if (march.step === 'ROUTE') flags.push('krok dowolny');
+    if (march.awaitingQuickStep) flags.push('skrócony krok');
+    if (march.follow) flags.push('za dowódcą');
+  }
   return {
     formation: FORMATION_NAMES[squad.formation],
     posture: postures.size === 1 ? POSTURE_NAMES[[...postures][0] ?? 'AT_EASE'] : 'różne',
-    motion: motions.size === 1 ? MOTION_NAMES[[...motions][0] ?? 'STANDING'] : 'różny',
+    motion: motion === 'WHEELING' ? 'zachodzenie' : MOTION_NAMES[motion],
     facing: squad.layout ? Math.round(squad.layout.facing) % 360 : null,
     activity: squad.activity ? (ACTIVITY_NAMES[squad.activity.commandId] ?? 'wykonuje komendę') : null,
     flags,

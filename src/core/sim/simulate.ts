@@ -1,5 +1,6 @@
 import { DT, MARCH_SPEED, RUN_SPEED } from './constants';
 import { angleDelta, bearing, distance, easeInOut, lerpVec, normalizeAngle, vec } from './geometry';
+import { marchTransitional, stepMarch } from './march';
 import { isBusy } from './plan';
 import type { Commander, Report, SimState, Soldier } from './state';
 
@@ -89,14 +90,16 @@ function stepCommander(c: Commander): Commander {
 export function step(state: SimState): SimState {
   const reports: Report[] = [];
   const soldiers = state.soldiers.map((s) => stepSoldier(s, state.time, reports));
-  const activity = state.squad.activity && soldiers.some(isBusy) ? state.squad.activity : null;
+  const commander = stepCommander(state.commander);
+  // Ruch ciągły (marsz, zachodzenie) po planach żołnierzy — dowódca już przesunięty („Za mną”).
+  const moved = stepMarch({ ...state, soldiers, commander }, reports);
+  const busy = moved.soldiers.some(isBusy) || marchTransitional(moved);
+  const activity = moved.squad.activity && busy ? moved.squad.activity : null;
   return {
-    ...state,
+    ...moved,
     time: state.time + DT,
     tick: state.tick + 1,
-    soldiers,
-    squad: activity === state.squad.activity ? state.squad : { ...state.squad, activity },
-    commander: stepCommander(state.commander),
+    squad: activity === moved.squad.activity ? moved.squad : { ...moved.squad, activity },
     reports: reports.length > 0 ? [...state.reports, ...reports] : state.reports,
   };
 }

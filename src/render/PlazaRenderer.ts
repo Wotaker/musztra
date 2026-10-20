@@ -121,7 +121,8 @@ export class PlazaRenderer {
         y: s.position.y,
         facing: s.facing,
         gait: s.gait,
-        stride: s.stride,
+        // Krok dowolny: każdy żołnierz w innej fazie kroku (marsz nie w nogę, pkt 102).
+        stride: s.stride + (s.gait === 'ROUTE' ? s.id * 0.53 : 0),
         posture: s.posture,
         head: s.head,
         armRaised: s.armRaisedUntil !== null && s.armRaisedUntil > frame.state.time,
