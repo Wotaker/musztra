@@ -123,7 +123,9 @@ export class PlazaController {
     const bar = document.querySelector('.status-bar')?.getBoundingClientRect();
     const bottom = dock ? Math.max(120, height - dock.top + 12) : 170;
     const top = bar ? Math.max(56, bar.bottom + 12) : 72;
-    this.insets = { top, right: 24, bottom: Math.min(bottom, height * 0.5), left: 24 };
+    const journal = document.querySelector('.journal')?.getBoundingClientRect();
+    const right = journal && journal.height > 60 ? Math.max(24, this.renderer.size.width - journal.left + 12) : 24;
+    this.insets = { top, right: Math.min(right, this.renderer.size.width * 0.4), bottom: Math.min(bottom, height * 0.5), left: 24 };
   }
 
   /** Atrybuty płótna dla testów E2E i czytników (stan drużyny i dowódcy, zaokrąglone). */

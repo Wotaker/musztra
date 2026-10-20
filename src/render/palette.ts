@@ -45,8 +45,8 @@ export const PALETTE = {
   badge: '#d7b54a',
   frontMarker: 'rgba(240, 233, 210, 0.9)',
   arm: '#535b33',
-  armRaised: '#7b8a3a',
-  gestureRing: 'rgba(214, 170, 50, 0.85)',
+  armRaised: '#d9a72a',
+  gestureRing: 'rgba(226, 178, 40, 0.95)',
 
   bubble: '#fbfaf5',
   bubbleText: '#2b2d27',

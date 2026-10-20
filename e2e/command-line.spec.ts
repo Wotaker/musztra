@@ -35,6 +35,7 @@ test('poprawna komenda: ✔ Wykonano, rozpoznany wpis katalogu z punktem regulam
 /** Zbiórka w szeregu i oczekiwanie na jej zakończenie — zwroty wymagają drużyny w szyku (od etapu E2). */
 async function assemble(page: Page) {
   await send(page, 'Pierwsza drużyna, w szeregu – ZBIÓRKA');
+  await expect(page.getByTestId('plaza-canvas')).toHaveAttribute('data-activity', 'busy');
   await expect(page.getByTestId('plaza-canvas')).toHaveAttribute('data-activity', 'idle', { timeout: 20_000 });
 }
 

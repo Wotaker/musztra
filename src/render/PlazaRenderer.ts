@@ -137,14 +137,14 @@ export class PlazaRenderer {
     for (const { view, commander: isCommander } of views) {
       const screen = worldToScreen(camera, viewport, view);
       if (screen.x < -40 || screen.y < -40 || screen.x > viewport.width + 40 || screen.y > viewport.height + 40) continue;
-      const scale = figureScale(k) * (isCommander ? 1.08 : 1);
+      const scale = figureScale(k);
       ctx.setTransform(dpr * k * scale, 0, 0, dpr * k * scale, dpr * screen.x, dpr * screen.y);
       if (isCommander) {
         ctx.fillStyle = PALETTE.commanderRing;
         ctx.strokeStyle = 'rgba(63, 69, 39, 0.45)';
         ctx.lineWidth = 0.035;
         ctx.beginPath();
-        ctx.arc(0, 0, 0.4, 0, Math.PI * 2);
+        ctx.arc(0, 0, 0.33, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
       }
@@ -160,6 +160,7 @@ export class PlazaRenderer {
       drawFigure(ctx, view, isCommander);
     }
 
+    this.drawGestures(views.filter((v) => v.view.armRaised).map((v) => v.view), camera);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     if (frame.showRoles) this.drawRoles(frame, soldiers);
     this.drawLabels(frame);
@@ -169,6 +170,42 @@ export class PlazaRenderer {
 
     this.frames++;
     this.canvas.dataset.frames = String(this.frames);
+  }
+
+  /**
+   * Uniesiona lewa ręka (pkt 73) rysowana ponad szykiem, z wyraźnym znacznikiem dłoni — w zwartym szeregu
+   * ręka przykrywa sąsiada, więc musi być widoczna na wierzchu (SPEC 3.5).
+   */
+  private drawGestures(views: readonly FigureView[], camera: Camera): void {
+    const { ctx, viewport, dpr } = this;
+    const k = camera.pixelsPerMeter * figureScale(camera.pixelsPerMeter);
+    for (const view of views) {
+      const screen = worldToScreen(camera, viewport, view);
+      ctx.setTransform(dpr * k, 0, 0, dpr * k, dpr * screen.x, dpr * screen.y);
+      ctx.rotate((view.facing * Math.PI) / 180);
+      ctx.strokeStyle = 'rgba(40, 36, 20, 0.35)';
+      ctx.lineCap = 'round';
+      ctx.lineWidth = 0.15;
+      ctx.beginPath();
+      ctx.moveTo(-0.2, 0.02);
+      ctx.lineTo(-0.7, 0.02);
+      ctx.stroke();
+      ctx.strokeStyle = PALETTE.armRaised;
+      ctx.lineWidth = 0.1;
+      ctx.beginPath();
+      ctx.moveTo(-0.2, 0);
+      ctx.lineTo(-0.7, 0);
+      ctx.stroke();
+      ctx.fillStyle = PALETTE.skin;
+      ctx.beginPath();
+      ctx.ellipse(-0.75, 0, 0.06, 0.04, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = PALETTE.gestureRing;
+      ctx.lineWidth = 0.045;
+      ctx.beginPath();
+      ctx.arc(-0.75, 0, 0.15, 0, Math.PI * 2);
+      ctx.stroke();
+    }
   }
 
   /** Linie siatki, wyrównane do pikseli urządzenia (ostre, bez rozmycia). */

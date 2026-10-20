@@ -8,7 +8,18 @@ async function send(page: Page, text: string) {
   await input.press('Enter');
 }
 
+/** Czeka, aż pętla animacji opublikuje stan po komendzie (dwie klatki), a potem na koniec czynności. */
 async function idle(page: Page) {
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            resolve();
+          });
+        });
+      }),
+  );
   await expect(page.getByTestId('plaza-canvas')).toHaveAttribute('data-activity', 'idle', { timeout: 20_000 });
 }
 

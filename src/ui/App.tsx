@@ -1,6 +1,7 @@
 import { CommandLine } from './CommandLine';
 import { CompassRose } from './CompassRose';
 import { FeedbackPanel } from './FeedbackPanel';
+import { Journal } from './Journal';
 import { PlazaCanvas } from './PlazaCanvas';
 import { SoldierTooltip } from './SoldierTooltip';
 import { StatusBar } from './StatusBar';
@@ -13,6 +14,7 @@ export function App() {
       <PlazaCanvas />
       <StatusBar />
       <CompassRose />
+      <Journal />
       <SoldierTooltip />
       <div className="command-dock">
         <FeedbackPanel />
