@@ -153,7 +153,7 @@ export function drawFigure(ctx: CanvasRenderingContext2D, view: FigureView, comm
 
   // Głowa: twarz z przodu, beret ściągnięty na prawą stronę, oznaka nad lewym okiem.
   ctx.save();
-  if (view.head !== 'FRONT') ctx.rotate(((view.head === 'RIGHT' ? 45 : -45) * Math.PI) / 180);
+  if (view.head !== 'FRONT') ctx.rotate(((view.head === 'RIGHT' ? 60 : -60) * Math.PI) / 180);
   ctx.fillStyle = PALETTE.skin;
   ellipse(ctx, 0, -0.025, 0.095, 0.105);
   ctx.fill();

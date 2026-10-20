@@ -7,11 +7,109 @@ Etapy według `SPEC.md`, sekcja 10. Każdy etap kończy się wdrożoną wersją 
 | E0 Szkielet | ✔ ukończony | 2026-10-19 |
 | E1 Interpreter | ✔ ukończony | 2026-10-19 |
 | E2 Stan i obraz | ✔ ukończony | 2026-10-20 |
-| E3 Szyki w miejscu | — | |
+| E3 Szyki w miejscu | ✔ ukończony | 2026-10-20 |
 | E4 Ruch | — | |
 | E5 Nauka | — | |
 | E6 LLM | — | |
 | E7 Szlif | — | |
+
+---
+
+## E3 Szyki w miejscu — podsumowanie (2026-10-20)
+
+### Status
+
+**✔ Ukończony.** Przechodzą `npm run lint`, `npm test` (813 testów; 20 testów „todo” — wyłącznie etap E4), `npm run build`, `npm run e2e` (28 testów; lokalnie na preinstalowanym Chromium, testy E2E etapów E2–E3 dodatkowo 3× z rzędu bez błędu). CI na GitHubie zielone, strona wdrożona przez CI.
+
+Wszystkie 12 testów „todo” etapu E3 są zwykłymi testami (R-1 w kolumnie, R-2 w postawie swobodnej, O-1 z nazwiskiem spoza składu, O-2 bez ODSTĄP, S-1 bez odliczenia, S-1 w dwuszeregu — po 2 tryby zapisu). Scenariusze akceptacyjne E3: S04, S05, S06, S07, S08, S12, S13, S14, S25 — po każdej komendzie sprawdzane niezmienniki SPEC 5.4. Dodatkowe testy: numeracja „do n”, odliczanie w złym szyku, w trakcie (E_BUSY), unieważnianie odliczenia, „Równaj – W LEWO”, blokada przy zwróconych głowach, dwójki dla N parzystego, przesunięcie o 6 kroków i w kolumnie, odstępowanie w jedną stronę, od nazwiska (gest „Jestem”), w dwuszeregu, biegiem, łączenie do wskazanego żołnierza.
+
+Uwagi UI na później: w `PROGRESS.md` nie było takiej sekcji (zob. E2 i D-032) — nie było czego realizować.
+
+Zrzuty ekranu: `docs/screenshots/e3-*.png` (odliczanie z dymkami, meldunek „Niepełny”, kolumna dwójkowa z szeregu, „Jestem” przy odstępowaniu, szereg po odstąpieniu, równanie).
+
+### 1. Co działa
+
+- **Odliczanie** („Kolejno – ODLICZ”, „Do dwóch (trzech, …) – ODLICZ”): żołnierze pierwszego szeregu kolejno od prawego skrzydła podają liczby — nad głowami pojawiają się dymki z liczbami co pół sekundy, głowy obracają się jak w pkt 72. Drugi szereg przejmuje liczby poprzedników. W niepełnym dwuszeregu lewoskrzydłowy drugiego szeregu melduje **„Niepełny”** (żółty dymek). Potem wszyscy przyjmują postawę swobodną. Liczbę każdego żołnierza widać po najechaniu myszą.
+- **Równanie** („Równaj – W PRAWO / W LEWO”): wszyscy poza skrzydłowym zwracają głowy, szyk drobnymi krokami wyrównuje się do skrzydłowego (np. nierówne odstępy po zwrocie z rzędu). Dopóki głowy są zwrócone, przyjmowane są tylko BACZNOŚĆ, WRÓĆ i ROZEJŚĆ SIĘ.
+- **Dwójki**: z szeregu po „Do dwóch – ODLICZ” i BACZNOŚĆ — „W dwójki, w prawo – ZWROT”: jedynki robią zwrot, dwójki wykrok w skos na lewo od jedynek → kolumna dwójkowa. „W szereg, w lewo – FRONT” — z powrotem do szeregu (samotna jedynka staje na lewo od ostatniej dwójki).
+- **Przesunięcie**: „Drużyna, krok na wprost (w tył) – MARSZ”, „Drużyna, trzy (sześć…) kroki na wprost – MARSZ” — cały szyk przesuwa się bez zmiany frontu; w tył o więcej niż krok — błąd z pkt 74.
+- **Odstępowanie i łączenie**: „Od prawoskrzydłowego (lewoskrzydłowego), dwa kroki (, biegiem) – ODSTĄP”, „Od szeregowego Barana (, w lewo), krok – ODSTĄP” — wskazany mówi „Jestem” i unosi lewą rękę (wyraźny żółty znacznik; w dwuszeregu także kryjący go żołnierz), pozostali robią zwrot, odchodzą i zatrzymują się kolejno, wracają frontem, stają swobodnie. „Do prawoskrzydłowego (szeregowego X) – ŁĄCZ” — po BACZNOŚĆ szyk wraca do odstępów 0,6 m.
+- **Dziennik** po prawej stronie: komendy z ikoną wyniku (✔ ⚠ ✖) i kodem problemu, meldunki („szer. Woźniak: Niepełny”, „szer. Baran: Jestem”) i zgrupowane odliczanie („Odliczanie: Wieczorek 1 · Nowak 2 · …”). Klik w komendę wstawia ją do wiersza poleceń; nagłówek zwija i rozwija panel.
+- Pasek stanu pokazuje dodatkowo „odliczona kolejno / do 2”, „odstąpiona”, „głowy zwrócone”, a w trakcie — „odliczanie”, „równanie”, „formowanie dwójek”, „formowanie szeregu”, „przesunięcie”, „odstępowanie”, „łączenie”.
+- Wszystko z E2 działa jak wcześniej (komendy marszowe nadal tylko rozpoznawane — E4).
+
+### 2. Lista kontrolna do ręcznego sprawdzenia w przeglądarce
+
+Otwórz **https://wotaker.github.io/musztra/**, odśwież przed każdą sekcją. Skład: nr 1 Wieczorek, 2 Nowak, 3 Krawczyk, 4 Baran, 5 Sikora, 6 Zieliński, 7 Król, 8 Kalinowski, 9 Woźniak. Czekaj, aż w pasku stanu zniknie pulsująca nazwa czynności, zanim wpiszesz kolejną komendę.
+
+**A. Odliczanie i „Niepełny”**
+
+1. `Pierwsza drużyna, w dwuszeregu – ZBIÓRKA` → dwuszereg 5 + 4.
+2. `Kolejno – ODLICZ` → w pasku „odliczanie”; nad pierwszym szeregiem od prawej (przy dowódcy) kolejno dymki **1, 2, 3, 4, 5** co pół sekundy; drugi szereg milczy; potem nad lewym żołnierzem drugiego szeregu żółty dymek **„Niepełny”**; wszyscy przechodzą w postawę swobodną (jaśnieją). Dziennik: „Odliczanie: Wieczorek 1 · Nowak 2 · Krawczyk 3 · Baran 4 · Sikora 5” i „szer. Woźniak: Niepełny”. Pasek: „… swobodna … niepełny · odliczona kolejno”.
+3. Najedź na żołnierza drugiego szeregu za Nowakiem → „szer. Król · nr 7 · odliczenie: 2”.
+4. `Kolejno – ODLICZ` jeszcze raz → ✖ „Drużyna stoi w postawie swobodnej… najpierw BACZNOŚĆ” (pkt 11).
+5. `Pierwsza drużyna, w rzędzie – ZBIÓRKA`, potem `Kolejno – ODLICZ` → ✖ „Odliczanie w miejscu wykonuje się w szeregu lub dwuszeregu…” (`E_PRECOND_FORMATION`).
+
+**B. Dwójki (S05, S06)**
+
+6. `Pierwsza drużyna, w szeregu – ZBIÓRKA`, potem `W dwójki, w prawo – ZWROT` → ✖ „…potrzebne jest odliczenie „do dwóch”…” (`E_PRECOND_COUNT`).
+7. `Do dwóch – ODLICZ` → dymki 1, 2, 1, 2, …, 1 od prawego skrzydła; postawa swobodna.
+8. `W dwójki, w prawo – ZWROT` → ✖ najpierw BACZNOŚĆ. `BACZNOŚĆ`, potem `W dwójki, w prawo – ZWROT` → jedynki obracają się w prawo w miejscu, dwójki robią wykrok w skos i stają na północ od jedynek (po lewej ręce nowego frontu); pasek „kolumna dwójkowa · zasadnicza · stoi · front 90° · niepełna”; Woźniak (nr 9) bez pary na końcu kolumny.
+9. `W szereg, w lewo – FRONT` → dwójki obracają się w lewo, jedynki wykrokiem stają po ich prawej, Woźniak na lewym końcu; szereg frontem na północ, równe odstępy, przesunięty o jeden odstęp na północ i w prawo względem pierwotnego.
+10. `Pierwsza drużyna, w dwuszeregu – ZBIÓRKA`, `W prawo – ZWROT`, `W szereg, w lewo – FRONT` → ✖ „Kolumnę dwójkową utworzoną z dwuszeregu zamienia się w dwuszereg komendą „W lewo – ZWROT”…”.
+
+**C. Równanie (S25)**
+
+11. `Pierwsza drużyna, w rzędzie – ZBIÓRKA`, potem `W lewo – ZWROT` → szereg z dużymi odstępami, pasek „odstępy nieregulaminowe”.
+12. `Równaj – W PRAWO` → wszyscy poza prawoskrzydłowym obracają głowy w prawo, drobnymi krokami dosuwają się do niego; pasek „głowy zwrócone”.
+13. `W prawo – ZWROT` → ✖ „Żołnierze mają zwrócone głowy… podaj BACZNOŚĆ” (`E_PRECOND_STATE`).
+14. `BACZNOŚĆ` → głowy na wprost; `W prawo – ZWROT` → wykonane.
+15. `Pierwsza drużyna, w szeregu – ZBIÓRKA`, `Równaj – W LEWO` → wszyscy poza lewoskrzydłowym (Woźniak) obracają głowy w lewo.
+
+**D. Przesunięcie (S12)**
+
+16. `Pierwsza drużyna, w szeregu – ZBIÓRKA`, `Drużyna, trzy kroki w tył – MARSZ` → ✖ „Szyk przesuwa się w tył najwyżej o krok…” (pkt 74).
+17. `Drużyna, krok w tył – MARSZ` → cały szereg cofa się o krok, nadal frontem na północ.
+18. `Drużyna, sześć kroków na wprost – MARSZ` → szereg maszeruje sześć kroków (pierwsze trzy defiladowym — wyższy krok) i staje w postawie zasadniczej.
+
+**E. Odstępowanie i łączenie (S13, S14)**
+
+19. `Pierwsza drużyna, w szeregu – ZBIÓRKA`, `BACZNOŚĆ` (bez skutku), `Do prawoskrzydłowego – ŁĄCZ` → ✖ „Nie było odstępowania…”.
+20. `Od prawoskrzydłowego, dwa kroki – ODSTĄP` → Wieczorek stoi, pozostali obracają się w lewo, odchodzą i zatrzymują się kolejno (dalsi później), wracają frontem; odstępy ok. 2 m; postawa swobodna; pasek „odstąpiona”.
+21. `Do prawoskrzydłowego – ŁĄCZ` → ✖ najpierw BACZNOŚĆ. `BACZNOŚĆ`, `Do prawoskrzydłowego – ŁĄCZ` → wszyscy wracają do Wieczorka, odstępy jak po zbiórce, postawa swobodna.
+22. `Pierwsza drużyna, w dwuszeregu – ZBIÓRKA`, `Od szeregowego Krawczyka, dwa kroki – ODSTĄP` → nad Krawczykiem dymek **„Jestem”**, Krawczyk i żołnierz za nim (Kalinowski) unoszą lewą rękę (żółty znacznik na ok. sekundę); potem obie strony odstępują od Krawczyka, drugi szereg kryje. Dziennik: „szer. Krawczyk: Jestem”.
+23. `BACZNOŚĆ`, `Do szeregowego Krawczyka – ŁĄCZ` → szyk wraca do odstępów 0,6 m wokół Krawczyka.
+24. `Od szeregowego Zielińskiego, krok – ODSTĄP` (Zieliński jest w drugim szeregu) → ✖ „…stoi w drugim szeregu…”. `Od szeregowego Zawadzkiego, krok – ODSTĄP` → ✖ „Szeregowego Zawadzkiego nie ma w składzie drużyny. Skład: …”.
+25. `Pierwsza drużyna, w szeregu – ZBIÓRKA`, `Od szeregowego Barana, w lewo, krok – ODSTĄP` → Baran mówi „Jestem”, odstępują tylko żołnierze na lewo od niego; Wieczorek, Nowak i Krawczyk stoją w miejscu.
+26. `Pierwsza drużyna, w szeregu – ZBIÓRKA`, `Od lewoskrzydłowego, pięć kroków, biegiem – ODSTĄP` → Woźniak (lewe skrzydło) stoi, pozostali biegną w prawo (szybciej niż marszem), odstępy ok. 4,1 m.
+
+**F. Dziennik, WRÓĆ, sterowanie**
+
+27. Wpisz kilka komend, w tym błędną → w Dzienniku ✔/✖ z kodem; kliknij wpis → komenda wraca do wiersza poleceń, kursor w wierszu.
+28. Kliknij nagłówek „Dziennik” → panel się zwija (zostaje licznik wpisów); po odświeżeniu strony pozostaje zwinięty; kliknij znowu → rozwija się.
+29. W trakcie odliczania wpisz `BACZNOŚĆ` → ✖ `E_BUSY`; `WRÓĆ` → odliczanie przerwane, drużyna w postawie zasadniczej bez liczb.
+30. Po odstąpieniu `WRÓĆ` → żołnierze szybko wracają do szeregu sprzed odstępowania.
+31. Sterowanie dowódcą (Esc, WASD, Shift, Q/E, Enter) działa jak w E2; Dziennik nie przeszkadza w kadrowaniu (kamera omija jego obszar).
+
+### 3. Decyzje i otwarte pytania
+
+Decyzje (szczegóły w `docs/DECISIONS.md`):
+
+- D-033 Odstępowanie i łączenie: strona = kierunek ruchu, „Jestem” i gest, drugi szereg kryje, łączenie zawsze do odstępów regulaminowych — **do akceptacji**.
+- D-034 Odliczanie: czas odzywek, liczby drugiego szeregu, grupowanie w Dzienniku, kiedy odliczenie pozostaje ważne — **do akceptacji**.
+- D-035 Równanie w dwuszeregu (skrzydłowy każdego szeregu bez zwrotu głowy).
+- D-036 Dwójki w miejscu: pary według liczb z odliczania — **do akceptacji**.
+- D-037 Przesunięcie szyku (czas, trzy kroki defiladowe).
+- D-038 Dziennik.
+- D-039 Propozycje doprecyzowań w `COMMANDS.md` (dokumentu nie zmieniano).
+
+W E3 działają dodatkowo interpretacje I-4 (odliczanie w miejscu tylko w szyku rozwiniętym), I-8 (samotna jedynka) i I-14 (postawa swobodna po ŁĄCZ) — każda jako osobna reguła w `src/core/interpretations.ts`.
+
+Otwarte pytania: patrz „Do akceptacji” w `DECISIONS.md` (D-024…D-029, D-032…D-039).
+
+### 4. Adres wdrożenia
+
+**https://wotaker.github.io/musztra/** · CI: https://github.com/Wotaker/musztra/actions
 
 ---
 
@@ -221,7 +319,7 @@ Testy oznaczone jako `todo` nie są pominiętymi testami: to werdykty zależne o
 Każdy z 40 testów oznaczonych jako `todo` (20 przykładów zależnych od stanu × 2 tryby zapisu, D-016) **musi stać się zwykłym testem w etapie, w którym pojawi się potrzebny stan**. Etap jest zapisany w danych katalogu (pole `stage` przykładu `inState`) i w nazwie testu:
 
 - **E2** (4 przykłady, 8 testów) — ✔ zwykłe testy od E2: Z-1 w postawie swobodnej, ZB-1 bez wezwania, ZB-3 na początku sesji, X-1 na początku sesji.
-- **E3** (6 przykładów, 12 testów): R-1 w kolumnie, R-2 w postawie swobodnej, O-1 z nazwiskiem spoza składu, O-2 bez ODSTĄP, S-1 bez odliczenia, S-1 w dwuszeregu.
+- **E3** (6 przykładów, 12 testów) — ✔ zwykłe testy od E3: R-1 w kolumnie, R-2 w postawie swobodnej, O-1 z nazwiskiem spoza składu, O-2 bez ODSTĄP, S-1 bez odliczenia, S-1 w dwuszeregu.
 - **E4** (10 przykładów, 20 testów): Z-1 w marszu, S-4 w rzędzie, M-2 w szeregu, M-3 w biegu, M-6 stojąc, M-8 w biegu, M-9 stojąc, M-10 w szeregu, MS-1 w rzędzie, MS-2 bez odliczenia w marszu.
 
 Etap nie jest ukończony, dopóki zostają w nim testy `todo` przypisane do tego etapu.

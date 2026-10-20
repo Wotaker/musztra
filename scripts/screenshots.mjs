@@ -43,6 +43,8 @@ for (const scene of SCENES) {
     }
     await input.fill(step);
     await input.press('Enter');
+    // Pętla animacji publikuje stan w następnej klatce.
+    await page.waitForTimeout(120);
     await page.waitForFunction(() => document.querySelector('[data-testid=plaza-canvas]')?.getAttribute('data-activity') !== 'busy', null, { timeout: 30000 });
     await page.waitForTimeout(200);
   }

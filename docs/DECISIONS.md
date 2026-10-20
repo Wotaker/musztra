@@ -14,6 +14,10 @@ Decyzje, które autor powinien potwierdzić lub odrzucić. Po akceptacji pozycja
 | [D-027](#d-027-skutki-zwrotów-dla-odliczenia-odstępowania-i-odległości) | każdy zwrot unieważnia odliczenie; zwrot zmieniający ugrupowanie kasuje odstąpienie; rząd 0,6 m oznaczony jako nieregularny | E2 |
 | [D-029](#d-029-wezwanie-drużyny-attending) | kiedy drużyna jest „wezwana” (zbiórka bez adresata) | E2 |
 | [D-032](#d-032-propozycje-zmian-w-commandsmd-i-specmd-po-e2) | propozycje doprecyzowań w `COMMANDS.md` (bez zmian w dokumencie) | E2 |
+| [D-033](#d-033-odstępowanie-i-łączenie) | kierunek odstępowania, „Jestem”, łączenie zawsze do odstępów regulaminowych w całym szyku | E3 |
+| [D-034](#d-034-odliczanie) | czas i kolejność odzywek, liczby drugiego szeregu, kiedy odliczenie zostaje ważne | E3 |
+| [D-036](#d-036-dwójki-w-miejscu) | geometria „W dwójki, w prawo – ZWROT” i „W szereg, w lewo – FRONT” (pary według liczb z odliczania) | E3 |
+| [D-039](#d-039-propozycje-zmian-w-commandsmd-po-e3) | propozycje doprecyzowań w `COMMANDS.md` po E3 | E3 |
 
 ## Zatwierdzone
 
@@ -329,3 +333,68 @@ Decyzje, które autor powinien potwierdzić lub odrzucić. Po akceptacji pozycja
 - SPEC 5.5: dopisać do czynności przejściowych wezwanie drużyny rozproszonej, SPOCZNIJ z korektą i WRÓĆ, a rozejście oznaczyć jako nieblokujące (D-025).
 - ZB-2: podać wymiary/orientację obiektów lub przyjąć D-024.
 - PROGRESS.md / polecenie etapów wspomina „Uwagi UI na później” — takiej sekcji nie było w repozytorium (stan z 2026-10-19), więc nie było czego realizować; jeśli autor ma takie uwagi, proszę o ich dopisanie.
+
+## D-033 Odstępowanie i łączenie
+
+- **Data:** 2026-10-20 · **Etap:** E3
+- **Kontekst:** COMMANDS O-1, O-2, pkt 73. Nie jest powiedziane, kto się porusza przy „Od szeregowego X, w prawo”, kiedy rusza reszta po „Jestem” ani co oznacza strona w „Do szeregowego Stępnia w lewo – ŁĄCZ”.
+- **Decyzja:**
+  - Strona w komendzie odstępowania to kierunek ruchu: „w prawo” — odstępują żołnierze na prawo od wskazanego (w prawo), „w lewo” — na lewo; bez strony — obie strony. „Od prawoskrzydłowego” — wszyscy w lewo, „od lewoskrzydłowego” — w prawo.
+  - Wszyscy ruszają jednocześnie: zwrot w stronę ruchu, marsz (bieg), zatrzymanie, zwrot do frontu, postawa swobodna. Dalsi idą dłużej, więc zatrzymują się kolejno, jak w pkt 73. Odstęp między sąsiadami: 0,6 m + n × 0,7 m. Żołnierze, którzy stoją w miejscu, przyjmują postawę swobodną, gdy wszyscy skończą.
+  - Wskazany po nazwisku mówi „Jestem” (dymek, wpis w Dzienniku) i na sekundę unosi lewą rękę; w dwuszeregu rękę unosi też kryjący go żołnierz drugiego szeregu. Reszta rusza 0,6 s po haśle, żeby gest był widoczny. Przy odstępowaniu od skrzydłowego nikt nie mówi „Jestem” (regulamin wymaga tego tylko przy wskazaniu po nazwisku).
+  - Drugi szereg kryje: każdy przesuwa się tak jak jego poprzednik.
+  - Wskazany żołnierz musi być w składzie i w pierwszym szeregu — dotyczy także łączenia „Do szeregowego X”.
+  - Łączenie zawsze przywraca odstępy regulaminowe (0,6 m) w całym szyku względem wskazanego żołnierza, który stoi w miejscu; strona w komendzie („w lewo / w prawo”) opisuje kierunek ruchu łączących się i nie zmienia wyniku. Dzięki temu po łączeniu szyk jest zawsze regulaminowy.
+  - Po odstąpieniu SPOCZNIJ i „Równaj” zachowują odstępy z odstępowania.
+- **Alternatywy:** łączenie tylko po stronie wskazanej w komendzie — po niepasującej komendzie część szyku zostałaby odstąpiona bez stanu odstąpienia.
+
+## D-034 Odliczanie
+
+- **Data:** 2026-10-20 · **Etap:** E3
+- **Kontekst:** COMMANDS R-2, pkt 72, SPEC 3.5.
+- **Decyzja:**
+  - Pierwszy szereg zwraca głowy w prawo, prawoskrzydłowy w lewo; liczby padają od prawego skrzydła co 0,5 s (pierwsza 0,3 s po haśle); mówiący zwraca głowę w lewo, potem na wprost. Dymek z liczbą (cyframi) widać ok. 2 s.
+  - Drugi szereg przejmuje liczby poprzedników bez dymków (widać je po najechaniu na żołnierza).
+  - W niepełnym dwuszeregu lewoskrzydłowy drugiego szeregu 0,3 s po ostatniej liczbie zwraca głowę w stronę dowódcy i melduje „Niepełny” (dymek w innym kolorze, wpis w Dzienniku). Potem wszyscy przyjmują postawę swobodną.
+  - W Dzienniku liczby jednego odliczania są jednym wpisem („Odliczanie: Wieczorek 1 · Nowak 2 · …”), meldunki — osobnymi („szer. Woźniak: Niepełny”).
+  - Odliczenie pozostaje ważne po SPOCZNIJ, BACZNOŚĆ, „Równaj”, przesunięciu, odstępowaniu i łączeniu oraz po „W dwójki, w prawo – ZWROT” i powrocie „W szereg, w lewo – FRONT” (kolejność żołnierzy się nie zmienia). Unieważniają je zbiórka, rozejście, każdy zwrot Z-1 (D-027) i WRÓĆ do stanu sprzed odliczenia.
+- **Alternatywy:** osobny wpis w Dzienniku dla każdej liczby — przy 12 żołnierzach Dziennik szybko stawał się nieczytelny.
+
+## D-035 Równanie
+
+- **Data:** 2026-10-20 · **Etap:** E3
+- **Kontekst:** COMMANDS R-1, pkt 71 („z wyjątkiem prawoskrzydłowego”).
+- **Decyzja:** w dwuszeregu głów nie zwraca skrzydłowy każdego szeregu (prawy przy „W PRAWO”, lewy przy „W LEWO”) — nie ma do kogo się równać. Pozycje są korygowane drobnymi krokami do odstępów regulaminowych (albo odstępów z odstępowania) względem tego skrzydłowego; przy „W LEWO” lewoskrzydłowy zostaje na miejscu. Głowy zwrócone są widoczne na placu i w pasku stanu („głowy zwrócone”) do komendy BACZNOŚĆ.
+- **Alternatywy:** tylko prawoskrzydłowy pierwszego szeregu bez zwrotu głowy — drugi szereg i tak kryje, a jego skrzydłowy nie miałby kogo widzieć.
+
+## D-036 Dwójki w miejscu
+
+- **Data:** 2026-10-20 · **Etap:** E3
+- **Kontekst:** COMMANDS S-1, S-2, pkt 76, I-8, scenariusze S05, S06.
+- **Decyzja:**
+  - Pary tworzą się według liczb z odliczania: dwójka staje na lewo od swojego prawego sąsiada (jedynki), w odstępie 0,6 m w kierunku dotychczasowego frontu (po zwrocie — w lewo). Animacja: połowa zwrotu w miejscu, potem wykrok w skos z dokończeniem zwrotu.
+  - „W szereg, w lewo – FRONT”: dwójki tylko się zwracają, jedynka staje 0,6 m na prawo od swojej dwójki, samotna jedynka — 0,6 m na lewo od ostatniej dwójki (I-8, osobna stała w `interpretations.ts`).
+  - Jeśli odstępy po zmianie szyku nie są regulaminowe (np. szereg był nieregularny), szyk dostaje flagę `irregularSpacing`; stan odstąpienia jest kasowany.
+- **Alternatywy:** pary według pozycji (co drugi żołnierz) bez patrzenia na liczby — regulamin mówi o „oznaczonych liczbą dwa”.
+
+## D-037 Przesunięcie szyku
+
+- **Data:** 2026-10-20 · **Etap:** E3
+- **Kontekst:** COMMANDS S-3, pkt 24, 74.
+- **Decyzja:** przesunięcie o krok (na wprost lub w tył) trwa 0,55 s, bez zmiany frontu; „N kroków na wprost”: pierwsze trzy kroki defiladowe, dalej krok zwykły, zatrzymanie w postawie zasadniczej. Przesunięcie jest czynnością przejściową. „Drużyna, na wprost – MARSZ” bez liczby kroków to M-4 (marsz, etap E4).
+- **Alternatywy:** —
+
+## D-038 Dziennik
+
+- **Data:** 2026-10-20 · **Etap:** E3
+- **Kontekst:** SPEC 3.1, 3.6.
+- **Decyzja:** zwijany panel po prawej stronie (stan zwinięcia pamiętany w przeglądarce), pod różą wiatrów. Wpis komendy: czas symulacji (mm:ss), ikona wyniku (✔ ⚠ ✖ ℹ), tekst — dla przyjętej forma kanoniczna, dla odrzuconej tekst wpisany — i kod pierwszego problemu. Klik w komendę wstawia ją do wiersza poleceń (i przełącza na tryb Komenda). Meldunki: „szer. Nazwisko: tekst” na bursztynowym tle; liczby odliczania zgrupowane (D-034). Najwyżej 500 wpisów. Kamera omija obszar Dziennika przy kadrowaniu.
+- **Alternatywy:** Dziennik jako szuflada otwierana przyciskiem — mniej widoczne meldunki.
+
+## D-039 Propozycje zmian w COMMANDS.md po E3
+
+- **Data:** 2026-10-20 · **Etap:** E3 · do decyzji autora (dokumentów nie zmieniano)
+- O-1: dopisać, że strona („w prawo / w lewo”) to kierunek ruchu odstępujących (D-033).
+- O-2: dopisać, że łączenie przywraca odstępy regulaminowe w całym szyku, a wskazany żołnierz musi być w pierwszym szeregu (D-033).
+- R-2: dopisać, kiedy odliczenie pozostaje ważne (D-034) i że w dwuszeregu odwróconym (po „W tył – ZWROT”) liczy szereg, który jest z przodu.
+- S-1: doprecyzować, że pary tworzą się według liczb z odliczania (D-036).
