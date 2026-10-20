@@ -163,6 +163,7 @@ export class PlazaRenderer {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     if (frame.showRoles) this.drawRoles(frame, soldiers);
     this.drawLabels(frame);
+    this.drawOffscreenObjects(frame);
     this.drawBubbles(frame, soldiers);
     this.drawCommanderArrow(frame, commanderView);
 
@@ -210,6 +211,66 @@ export class PlazaRenderer {
       ctx.fill();
       ctx.fillStyle = PALETTE.label;
       ctx.fillText(text, p.x, p.y + 0.5);
+    }
+  }
+
+  /** Obiekty poza kadrem: nazwa przy krawędzi ekranu ze strzałką w ich stronę (punkty odniesienia zbiórek). */
+  private drawOffscreenObjects(frame: RenderFrame): void {
+    const { ctx, viewport } = this;
+    const { insets } = frame;
+    const box = { minX: 70, maxX: viewport.width - 70, minY: insets.top + 18, maxY: viewport.height - insets.bottom - 14 };
+    const cx = (box.minX + box.maxX) / 2;
+    const cy = (box.minY + box.maxY) / 2;
+    ctx.font = '600 11px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const placed: { x: number; y: number; w: number }[] = [];
+    for (const o of WORLD_OBJECTS) {
+      const p = worldToScreen(frame.camera, viewport, o.position);
+      const half = (Math.max(o.width, o.depth) / 2) * frame.camera.pixelsPerMeter;
+      if (p.x + half > 0 && p.x - half < viewport.width && p.y + half > 0 && p.y - half < viewport.height) continue;
+      const dx = p.x - cx;
+      const dy = p.y - cy;
+      const t = Math.min(
+        dx === 0 ? Infinity : (dx > 0 ? box.maxX - cx : box.minX - cx) / dx,
+        dy === 0 ? Infinity : (dy > 0 ? box.maxY - cy : box.minY - cy) / dy,
+      );
+      const x = cx + dx * t;
+      let y = cy + dy * t;
+      const distanceM = Math.round(Math.hypot(dx, dy) / frame.camera.pixelsPerMeter);
+      const text = `${o.name} · ${String(distanceM)} m`;
+      const w = ctx.measureText(text).width + 30;
+      // Etykiety nie mogą na siebie nachodzić: przesunięcie wzdłuż krawędzi.
+      for (let i = 0; i < 6 && placed.some((r) => Math.abs(r.x - x) < (r.w + w) / 2 + 4 && Math.abs(r.y - y) < 24); i++) {
+        y += y >= box.maxY - 1 ? -24 : 24;
+      }
+      placed.push({ x, y, w });
+      ctx.globalAlpha = 0.85;
+      ctx.fillStyle = PALETTE.labelHalo;
+      ctx.beginPath();
+      ctx.roundRect(x - w / 2, y - 10, w, 20, 10);
+      ctx.fill();
+      ctx.fillStyle = PALETTE.label;
+      ctx.fillText(text, x + 7, y + 0.5);
+      // Strzałka w stronę obiektu: trzonek i grot.
+      const len = Math.hypot(dx, dy) || 1;
+      const ux = dx / len;
+      const uy = dy / len;
+      const ax = x - w / 2 + 11;
+      ctx.strokeStyle = PALETTE.label;
+      ctx.lineWidth = 1.6;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(ax - ux * 6, y - uy * 6);
+      ctx.lineTo(ax + ux * 2, y + uy * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(ax + ux * 6, y + uy * 6);
+      ctx.lineTo(ax + ux * 0.5 - uy * 3.6, y + uy * 0.5 + ux * 3.6);
+      ctx.lineTo(ax + ux * 0.5 + uy * 3.6, y + uy * 0.5 - ux * 3.6);
+      ctx.closePath();
+      ctx.fill();
+      ctx.globalAlpha = 1;
     }
   }
 

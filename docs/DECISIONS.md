@@ -6,7 +6,14 @@ Decyzje podjęte tam, gdzie `SPEC.md`, `COMMANDS.md` i regulamin milczą lub są
 
 Decyzje, które autor powinien potwierdzić lub odrzucić. Po akceptacji pozycja przechodzi do sekcji „Zatwierdzone” (wpis w dzienniku zostaje).
 
-Brak pozycji oczekujących.
+| Decyzja | Czego dotyczy | Etap |
+|---|---|---|
+| [D-024](#d-024-obiekty-terenowe-i-punkty-zaczepienia) | wymiary obiektów, front do środka placu wzdłuż osi siatki, przedpole, „na drodze” | E2 |
+| [D-025](#d-025-czynności-przejściowe-i-kolejność-warunków) | które komendy blokują (E_BUSY), pierwszy naruszony warunek, W_NO_EFFECT bez wpisu do historii WRÓĆ | E2 |
+| [D-026](#d-026-żołnierz-bez-pary-w-szyku-odwróconym) | niezmiennik „żołnierz bez pary” po zwrocie w tył / w nieregulaminową stronę | E2 |
+| [D-027](#d-027-skutki-zwrotów-dla-odliczenia-odstępowania-i-odległości) | każdy zwrot unieważnia odliczenie; zwrot zmieniający ugrupowanie kasuje odstąpienie; rząd 0,6 m oznaczony jako nieregularny | E2 |
+| [D-029](#d-029-wezwanie-drużyny-attending) | kiedy drużyna jest „wezwana” (zbiórka bez adresata) | E2 |
+| [D-032](#d-032-propozycje-zmian-w-commandsmd-i-specmd-po-e2) | propozycje doprecyzowań w `COMMANDS.md` (bez zmian w dokumencie) | E2 |
 
 ## Zatwierdzone
 
@@ -213,3 +220,112 @@ Brak pozycji oczekujących.
 - „Poza MVP”: dopisać rozejście w kierunku (pkt 70) i komendy z pojazdami (pkt 121–126) z D-017.
 - 0.1: doprecyzować myślnik w trybie ścisłym (D-013) i tolerancje trybu łagodnego (D-014).
 - R-1, **Przykłady**: `Równaj w prawo – ZWROT` w trybie łagodnym jest rozbierane jako pełna komenda „Równaj – W PRAWO” z nadmiarowym „– ZWROT”; kod `E_SYNTAX_EXPECTED` się zgadza, ale komunikat brzmi „zbędny dalszy ciąg”.
+
+## D-022 Model stanu i symulacja
+
+- **Data:** 2026-10-19 · **Etap:** E2
+- **Kontekst:** SPEC 5.3–5.5 opisuje stan, stały krok i `runScript`, bez szczegółów realizacji.
+- **Decyzja:**
+  - Stan jest niezmienny (`src/core/sim/state.ts`). Pola drużyny opisują od razu stan **docelowy** komendy (szyk, układ, flagi), a żołnierze dochodzą do niego według **planów ruchu**: ciągu odcinków „czekaj / przejdź z obrotem / natychmiastowe skutki” (postawa, głowa, dymek, meldunek, uniesiona ręka). Dzięki temu warunki wstępne zawsze odnoszą się do stanu po zakończeniu komendy, a w trakcie obowiązuje E_BUSY (I-11).
+  - Układ szyku to front, punkt odniesienia (prawe skrzydło pierwszego szeregu / czoło) i miejsca żołnierzy (w lewo i w głąb). Szeregi, rzędy i role (prawoskrzydłowy, lewoskrzydłowy, kierunkowy) są wyznaczane geometrycznie, więc po zwrocie wynikają z nowego frontu (COMMANDS Z-1).
+  - Stały krok 1/60 s (`step`), `simulate(state, dt)` z akumulatorem; interfejs interpoluje między krokami. Losowość: generator mulberry32 z ziarnem zapisanym w stanie.
+  - Sesja (`src/core/session.ts`): stan, historia migawek dla WRÓĆ (najwyżej 200), Dziennik (komendy z wynikiem, meldunki). Migawka obejmuje drużynę, nie dowódcę (SPEC 6).
+  - `runScript` (`src/core/script.ts`) po każdej komendzie przewija symulację do zakończenia czynności i sprawdza niezmienniki SPEC 5.4.
+- **Alternatywy:** zmiana pól drużyny dopiero po zakończeniu animacji — komplikuje WRÓĆ i warunki wstępne, a w czasie animacji i tak obowiązuje E_BUSY.
+
+## D-023 Etap wykonania komend w danych katalogu
+
+- **Data:** 2026-10-19 · **Etap:** E2
+- **Kontekst:** Komendy późniejszych etapów (marsz — E4) są rozpoznawane od E1, ale ich wykonania jeszcze nie ma. Testy „todo” (D-016) mają stać się zwykłymi testami w swoim etapie.
+- **Decyzja:**
+  - Każdy wpis katalogu ma pole `stage` (etap, w którym komenda działa na placu). Stała `SIMULATED_STAGE` (`src/core/sim/stage.ts`) mówi, do którego etapu komendy są wykonywane. Komenda z późniejszego etapu jest sprawdzana (składnia, forma, czynność w toku, głowy zwrócone), a panel pisze: „Komenda jest poprawna, ale jej wykonanie na placu dojdzie w etapie E4”. Stan się nie zmienia, komenda nie trafia do historii WRÓĆ.
+  - Przykłady zależne od stanu mają pole `setup`: komendy, które od stanu początkowego prowadzą do opisanego stanu. Test generowany wykonuje `setup`, potem przykład, i sprawdza kod błędu. Przykłady z etapów ≤ `SIMULATED_STAGE` są zwykłymi testami, późniejsze — nadal `todo` z numerem etapu.
+- **Alternatywy:** osobne, ręcznie pisane testy dla przykładów stanowych — ryzyko rozjechania się z danymi katalogu.
+
+## D-024 Obiekty terenowe i punkty zaczepienia
+
+- **Data:** 2026-10-19 · **Etap:** E2
+- **Kontekst:** COMMANDS („Dane pomocnicze”) podaje położenia orientacyjne i przedpole „3 m od frontu obiektu w stronę środka placu”, bez wymiarów i orientacji.
+- **Decyzja:**
+  - Wymiary (szerokość × głębokość, m): maszt — podstawa ⌀ 2,4; trybuna 16 × 6; koszary 42 × 14; garaże 24 × 7; hangar 30 × 24; magazyn 18 × 11. Droga: pas wschód–zachód, oś y = −15, szerokość 7 m.
+  - Budynki są równoległe do siatki placu, front zwrócony do środka placu wzdłuż dominującej osi (koszary i maszt — na południe, trybuna i magazyn — na wschód, garaże i hangar — na zachód). Przedpole: środek frontu + 3 m na zewnątrz (maszt: 4,2 m od osi na południe, czyli (0; 20,8)).
+  - „Na drodze” — punkt osi drogi na wysokości obiektu: (x obiektu; −15). Brak „na placu / na drodze” = na placu.
+  - „Frontem do X” — kierunek od punktu zaczepienia do środka obiektu X (dowolny kąt, nie tylko wielokrotność 45°). Bez tej części — front dowódcy.
+  - Obiekty poza kadrem są wskazane etykietą z odległością przy krawędzi ekranu; nazwa obiektu na placu widoczna po najechaniu albo stale od przybliżenia 26 px/m (SPEC 3.9).
+- **Alternatywy:** budynki obrócone dokładnie do środka placu — wyglądały nienaturalnie na siatce placu apelowego.
+
+## D-025 Czynności przejściowe i kolejność warunków
+
+- **Data:** 2026-10-19 · **Etap:** E2
+- **Kontekst:** SPEC 5.5 wymienia czynności przejściowe (zwrot, zbiórka, zmiana szyku, odstępowanie, łączenie, przesunięcie, odliczanie); nie mówi o wezwaniu, SPOCZNIJ z korektą i rozejściu.
+- **Decyzja:**
+  - Blokujące (E_BUSY, dozwolone WRÓĆ — I-11): zwrot, zbiórki, WRÓĆ (szybki powrót), wezwanie / BACZNOŚĆ drużyny rozproszonej (zwrot do dowódcy), SPOCZNIJ z korektą odstępów (tylko gdy ktoś się przesuwa), a od E3 — odliczanie, równanie, zmiany szyku, odstępowanie, łączenie, przesunięcie.
+  - Nieblokujące: rozejście (można od razu wezwać drużynę — wezwanie zatrzymuje żołnierzy tam, gdzie są).
+  - Warunki sprawdzane są po kolei od najbardziej podstawowego: czynność w toku → zwrócone głowy (pkt 71) → szyk → postawa (pkt 11) → odliczenie → pozostały stan; komunikat dotyczy pierwszego naruszonego warunku (jeden konkretny powód zamiast listy).
+  - W_NO_EFFECT: BACZNOŚĆ (wezwanie) drużyny już stojącej w postawie zasadniczej i SPOCZNIJ drużyny już w postawie swobodnej (bez odstępów do korekty). Komenda bez skutku nie trafia do historii WRÓĆ (WRÓĆ cofa ostatnią komendę, która coś zmieniła).
+- **Alternatywy:** lista wszystkich naruszonych warunków — przy kilku naraz komunikat był mało czytelny.
+
+## D-026 Żołnierz bez pary w szyku odwróconym
+
+- **Data:** 2026-10-19 · **Etap:** E2
+- **Kontekst:** SPEC 5.4: „co najwyżej jeden żołnierz bez pary, zawsze na lewym skrzydle pierwszego szeregu (w dwuszeregu) lub na końcu kolumny”. COMMANDS Z-1 dopuszcza jednak „dwuszereg frontem w tył (drugi szereg z przodu)” i zwroty w nieregulaminową stronę (pkt 76) — wtedy żołnierz bez pary jest po przeciwnej stronie.
+- **Decyzja:** niezmiennik sprawdza, że jest najwyżej jeden żołnierz bez pary i stoi na **skraju** szyku: w dwuszeregu w skrajnej kolumnie krycia (lewe skrzydło; po zwrocie w tył — prawe), w kolumnie dwójkowej w pierwszej albo ostatniej parze. Dokładne położenie po zbiórce sprawdzają scenariusze (S01, S05, S07).
+- **Alternatywy:** osobna flaga „szyk odwrócony” w stanie — więcej stanu tylko na potrzeby testu.
+
+## D-027 Skutki zwrotów dla odliczenia, odstępowania i odległości
+
+- **Data:** 2026-10-19 · **Etap:** E2
+- **Kontekst:** COMMANDS R-2 unieważnia odliczenie po „zwrotach Z-1 zmieniających ugrupowanie”; S-1 wymaga odliczenia „w obecnym szyku”. I-2 mówi, że rząd z szeregu ma odległość 0,6 m i rozwiera się po ruszeniu.
+- **Decyzja:**
+  - **Każdy** zwrot Z-1 unieważnia odliczenie — także „W tył – ZWROT”: zmienia się prawe skrzydło, więc liczby nie odpowiadają już kolejności „w obecnym szyku”.
+  - Zwrot zmieniający ugrupowanie kasuje stan odstąpienia (odstępy zostają, ale są oznaczone jako nieregulaminowe); zwrot w tył go zachowuje.
+  - Odległość 0,6 m rzędu po zwrocie z szeregu (I-2) i odstępy 1,2 m szeregu po zwrocie z rzędu (I-1) oznaczają szyk flagą `irregularSpacing`. SPOCZNIJ (i od E3 „Równaj”) przywraca odstępy regulaminowe względem prawoskrzydłowego (czoła) — w rzędzie także rozsuwa do 1,2 m. Rozwieranie po ruszeniu dojdzie w E4.
+- **Alternatywy:** zwrot w tył zachowuje odliczenie — wtedy „W dwójki, w prawo – ZWROT” po dwóch zwrotach w tył działałby, ale po jednym tworzyłby dwójki z liczb liczonych od drugiego skrzydła.
+
+## D-028 Wygląd placu, postaci i kamery
+
+- **Data:** 2026-10-19 · **Etap:** E2
+- **Kontekst:** SPEC 3.9 opisuje kierunek wizualny bez konkretnych wartości.
+- **Decyzja:**
+  - Postać z góry (ok. 0,53 m szerokości): owal ramion w kolorze munduru, ręce po bokach, głowa z twarzą z przodu i czarnym beretem ściągniętym na prawo z oznaką nad lewym okiem, jasny trójkąt na piersi jako znacznik frontu. W ruchu stopy i ręce wykonują wymach (krok defiladowy — dłuższy, bieg — krótszy łuk rąk, drobne kroki przy korektach). Postawa swobodna: jaśniejszy mundur i obrys, wysunięta lewa stopa, ręce luźno. Dowódca: ciemniejszy mundur, złote naramienniki, bordowy beret, jasne kółko pod nim, nieco większy.
+  - Przy oddaleniu postacie są powiększane (najwyżej 1,6×), żeby miały co najmniej ok. 15 px szerokości.
+  - Kamera kadruje drużynę i dowódcę z marginesem 2,2 m w części ekranu niezasłoniętej przez pasek stanu i wiersz poleceń; zoom automatyczny 9–72 px/m, ręczny (kółko) 3–140 px/m, obowiązuje do „dużego ruchu” (przesunięcie kadru o > 8 m lub zmiana jego wielkości > 1,6×). Gdy dowódca i drużyna nie mieszczą się przy 9 px/m, kamera śledzi drużynę, a strzałka „dowódca” na krawędzi wskazuje dowódcę.
+  - Sceneria: droga z linią przerywaną, maszt z biało-czerwoną flagą, trybuna ze stopniami, koszary z dachem dwuspadowym, garaże z bramami, hangar z dachem łukowym, magazyn z rampą; cień od północnego zachodu.
+- **Alternatywy:** sprite’y bitmapowe — zewnętrzne zasoby i gorsze skalowanie.
+
+## D-029 Wezwanie drużyny („attending”)
+
+- **Data:** 2026-10-19 · **Etap:** E2
+- **Kontekst:** COMMANDS ZB: zbiórka bez adresata wymaga wcześniejszego wezwania lub BACZNOŚĆ; nie mówi, jak długo wezwanie obowiązuje.
+- **Decyzja:** drużyna jest „wezwana” po P-1, P-2 i po każdej zbiórce (stoi w szyku przed dowódcą). Wezwanie kasuje tylko ROZEJŚĆ SIĘ. SPOCZNIJ go nie kasuje (COMMANDS P-3).
+- **Alternatywy:** wezwanie ważne tylko dla jednej następnej komendy — w szyku wymagałoby ponownego wezwania przed każdą zmianą szyku przez zbiórkę.
+
+## D-030 Interfejs etapu E2
+
+- **Data:** 2026-10-19 · **Etap:** E2
+- **Kontekst:** SPEC 3.1–3.2, 3.9; pełne ustawienia to E5.
+- **Decyzja:**
+  - Pasek stanu u góry zastępuje tymczasową plakietkę z E0 (D-007): nazwa drużyny, „Stan: szyk · postawa · ruch · front”, dodatkowe oznaczenia (niepełny, odliczona, odstąpiona, odstępy nieregulaminowe, głowy zwrócone) i pulsująca nazwa czynności w toku. Po prawej: przycisk trybu (Komenda / Ruch, z podpowiedzią klawiszy), „Role” (SPEC 3.9) i prędkość symulacji ⏱ (0,5× · 1× · 2× · 3×, kliknięcie zmienia) — ta jedna pozycja ustawień jest już teraz, bo pasek ze SPEC 3.1 ją pokazuje.
+  - Tryb Ruch: wiersz poleceń przygaszony z przerywaną ramką i podpowiedzią „Enter lub / wraca do komend”, przycisk trybu w kolorze bursztynowym.
+  - Najechanie na żołnierza: dymek z nazwiskiem, numerem w składzie i liczbą z ostatniego odliczania.
+  - Skład i rozproszenie w przeglądarce z ziarnem 1 (te same nazwiska po każdym odświeżeniu) — losowanie ponowne dojdzie z ustawieniami w E5.
+  - Płótno ma atrybuty `data-formation`, `data-activity`, `data-commander`, `data-zoom` dla testów E2E.
+  - Panel informacji zwrotnej: „✔ Wykonano” / „⚠ Wykonano, z uwagą” / „⚠ Bez zmian” / „Komenda poprawna” z notką o etapie dla komend jeszcze niewykonywanych (SPEC 3.4).
+  - Zrzuty ekranu: `scripts/screenshots.mjs` (ręcznie, poza CI) zapisuje je w `docs/screenshots/`.
+- **Alternatywy:** prędkość dopiero w E5 — autor nie mógłby przyspieszyć długich zbiórek przy sprawdzaniu.
+
+## D-031 Dowódca
+
+- **Data:** 2026-10-19 · **Etap:** E2
+- **Kontekst:** SPEC 3.2, 6.
+- **Decyzja:** prędkość marszu 1,33 m/s, bieg (Shift) 2,55 m/s; front podąża za kierunkiem ruchu (8 kierunków co 45°) z płynnym obrotem 540°/s; Q/E obraca o 45° w miejscu. Zbiórka przy dowódcy przyjmuje front docelowy (wielokrotność 45°), nawet jeśli obrót jeszcze trwa. Dowódca może przechodzić przez szyk (bez kolizji). Żołnierze biegnący na zbiórkę omijają dowódcę łukiem.
+- **Alternatywy:** obrót dowódcy dowolny (myszą) — SPEC przewiduje Q/E o 45°.
+
+## D-032 Propozycje zmian w COMMANDS.md i SPEC.md po E2
+
+- **Data:** 2026-10-19 · **Etap:** E2 · do decyzji autora (dokumentów nie zmieniano)
+- R-2, „Unieważnienie odliczenia”: dopisać „W tył – ZWROT” (D-027).
+- SPEC 5.4: doprecyzować położenie żołnierza bez pary w szyku po zwrocie w tył (D-026).
+- SPEC 5.5: dopisać do czynności przejściowych wezwanie drużyny rozproszonej, SPOCZNIJ z korektą i WRÓĆ, a rozejście oznaczyć jako nieblokujące (D-025).
+- ZB-2: podać wymiary/orientację obiektów lub przyjąć D-024.
+- PROGRESS.md / polecenie etapów wspomina „Uwagi UI na później” — takiej sekcji nie było w repozytorium (stan z 2026-10-19), więc nie było czego realizować; jeśli autor ma takie uwagi, proszę o ich dopisanie.

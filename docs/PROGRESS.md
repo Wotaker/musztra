@@ -6,12 +6,113 @@ Etapy według `SPEC.md`, sekcja 10. Każdy etap kończy się wdrożoną wersją 
 |---|---|---|
 | E0 Szkielet | ✔ ukończony | 2026-10-19 |
 | E1 Interpreter | ✔ ukończony | 2026-10-19 |
-| E2 Stan i obraz | — | |
+| E2 Stan i obraz | ✔ ukończony | 2026-10-20 |
 | E3 Szyki w miejscu | — | |
 | E4 Ruch | — | |
 | E5 Nauka | — | |
 | E6 LLM | — | |
 | E7 Szlif | — | |
+
+---
+
+## E2 Stan i obraz — podsumowanie (2026-10-20)
+
+### Status
+
+**✔ Ukończony.** Przechodzą `npm run lint`, `npm test` (wszystkie testy E2 zwykłe; 32 testy „todo” zostają tylko dla E3 i E4), `npm run build`, `npm run e2e` (22 testy; lokalnie na preinstalowanym Chromium). CI na GitHubie zielone, strona wdrożona przez CI.
+
+Wszystkie 8 testów „todo” etapu E2 są zwykłymi testami (Z-1 w postawie swobodnej, ZB-1 bez wezwania, ZB-3 na początku sesji, WRÓĆ na początku sesji — po 2 tryby zapisu). Scenariusze akceptacyjne E2: S01, S02, S03, S15, S16, S17, S18, S19, S20, S27 — po każdej komendzie sprawdzane niezmienniki SPEC 5.4. Dodatkowo testy: zbiórki we wszystkich szykach dla N = 3, 4, 9, 12; zwroty z każdego szyku w każdą stronę (N = 8 i 9); determinizm (prędkość 0,5×–3×, 30–144 klatek/s); reguły warunków (E_BUSY, wezwanie, postawa, WRÓĆ, rozejście); kamera.
+
+Uwaga do polecenia: w `PROGRESS.md` nie było sekcji „Uwagi UI na później” (sprawdzone 2026-10-19), więc nie było takich uwag do realizacji w E2 ani E3 — zob. D-032.
+
+Zrzuty ekranu: `docs/screenshots/e2-*.png` (start, zbiórka w biegu, dwuszereg po zbiórce, kolumna dwójkowa, zbiórka przy maszcie, dowódca w ruchu).
+
+### 1. Co działa
+
+- Na placu widać **drużynę (9 żołnierzy)** rozproszoną wokół dowódcy, **dowódcę** (ciemniejszy mundur, złote naramienniki, jasne kółko pod nim), drogę na południu i obiekty terenowe: maszt z flagą, trybunę, koszary, garaże, hangar, magazyn. Obiekty poza kadrem wskazują etykiety przy krawędzi ekranu ze strzałką i odległością („koszary · 60 m”). Nazwa obiektu na placu pojawia się po najechaniu myszą (albo stale przy dużym zbliżeniu).
+- Komendy są **wykonywane na placu**: wezwanie, BACZNOŚĆ, SPOCZNIJ (z samoczynnym wyrównaniem), zwroty, trzy sposoby zbiórki (przy dowódcy, przy obiekcie, na poprzednim miejscu), ROZEJŚĆ SIĘ (także „Do koszar, biegiem – …”), WRÓĆ.
+- Żołnierze biegną na zbiórkę z animacją kroków i rąk, omijają dowódcę, stają w szyku frontem jak dowódca. Postawa swobodna jest widoczna (jaśniejszy mundur, wysunięta lewa stopa).
+- **Pasek stanu** u góry: „Pierwsza drużyna · Stan: dwuszereg · zasadnicza · stoi · front 0°”, dodatkowe oznaczenia (np. „niepełny”, „odstępy nieregulaminowe”) i pulsująca nazwa czynności w toku („zbiórka”, „zwrot”…).
+- **Panel informacji zwrotnej**: „✔ Wykonano”, „⚠ Wykonano, z uwagą” (np. zwrot w nieregulaminową stronę), „⚠ Bez zmian”, a dla błędów — dlaczego komendy nie da się wykonać w tym stanie, z punktem regulaminu (np. „Drużyna stoi w postawie swobodnej… najpierw BACZNOŚĆ”, pkt 11). Komendy marszowe (etap E4) są rozpoznawane, ale panel mówi, że wykonanie dojdzie w E4.
+- W trakcie zbiórki, zwrotu itp. inne komendy są odrzucane („Drużyna jeszcze wykonuje…”), ale **WRÓĆ** przerywa czynność i szybko przywraca stan sprzed ostatniej komendy; kolejne WRÓĆ cofa dalej. Dowódca nie jest cofany.
+- **Dwa tryby klawiatury**: Komenda (pisanie) i Ruch (sterowanie dowódcą). Esc albo klik w plac → Ruch: WASD/strzałki (8 kierunków), Shift — bieg, Q/E — obrót o 45°. Enter albo / → z powrotem do pisania. Tryb widać na przycisku w pasku (bursztynowy w trybie Ruch) i po przygaszonym wierszu poleceń.
+- **Kamera** płynnie kadruje drużynę i dowódcę; kółko myszy przybliża/oddala (do kolejnego dużego ruchu). Gdy dowódca odejdzie daleko, kamera zostaje przy drużynie, a strzałka „dowódca” na krawędzi ekranu pokazuje, gdzie jest.
+- Najechanie na żołnierza pokazuje jego nazwisko i numer w składzie. Przycisk „Role” oznacza prawoskrzydłowego (P), lewoskrzydłowego (L), kierunkowego (K). Przycisk „⏱ 1×” zmienia prędkość symulacji (0,5×, 1×, 2×, 3×).
+- Skład (stały do E5): nr 1 Wieczorek, 2 Nowak, 3 Krawczyk, 4 Baran, 5 Sikora, 6 Zieliński, 7 Król, 8 Kalinowski, 9 Woźniak.
+
+### 2. Lista kontrolna do ręcznego sprawdzenia w przeglądarce
+
+Otwórz **https://wotaker.github.io/musztra/** (najlepiej odśwież stronę przed każdą sekcją). Komendy wpisuj i zatwierdzaj Enterem.
+
+**A. Zbiórki i postawy**
+
+1. Po otwarciu → 9 żołnierzy stoi swobodnie w różnych kierunkach wokół dowódcy (środek), pasek: „Stan: rozproszona · swobodna · stoi”; przy krawędziach etykiety obiektów (trybuna, maszt, koszary, garaże, magazyn, hangar).
+2. `W szeregu – ZBIÓRKA` → ✖ „Komenda niewykonalna”: drużyna nie została wezwana (pkt 69), `E_PRECOND_ATTENTION`; nikt się nie rusza.
+3. `Pierwsza drużyna` → żołnierze odwracają się twarzą do dowódcy i przyjmują postawę zasadniczą (ciemniejszy obrys, stopy razem).
+4. `W szeregu – ZBIÓRKA` → żołnierze biegną (widać kroki i ruch rąk), omijają dowódcę i stają **w jednej linii po lewej stronie dowódcy**, frontem na północ; w pasku przez chwilę „zbiórka”, potem „Stan: szereg · zasadnicza · stoi · front 0°”.
+5. `SPOCZNIJ` → wszyscy jaśnieją, lewa stopa wysunięta (postawa swobodna); pasek „swobodna”.
+6. `W prawo – ZWROT` → ✖ „Drużyna stoi w postawie swobodnej… najpierw BACZNOŚĆ”, pkt 11.
+7. `BACZNOŚĆ`, potem `BACZNOŚĆ` jeszcze raz → za drugim razem „⚠ Bez zmian: Drużyna już stoi w postawie zasadniczej”.
+8. `Pierwsza drużyna, w dwuszeregu – ZBIÓRKA` → dwa szeregi: z przodu 5 żołnierzy, z tyłu 4, wyrównani do prawej; pasek „dwuszereg … niepełny”.
+9. `Drużyna, w kolumnie dwójkowej – ZBIÓRKA` → kolumna par za dowódcą (prawy rząd tuż za nim), ostatni żołnierz bez pary na końcu.
+10. `Pierwsza drużyna, w rzędzie – ZBIÓRKA` → jeden rząd za dowódcą, 3 kroki odstępu od dowódcy.
+
+**B. Zwroty i WRÓĆ**
+
+11. `Pierwsza drużyna, w szeregu – ZBIÓRKA`, potem `W prawo – ZWROT` → każdy obraca się w miejscu w prawo; pasek „rząd · … · front 90°” i „odstępy nieregulaminowe” (rząd z szeregu ma 0,6 m odległości).
+12. `WRÓĆ` → żołnierze szybko wracają do szeregu frontem na północ.
+13. `W lewo – ZWROT` → wykonane z uwagą ⚠ „Rząd i kolumnę z szeregu formuje się zwrotem w prawo…” (pkt 76).
+14. `W tył – ZWROT` (po powrocie do szeregu przez WRÓĆ) → obrót przez lewe ramię, front 180°.
+15. `Pierwsza drużyna, w rzędzie – ZBIÓRKA`, `W lewo – ZWROT` → szereg z dużymi odstępami (1,2 m), pasek „odstępy nieregulaminowe”; `SPOCZNIJ` → żołnierze dosuwają się drobnymi krokami do prawoskrzydłowego.
+16. Wpisz `Pierwsza drużyna, w dwuszeregu – ZBIÓRKA` i od razu, w trakcie biegu, `W prawo – ZWROT` → ✖ „Drużyna jeszcze wykonuje poprzednią komendę…” (`E_BUSY`); `WRÓĆ` → zbiórka przerwana, żołnierze wracają na miejsca sprzed zbiórki.
+17. Na początku (po odświeżeniu) `WRÓĆ` → ✖ „Nie ma czego cofać” (`E_PRECOND_STATE`).
+
+**C. Zbiórka we wskazanym miejscu i rozejście**
+
+18. `Pierwsza drużyna, w dwuszeregu, na poprzednim miejscu – ZBIÓRKA` na starcie → ✖ „Nie było jeszcze zbiórki…”.
+19. `Pierwsza drużyna, w dwuszeregu, na placu, prawe skrzydło na wysokości masztu, frontem do koszar – ZBIÓRKA` → drużyna biegnie na północ i staje przed masztem (biało-czerwona flaga), frontem do koszar (na północ); kamera obejmuje drużynę i dowódcę.
+20. `ROZEJŚĆ SIĘ` → żołnierze rozchodzą się spacerem 8–15 m w różne strony i stoją swobodnie; pasek „rozproszona”.
+21. `Pierwsza drużyna, w dwuszeregu, na poprzednim miejscu – ZBIÓRKA` → drużyna wraca dokładnie na miejsce przy maszcie, frontem do koszar.
+22. `Do garaży, biegiem – ROZEJŚĆ SIĘ` → żołnierze biegną na wschód, pod garaże.
+23. `Drużyna, w rzędzie, czoło na wysokości garaży – ZBIÓRKA` → rząd z kierunkowym przed garażami. `Drużyna, w szeregu, czoło na wysokości masztu – ZBIÓRKA` → ✖ „„Czoło” dotyczy kolumny…”.
+24. `Druga drużyna – BACZNOŚĆ` → ⚠ „Nikt nie reaguje”.
+
+**D. Dowódca, kamera, widok**
+
+25. Naciśnij **Esc** → przycisk w pasku zmienia się na bursztynowy „Ruch: WASD Shift Q/E · Enter”, wiersz poleceń przygasa.
+26. Przytrzymaj **D** → dowódca idzie na wschód (kroki, ruch rąk), obraca się frontem w stronę ruchu; z **Shift** biegnie szybciej. **W**, **A**, **S** i ich pary (np. W+D) → ruch w 8 kierunkach.
+27. **Q**, **E** → dowódca obraca się w miejscu o 45°.
+28. Odejdź daleko na północ (Shift+W przez ok. 25 s, ok. 60 m) → kamera oddala się, a potem zostaje przy drużynie; przy górnej krawędzi ekranu pojawia się strzałka „dowódca”. Wróć (Shift+S) → kamera znów obejmuje obu.
+29. **Enter** → kursor wraca do wiersza poleceń. Kliknięcie w plac → znów tryb Ruch; **/** → powrót do komend.
+30. Obróć dowódcę dwa razy **E** (front na wschód), Enter, `Pierwsza drużyna, w szeregu – ZBIÓRKA` → szereg frontem na wschód, ciągnie się na północ od dowódcy (po jego lewej ręce); pasek „front 90°”.
+31. Kółko myszy → przybliżenie/oddalenie; przy dużym przybliżeniu widać berety, twarze, naramienniki dowódcy; po następnej zbiórce kamera wraca do automatycznego kadrowania.
+32. Najedź na żołnierza → dymek „szer. Wieczorek · nr 1 w składzie” (dla nr 1). Najedź na maszt/koszary (po oddaleniu kółkiem) → nazwa obiektu.
+33. „Role” → pod prawoskrzydłowym „P”, lewoskrzydłowym „L” (w kolumnie: „K” — kierunkowy). „⏱ 1×” → 2×, 3×, 0,5×: zbiórka przebiega szybciej/wolniej.
+34. `Drużyna, kierunek na wprost – MARSZ` (po zbiórce) → „Komenda poprawna” i notka, że wykonanie dojdzie w etapie E4; drużyna stoi.
+
+### 3. Decyzje i otwarte pytania
+
+Decyzje (szczegóły w `docs/DECISIONS.md`):
+
+- D-022 Model stanu i symulacja: stan docelowy od razu, żołnierze dochodzą do niego według planów ruchu; stały krok 1/60 s; sesja z historią WRÓĆ i Dziennikiem.
+- D-023 Etap wykonania w danych katalogu (`stage`) i skrypty przygotowania stanu (`setup`) dla przykładów zależnych od stanu.
+- D-024 Wymiary i orientacja obiektów, przedpole, „na drodze” — **do akceptacji**.
+- D-025 Które czynności blokują (E_BUSY), pierwszy naruszony warunek, W_NO_EFFECT bez wpisu do historii — **do akceptacji**.
+- D-026 Żołnierz bez pary po zwrocie w tył — **do akceptacji**.
+- D-027 Każdy zwrot unieważnia odliczenie; zwrot zmieniający ugrupowanie kasuje odstąpienie; rząd 0,6 m oznaczony jako nieregularny, SPOCZNIJ rozsuwa do 1,2 m — **do akceptacji**.
+- D-028 Wygląd postaci, sceny i kamery.
+- D-029 Kiedy drużyna jest „wezwana” — **do akceptacji**.
+- D-030 Interfejs E2 (pasek stanu z prędkością symulacji już teraz, stały skład do E5).
+- D-031 Dowódca (prędkości, obrót, omijanie przez biegnących).
+- D-032 Propozycje doprecyzowań w `COMMANDS.md` / `SPEC.md` (dokumentów nie zmieniano).
+
+Interpretacje I-1…I-17 są zebrane w jednym module (`src/core/interpretations.ts`), każda jako osobna funkcja lub stała; test pilnuje zgodności listy z tabelą SPEC 11. W E2 działają I-1, I-2 (bez marszu), I-6, I-7, I-9, I-10, I-11, I-12, I-16.
+
+Otwarte pytania: patrz „Do akceptacji” w `DECISIONS.md`.
+
+### 4. Adres wdrożenia
+
+**https://wotaker.github.io/musztra/** · CI: https://github.com/Wotaker/musztra/actions
 
 ---
 
@@ -119,7 +220,7 @@ Testy oznaczone jako `todo` nie są pominiętymi testami: to werdykty zależne o
 
 Każdy z 40 testów oznaczonych jako `todo` (20 przykładów zależnych od stanu × 2 tryby zapisu, D-016) **musi stać się zwykłym testem w etapie, w którym pojawi się potrzebny stan**. Etap jest zapisany w danych katalogu (pole `stage` przykładu `inState`) i w nazwie testu:
 
-- **E2** (4 przykłady, 8 testów): Z-1 w postawie swobodnej, ZB-1 bez wezwania, ZB-3 na początku sesji, X-1 na początku sesji.
+- **E2** (4 przykłady, 8 testów) — ✔ zwykłe testy od E2: Z-1 w postawie swobodnej, ZB-1 bez wezwania, ZB-3 na początku sesji, X-1 na początku sesji.
 - **E3** (6 przykładów, 12 testów): R-1 w kolumnie, R-2 w postawie swobodnej, O-1 z nazwiskiem spoza składu, O-2 bez ODSTĄP, S-1 bez odliczenia, S-1 w dwuszeregu.
 - **E4** (10 przykładów, 20 testów): Z-1 w marszu, S-4 w rzędzie, M-2 w szeregu, M-3 w biegu, M-6 stojąc, M-8 w biegu, M-9 stojąc, M-10 w szeregu, MS-1 w rzędzie, MS-2 bez odliczenia w marszu.
 

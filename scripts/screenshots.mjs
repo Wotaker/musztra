@@ -15,7 +15,7 @@ const SCENES = JSON.parse(process.env.SCENES ?? 'null') ?? [
 ];
 
 const browser = await chromium.launch();
-const page = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 2 });
+const page = await browser.newPage({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: Number(process.env.DPR ?? 1) });
 for (const scene of SCENES) {
   await page.goto(BASE);
   await page.evaluate(() => localStorage.clear());
