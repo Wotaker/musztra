@@ -4,9 +4,10 @@ import {
   assemblyNeedsSummons,
   countAllowedInPlace,
 } from '../interpretations';
-import { formationAfterTurn, isDeployed, leftFlankId, ranksOf, rightFlankId } from '../sim/formation';
+import { formationAfterTurn, isDeployed, ranksOf } from '../sim/formation';
+import { resolveSoldier } from '../sim/roles';
 import { FORMATION_NAMES } from '../sim/describe';
-import type { SimState, Soldier } from '../sim/state';
+import type { SimState } from '../sim/state';
 import type { RuleViolation } from './static';
 
 /**
@@ -157,17 +158,6 @@ const columnFromTwos: Rule = (_command, state) =>
           : '„W szereg, w lewo – FRONT” wykonuje się z kolumny dwójkowej utworzonej komendą „W dwójki, w prawo – ZWROT”.',
         ['76'],
       );
-
-/** Żołnierz wskazany w komendzie: skrzydłowy pierwszego szeregu albo po nazwisku. */
-export function resolveSoldier(state: SimState, ref: SoldierRef): Soldier | undefined {
-  const layout = state.squad.layout;
-  if (ref.kind === 'flank') {
-    if (!layout) return undefined;
-    const id = ref.side === 'RIGHT' ? rightFlankId(layout) : leftFlankId(layout);
-    return state.soldiers.find((s) => s.id === id);
-  }
-  return state.soldiers.find((s) => s.surname.nominative.toLocaleLowerCase('pl') === ref.surname.toLocaleLowerCase('pl'));
-}
 
 const soldierRefRule =
   (refOf: (command: CommandAst) => SoldierRef | null): Rule =>

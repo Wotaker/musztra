@@ -75,7 +75,7 @@ export function frontRankSize(n: number): number {
  * I-8: przy „W szereg, w lewo – FRONT” samotna jedynka z końca kolumny staje na lewo od ostatniej dwójki
  * (pozostałe jedynki — na prawo od swoich dwójek, więc szyk przesuwa się o odstęp).
  */
-export const LONE_SOLDIER_JOINS_LEFT_OF_LAST_PAIR = true;
+export const LONE_SOLDIER_JOINS_LEFT_OF_LAST_PAIR: boolean = true;
 
 /**
  * I-9: zbiórka bez adresata wymaga wcześniejszego wezwania lub BACZNOŚĆ (pkt 69); komenda z adresatem

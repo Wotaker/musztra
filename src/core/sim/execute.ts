@@ -16,6 +16,7 @@ import { Random } from './random';
 import type { Layout, SimState, Soldier, Squad } from './state';
 import { anchorPoint, worldObject } from './world';
 import { activity, halted, planFor, shuffleTo } from './actions';
+import { executePlaceCommand } from './executePlace';
 
 /**
  * Wykonanie komendy (SPEC 4.3, krok 5): komenda zamieniana na plan działań dla każdego żołnierza (SIMD).
@@ -253,7 +254,7 @@ export function execute(state: SimState, command: CommandAst): SimState {
     case 'ZB-4':
       return dismiss(state, command);
     default:
-      // Komendy kolejnych etapów (SPEC 10) nie zmieniają jeszcze stanu.
-      return state;
+      // Komendy w miejscu etapu E3; komendy marszowe (E4) nie zmieniają jeszcze stanu.
+      return executePlaceCommand(state, command);
   }
 }
