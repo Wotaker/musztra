@@ -6,7 +6,14 @@ Decyzje podjęte tam, gdzie `SPEC.md`, `COMMANDS.md` i regulamin milczą lub są
 
 Decyzje, które autor powinien potwierdzić lub odrzucić. Po akceptacji pozycja przechodzi do sekcji „Zatwierdzone” (wpis w dzienniku zostaje).
 
-Brak pozycji oczekujących.
+| Decyzja | Czego dotyczy |
+|---|---|
+| [D-049](#d-049-zależność-anthropic-aisdk) | zależność `@anthropic-ai/sdk` (ładowana leniwie) |
+| [D-050](#d-050-wywołanie-llm-format-odpowiedzi-model-cache) | format odpowiedzi, prompt z katalogiem w cache, `effort: low` |
+| [D-051](#d-051-przechowywanie-klucza-api) | klucz w `sessionStorage`, „zapamiętaj” — `localStorage` |
+| [D-052](#d-052-kontrola-propozycji-llm-przez-interpreter) | kontrola propozycji LLM w stanie z chwili odpowiedzi; co jest odrzucane |
+| [D-053](#d-053-content-security-policy) | CSP jako `<meta>` w buildzie |
+| [D-054](#d-054-panel-ustawień-i-przycisk-objaśnij) | panel ustawień, wskaźnik trybu, „Objaśnij” bez klucza |
 
 ## Zatwierdzone
 
@@ -28,6 +35,7 @@ Brak pozycji oczekujących.
 | [D-039](#d-039-propozycje-zmian-w-commandsmd-po-e3) | propozycje po E3 — wprowadzone do `COMMANDS.md` | 2026-10-20 |
 | D-040 … D-046 | wszystkie decyzje etapu E4 (ustępowanie dowódcy, model ruchu ciągłego, warunki ruchu, zachodzenie, „Stawaj” i „Czoło – STÓJ”, „Za mną”, marsz w skos) | 2026-10-20 |
 | [D-047](#d-047-propozycje-zmian-w-commandsmd-po-e4) | propozycje po E4 — przeniesione do backlogu (`docs/BACKLOG.md`, decyzja autora) | 2026-10-20 |
+| [D-048](#d-048-etap-końcowy-ef-zamiast-e5e7) | etap końcowy EF zamiast E5–E7 (decyzja autora) | 2026-10-20 |
 
 ---
 
@@ -459,3 +467,58 @@ Brak pozycji oczekujących.
 - M-11: dopisać odległość między szeregami po „Stawaj” z kolumny dwójkowej (0,6 m, nieregularna) albo zdecydować, że prawy rząd odsuwa się na 1,2 m (D-044).
 - M-1 / M-9: dopisać zachowanie szyku rozwiniętego przy kierunku w skos (D-046).
 - Tabela warunków ruchu z D-042 jako uzupełnienie pól „Warunki” komend M.
+
+## D-048 Etap końcowy EF zamiast E5–E7
+
+- **Data:** 2026-10-20 · **Etap:** EF · **Decyzja autora**
+- **Kontekst:** autor połączył etapy E5 Nauka, E6 LLM i E7 Szlif w jeden etap końcowy EF o zamkniętym zakresie: K1 (LLM, ustawienia, CSP), K2 (ściąga, podstawowe ćwiczenia, regulamin PDF z odnośnikami), K3 (pierwsze uruchomienie, poprawka STÓJ na zakręcie kolumny, README).
+- **Decyzja:** `SPEC.md` sekcja 10 zaktualizowana (za zgodą autora). Wszystko z E5/E7 spoza zakresu EF — autouzupełnianie z wyszarzaniem, „czy chodziło o” bez LLM, pozostałe ustawienia SPEC 3.8 (nazwa drużyny, losowanie nazwisk, prędkość, reset placu, wybór modelu), pełna szuflada katalogu, grafika, dostępność, wydajność — w `docs/BACKLOG.md`, sekcja „Poza zakresem EF”. Po każdym kamieniu milowym: testy, zielone CI, wdrożenie, wpis w `PROGRESS.md`.
+
+## D-049 Zależność `@anthropic-ai/sdk`
+
+- **Data:** 2026-10-20 · **Etap:** EF (K1)
+- **Kontekst:** CLAUDE.md wymaga uzasadnienia każdej nowej zależności. Objaśnienia LLM wywołują Messages API bezpośrednio z przeglądarki (SPEC 4.1, 8).
+- **Decyzja:** oficjalny klient Anthropic (`@anthropic-ai/sdk`) zamiast ręcznego `fetch`: obsługuje strumień SSE, typy zdarzeń i błędów (osobne klasy dla 401, 403, 404, 429, 5xx, braku połączenia), przerwanie żądania i nagłówek `anthropic-dangerous-direct-browser-access: true` (opcja `dangerouslyAllowBrowser`). Ustawienia: `maxRetries: 0` (limit 15 s obejmuje jedno wywołanie), `logLevel: 'off'` (nic nie trafia do konsoli). Moduł klienta jest ładowany leniwie (`import()`) dopiero przy pierwszym objaśnieniu — bez klucza przeglądarka go nie pobiera (osobny plik ok. 75 kB po kompresji). Testy podstawiają własny `fetch` (opcja klienta) albo przechwytują żądania w Playwright — nigdy nie łączą się z API.
+- **Alternatywy:** własny parser SSE na `fetch` — mniej kodu w paczce, ale więcej własnego kodu do utrzymania i testowania, a wskazówki Anthropic zalecają SDK.
+
+## D-050 Wywołanie LLM: format odpowiedzi, model, cache
+
+- **Data:** 2026-10-20 · **Etap:** EF (K1)
+- **Kontekst:** SPEC 8.2: JSON `{explanation, suggestion, regulationPoints}` walidowany schematem, strumień, katalog jako stały prefiks z cache, limit 15 s, model `claude-haiku-5-5`.
+- **Decyzja:**
+  - Format wymuszany przez API (structured outputs, `output_config.format` ze schematem JSON) i dodatkowo walidowany w aplikacji (`src/llm/schema.ts`): objaśnienie niepuste, do 2000 znaków; propozycja napisem do 200 znaków albo `null`; punkty — liczby całkowite 1–130 (punkty spoza regulaminu są pomijane). Niepoprawna odpowiedź → komunikat „nieoczekiwany format”.
+  - Strumień: objaśnienie jest pokazywane w trakcie pisania — odczytywane z niepełnego JSON-a (pole `explanation`), a propozycja i punkty dopiero po walidacji całości.
+  - Prompt systemowy: rola instruktora, zasady (werdykt interpretera ostateczny, nie wymyślać komend ani punktów, po polsku, 3–4 zdania, niepewność wprost), konwencje pkt 10–11 i katalog komend generowany z danych (`src/core/catalog`: formy, wzorzec, opis, warunki, efekt, cytat; grupa „Poza MVP” z adnotacją; kody komunikatów). Jeden blok z `cache_control: ephemeral` — stały, bez stanu i czasu. Zmienna treść (wpis, werdykt, komunikaty z fragmentem tekstu, stan drużyny z chwili komendy) w wiadomości użytkownika.
+  - Rozpoznawanie intencji: przy `E_SYNTAX_UNKNOWN` zadanie brzmi „Rozpoznaj intencję…”; przy uwadze — „Objaśnij uwagę…”.
+  - `effort: low`, `max_tokens: 2048` — krótka odpowiedź w limicie 15 s; myślenie zostawione domyślne dla modelu (adaptacyjne).
+- **Alternatywy:** sam JSON z promptu bez structured outputs — model mógłby dopisać tekst wokół JSON-a; osobna wiadomość z katalogiem — gorsze trafienia w cache.
+
+## D-051 Przechowywanie klucza API
+
+- **Data:** 2026-10-20 · **Etap:** EF (K1)
+- **Kontekst:** SPEC 8.3: „domyślnie tylko w pamięci sesji; opcja „zapamiętaj na tym urządzeniu” (localStorage) z ostrzeżeniem”.
+- **Decyzja:** „pamięć sesji” = `sessionStorage` (klucz przetrwa odświeżenie karty, znika po jej zamknięciu, nie widzą go inne karty). Zaznaczenie „Zapamiętaj na tym urządzeniu” przenosi klucz do `localStorage` i usuwa go z `sessionStorage` (i odwrotnie) — klucz jest zawsze tylko w jednym miejscu. Ostrzeżenie pojawia się po zaznaczeniu. Przycisk „Usuń” kasuje klucz z obu miejsc. Pole klucza jest typu hasło (przycisk „Pokaż”). Klucz trafia wyłącznie do nagłówka `x-api-key` żądań do `api.anthropic.com`; komunikaty błędów są stałymi tekstami po polsku (bez treści odpowiedzi API). Zalecenie osobnego klucza z niskim limitem wydatków — w panelu ustawień z odnośnikiem do Claude Console.
+- **Alternatywy:** tylko pamięć JavaScript — klucz znikałby przy każdym odświeżeniu strony.
+
+## D-052 Kontrola propozycji LLM przez interpreter
+
+- **Data:** 2026-10-20 · **Etap:** EF (K1)
+- **Kontekst:** SPEC 8.1: propozycja LLM przechodzi przez interpreter (parsowanie i semantykę) przed pokazaniem „Użyj”; niepoprawna jest odrzucana.
+- **Decyzja:** propozycja jest sprawdzana w stanie drużyny z chwili nadejścia odpowiedzi (w tym stanie użytkownik jej użyje). Najpierw tryb łagodny (model może zapisać komendę z drobną różnicą), a do wiersza trafia forma kanoniczna, sprawdzona ponownie w trybie ustawionym przez użytkownika. Odrzucane są: błąd składni lub semantyki, komenda do innej drużyny (`E_ADDRESSEE`), spoza zakresu (`E_OUT_OF_SCOPE`), bez skutku w obecnym stanie (`W_NO_EFFECT`), pusta lub wielowierszowa. Po odrzuceniu zostaje samo objaśnienie i krótka adnotacja „Propozycja modelu nie przeszła kontroli interpretera — pominięta” (bez treści odrzuconej komendy).
+- **Alternatywy:** pokazywanie odrzuconej propozycji przekreślonej — uczyłoby błędnej komendy.
+
+## D-053 Content Security Policy
+
+- **Data:** 2026-10-20 · **Etap:** EF (K1) · realizuje D-010
+- **Kontekst:** SPEC 8.3: CSP ogranicza połączenia do `api.anthropic.com`; GitHub Pages nie pozwala ustawić nagłówków HTTP.
+- **Decyzja:** znacznik `<meta http-equiv="Content-Security-Policy">` wstawiany przy budowie (wtyczka w `vite.config.ts`) zaraz po deklaracji kodowania: `default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src https://api.anthropic.com; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'self'; form-action 'none'`. Bez `unsafe-inline` i `unsafe-eval`. Serwer deweloperski (`npm run dev`) działa bez CSP (potrzebuje skryptów inline i HMR); testy E2E sprawdzają wersję produkcyjną. Regulamin PDF otwierany w nowej karcie nie podlega tej polityce (to nawigacja, nie połączenie). Dyrektyw `frame-ancestors` i raportowania nie da się ustawić znacznikiem `<meta>`.
+- **Alternatywy:** CSP również w trybie deweloperskim — wymagałoby wyjątków dla Vite, które łatwo przeoczyć przy wdrożeniu.
+
+## D-054 Panel ustawień i przycisk „Objaśnij”
+
+- **Data:** 2026-10-20 · **Etap:** EF (K1)
+- **Decyzja:**
+  - Panel ustawień — okno modalne z przycisku „⚙ Ustawienia” w pasku górnym, tylko: klucz API (z „Zapamiętaj na tym urządzeniu”), auto-objaśnianie, tryb zapisu (przełącznik przeniesiony z wiersza poleceń), liczebność drużyny 3–12 (lista; zmiana ustawia drużynę od nowa — rozproszoną — i jest zapamiętywana). Esc lub klik w tło zamyka, fokus wraca do wiersza poleceń. Pisanie w polach panelu nie steruje dowódcą.
+  - W wierszu poleceń został mały wskaźnik trybu („łagodny”/„ścisły”); kliknięcie otwiera ustawienia. Zmienione testy E2E (zgłoszenie zgodnie z CLAUDE.md): trzy testy `command-line.spec.ts` przełączały tryb przyciskiem w wierszu poleceń — teraz robią to przez panel ustawień; sprawdzają to samo zachowanie.
+  - „Objaśnij” — przy każdym błędzie i uwadze (także „nikt nie reaguje”), obok „Użyj”. Bez klucza przycisk ma dopisek „wymaga klucza API” i otwiera ustawienia (nie łączy się z siecią). Po błędzie wywołania — „Objaśnij ponownie”. Nowa komenda przerywa trwające objaśnienie. Auto-objaśnianie wywołuje objaśnienie od razu po błędzie lub uwadze, gdy jest klucz.
+  - Objaśnienie oznaczone jako „Objaśnienie AI” z dopiskiem „Werdykt wydaje interpreter; objaśnienie AI może być nieprecyzyjne”.

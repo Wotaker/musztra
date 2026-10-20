@@ -1,7 +1,6 @@
 import { useEffect, useRef, type KeyboardEvent, type ReactNode } from 'react';
 import type { Span } from '../core/grammar/normalize';
 import { useCommandStore } from './commandStore';
-import { ModeSwitch } from './ModeSwitch';
 import { useViewStore } from './store';
 import { mergeSpans } from './spans';
 
@@ -21,6 +20,29 @@ function mirror(text: string, spans: readonly Span[]): ReactNode[] {
   }
   if (cursor < text.length) nodes.push(text.slice(cursor));
   return nodes;
+}
+
+/** Bieżący tryb zapisu; przełącznik jest w ustawieniach (SPEC 3.8). */
+function ModeBadge() {
+  const mode = useCommandStore((s) => s.mode);
+  const setDialog = useViewStore((s) => s.setDialog);
+  return (
+    <button
+      type="button"
+      className={`cmdline__mode cmdline__mode--${mode}`}
+      data-testid="mode-badge"
+      data-mode={mode}
+      title="Tryb zapisu — zmiana w ustawieniach (⚙)"
+      onMouseDown={(event) => {
+        event.preventDefault();
+      }}
+      onClick={() => {
+        setDialog('settings');
+      }}
+    >
+      {mode === 'strict' ? 'ścisły' : 'łagodny'}
+    </button>
+  );
 }
 
 export function CommandLine() {
@@ -104,7 +126,7 @@ export function CommandLine() {
           onKeyUp={syncScroll}
         />
       </div>
-      <ModeSwitch />
+      <ModeBadge />
     </div>
   );
 }

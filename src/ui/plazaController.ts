@@ -137,14 +137,16 @@ export class PlazaController {
       state.squad.activity ? 'busy' : 'idle',
       `${c.position.x.toFixed(1)},${c.position.y.toFixed(1)},${String(Math.round(c.heading))}`,
       this.camera.pixelsPerMeter.toFixed(0),
+      String(state.soldiers.length),
     ].join('|');
     if (data === this.lastDataset) return;
     this.lastDataset = data;
-    const [formation, activity, commander, zoom] = data.split('|');
+    const [formation, activity, commander, zoom, soldiers] = data.split('|');
     this.canvas.dataset.formation = formation;
     this.canvas.dataset.activity = activity;
     this.canvas.dataset.commander = commander;
     this.canvas.dataset.zoom = zoom;
+    this.canvas.dataset.soldiers = soldiers;
   }
 
   private readonly onWheel = (event: WheelEvent): void => {

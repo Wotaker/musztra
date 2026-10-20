@@ -29,6 +29,7 @@ export function StatusBar() {
   const setSpeed = useViewStore((s) => s.setSpeed);
   const showRoles = useViewStore((s) => s.showRoles);
   const toggleRoles = useViewStore((s) => s.toggleRoles);
+  const setDialog = useViewStore((s) => s.setDialog);
 
   const nextSpeed = SPEEDS[(SPEEDS.indexOf(speed) + 1) % SPEEDS.length] ?? 1;
 
@@ -101,6 +102,21 @@ export function StatusBar() {
           }}
         >
           <span aria-hidden="true">⏱</span> {formatSpeed(speed)}
+        </button>
+        <button
+          type="button"
+          className="status-chip"
+          data-testid="open-settings"
+          title="Ustawienia: klucz API, objaśnienia AI, tryb zapisu, liczebność drużyny"
+          aria-label="Ustawienia"
+          onMouseDown={(event) => {
+            event.preventDefault();
+          }}
+          onClick={() => {
+            setDialog('settings');
+          }}
+        >
+          <span aria-hidden="true">⚙</span> Ustawienia
         </button>
       </div>
     </header>

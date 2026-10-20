@@ -2,6 +2,14 @@ import { expect, test, type Page } from '@playwright/test';
 
 // Wiersz poleceń z informacją zwrotną (etap E1, SPEC 3.2–3.4).
 
+/** Przełącznik trybu zapisu jest w panelu ustawień (etap EF); po zamknięciu fokus wraca do wiersza. */
+async function setMode(page: Page, mode: 'lenient' | 'strict') {
+  await page.getByTestId('open-settings').click();
+  await page.getByTestId(`mode-${mode}`).click();
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('settings-dialog')).toHaveCount(0);
+}
+
 async function send(page: Page, text: string) {
   const input = page.getByTestId('command-input');
   await input.fill(text);
@@ -18,7 +26,8 @@ test.beforeEach(async ({ page }) => {
 
 test('wiersz poleceń ma fokus po otwarciu strony', async ({ page }) => {
   await expect(page.getByTestId('command-input')).toBeFocused();
-  await expect(page.getByTestId('mode-lenient')).toHaveAttribute('aria-checked', 'true');
+  // Tryb zapisu: wskaźnik w wierszu poleceń, przełącznik w ustawieniach (etap EF).
+  await expect(page.getByTestId('mode-badge')).toHaveAttribute('data-mode', 'lenient');
 });
 
 test('poprawna komenda: ✔ Wykonano, rozpoznany wpis katalogu z punktem regulaminu, wiersz wyczyszczony', async ({ page }) => {
@@ -49,7 +58,7 @@ test('tryb łagodny: zapis znormalizowany do formy kanonicznej', async ({ page }
 
 test('tryb ścisły: błędy formy z podkreśleniem i przyciskiem „Użyj”', async ({ page }) => {
   await assemble(page);
-  await page.getByTestId('mode-strict').click();
+  await setMode(page, 'strict');
   await expect(page.getByTestId('command-input')).toBeFocused();
   await send(page, 'w prawo zwrot');
 
@@ -102,7 +111,9 @@ test('historia komend: ↑ przywraca poprzednie komendy, ↓ wraca do pustego wi
 });
 
 test('tryb zapisu jest zapamiętany po odświeżeniu strony', async ({ page }) => {
-  await page.getByTestId('mode-strict').click();
+  await setMode(page, 'strict');
   await page.reload();
+  await expect(page.getByTestId('mode-badge')).toHaveAttribute('data-mode', 'strict');
+  await page.getByTestId('open-settings').click();
   await expect(page.getByTestId('mode-strict')).toHaveAttribute('aria-checked', 'true');
 });

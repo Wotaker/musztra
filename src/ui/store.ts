@@ -8,6 +8,9 @@ export type FocusMode = 'command' | 'move';
 export const SPEEDS = [0.5, 1, 2, 3] as const;
 export type Speed = (typeof SPEEDS)[number];
 
+/** Okno modalne nad placem: ustawienia albo wskazówki pierwszego uruchomienia (SPEC 3.8, 3.10). */
+export type Dialog = 'settings' | 'welcome';
+
 export interface Hover {
   readonly soldierId: number;
   /** Położenie kursora na ekranie (px). */
@@ -22,11 +25,13 @@ interface ViewState {
   /** Przełącznik „pokaż role” (SPEC 3.9): kierunkowy i skrzydłowi. */
   showRoles: boolean;
   hover: Hover | null;
+  dialog: Dialog | null;
   setCamera: (camera: Camera) => void;
   setFocusMode: (mode: FocusMode) => void;
   setSpeed: (speed: Speed) => void;
   toggleRoles: () => void;
   setHover: (hover: Hover | null) => void;
+  setDialog: (dialog: Dialog | null) => void;
 }
 
 /** Stan widoku placu. Renderer i pętla symulacji czytają go poza cyklem Reacta. */
@@ -36,6 +41,7 @@ export const useViewStore = create<ViewState>()((set) => ({
   speed: 1,
   showRoles: false,
   hover: null,
+  dialog: null,
   setCamera: (camera) => {
     set({ camera });
   },
@@ -50,5 +56,8 @@ export const useViewStore = create<ViewState>()((set) => ({
   },
   setHover: (hover) => {
     set({ hover });
+  },
+  setDialog: (dialog) => {
+    set({ dialog });
   },
 }));

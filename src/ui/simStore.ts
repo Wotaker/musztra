@@ -15,10 +15,11 @@ interface SimStoreState {
   setCommanderInput: (input: CommanderInput) => void;
   /** Obrót dowódcy w miejscu o 45° (Q/E, SPEC 3.2). */
   rotateCommander: (direction: -1 | 1) => void;
-  reset: () => void;
+  /** Plac od nowa: drużyna rozproszona, z nową liczebnością (ustawienia, SPEC 3.8). */
+  reset: (size?: number) => void;
 }
 
-/** Ziarno losowości w interfejsie: stały skład i rozproszenie do etapu E5 (ustawienia, SPEC 3.8). */
+/** Ziarno losowości w interfejsie: stały skład i rozproszenie („losuj ponownie” — w backlogu). */
 const UI_SEED = 1;
 
 export const useSimStore = create<SimStoreState>()((set, get) => ({
@@ -43,7 +44,8 @@ export const useSimStore = create<SimStoreState>()((set, get) => ({
     const heading = normalizeAngle(commander.heading + direction * 45);
     set({ session: { ...session, sim: { ...session.sim, commander: { ...commander, heading } } } });
   },
-  reset: () => {
-    set({ session: createSession({ size: 9, seed: UI_SEED, squad: 1 }) });
+  reset: (size) => {
+    const current = get().session.sim.soldiers.length;
+    set({ session: createSession({ size: size ?? current, seed: UI_SEED, squad: 1 }) });
   },
 }));

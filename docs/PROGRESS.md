@@ -9,9 +9,24 @@ Etapy według `SPEC.md`, sekcja 10. Każdy etap kończy się wdrożoną wersją 
 | E2 Stan i obraz | ✔ ukończony | 2026-10-20 |
 | E3 Szyki w miejscu | ✔ ukończony | 2026-10-20 |
 | E4 Ruch | ✔ ukończony | 2026-10-20 |
-| E5 Nauka | — | |
-| E6 LLM | — | |
-| E7 Szlif | — | |
+| EF Etap końcowy (dawne E5–E7, D-048) | w toku: K1 ✔, K2 —, K3 — | |
+
+---
+
+## EF Etap końcowy — postęp prac (do wznowienia po przerwie)
+
+Zakres (decyzja autora, D-048): K1 LLM + ustawienia + CSP → K2 ściąga, podstawowe ćwiczenia, regulamin PDF z odnośnikami → K3 pierwsze uruchomienie, poprawka STÓJ na zakręcie kolumny, README. Po każdym kamieniu: testy, zielone CI, wdrożenie, wpis tutaj. Wszystko spoza zakresu → `docs/BACKLOG.md`.
+
+Środowisko w chmurze: Node 26 z nodejs.org w `/opt/node26/…/bin` (dopisać do `PATH`); E2E lokalnie na preinstalowanym Chromium — `/opt/pw-browsers/chromium_headless_shell-1248` to dowiązania do wersji 1194 (obejście tylko w kontenerze, bez zmian w repozytorium i CI).
+
+### K1 — LLM, ustawienia, CSP ✔ (2026-10-20)
+
+- `src/llm/`: `prompt.ts` (prompt systemowy z katalogiem z danych, cache), `schema.ts` (walidacja JSON, objaśnienie ze strumienia), `client.ts` (SDK Anthropic, limit 15 s, błędy po polsku), `suggestion.ts` (kontrola propozycji przez interpreter).
+- `src/ui/`: `SettingsPanel.tsx` + `settingsStore.ts` + `persist.ts` (klucz: sesja / urządzenie), `explainStore.ts` + `Explanation.tsx` („Objaśnij”, strumień, „Użyj”), `Dialog.tsx`; tryb zapisu przeniesiony do ustawień (wskaźnik w wierszu poleceń).
+- CSP: wtyczka w `vite.config.ts` (tylko build). Mapa punkt → strona PDF: `src/core/regulationPages.ts` (z `scripts/regulation-pages.mjs`) — przygotowana dla K2.
+- Testy: `tests/llm/*` (prompt, schemat, klient z zamockowanym `fetch`, propozycje), `tests/ui/persist.test.ts`, `tests/regulation/pages.test.ts`, `e2e/llm.spec.ts` (ustawienia, objaśnienia z atrapą API, zła propozycja, zły klucz, brak sieci, 15 s, intencja, auto-objaśnianie, CSP). Zmienione 3 testy w `e2e/command-line.spec.ts` — przełączanie trybu przez panel ustawień (D-054).
+- Decyzje: D-048…D-054 (D-049…D-054 do akceptacji).
+- Zrzuty: `docs/screenshots/k1-*.png`.
 
 ---
 

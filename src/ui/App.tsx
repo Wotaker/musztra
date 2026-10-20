@@ -3,6 +3,7 @@ import { CompassRose } from './CompassRose';
 import { FeedbackPanel } from './FeedbackPanel';
 import { Journal } from './Journal';
 import { PlazaCanvas } from './PlazaCanvas';
+import { SettingsPanel } from './SettingsPanel';
 import { SoldierTooltip } from './SoldierTooltip';
 import { StatusBar } from './StatusBar';
 import { useKeyboardControl } from './useKeyboardControl';
@@ -20,6 +21,7 @@ export function App() {
         <FeedbackPanel />
         <CommandLine />
       </div>
+      <SettingsPanel />
     </main>
   );
 }

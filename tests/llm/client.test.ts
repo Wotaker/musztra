@@ -108,7 +108,8 @@ describe('wywołanie API z przeglądarki', () => {
 });
 
 describe('błędy jako zrozumiały komunikat po polsku', () => {
-  const cases: readonly [string, () => ReturnType<typeof vi.fn>, LlmErrorKind, RegExp][] = [
+  type FetchMock = (input: FetchArgs[0], init?: RequestInit) => Promise<Response>;
+  const cases: readonly [string, () => FetchMock, LlmErrorKind, RegExp][] = [
     ['zły klucz (401)', () => respond(errorBody('authentication_error', 'invalid x-api-key'), 401, 'application/json'), 'auth', /klucz/i],
     ['brak uprawnień (403)', () => respond(errorBody('permission_error', 'not allowed'), 403, 'application/json'), 'permission', /uprawnie|dostęp/i],
     ['brak środków (400)', () => respond(errorBody('invalid_request_error', 'Your credit balance is too low to access the Anthropic API.'), 400, 'application/json'), 'billing', /środk|limit wydatków/i],

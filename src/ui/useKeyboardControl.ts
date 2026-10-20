@@ -14,6 +14,15 @@ const DIRECTIONS: Readonly<Record<string, readonly [number, number]>> = {
   ArrowRight: [1, 0],
 };
 
+function isEditable(target: EventTarget | null): boolean {
+  return (
+    target instanceof HTMLInputElement ||
+    target instanceof HTMLTextAreaElement ||
+    target instanceof HTMLSelectElement ||
+    (target instanceof HTMLElement && target.isContentEditable)
+  );
+}
+
 /**
  * Sterowanie dowódcą w trybie Ruch: kierunek z wciśniętych klawiszy, Shift — bieg, Q/E — obrót o 45°,
  * Enter lub „/” — powrót do trybu Komenda. Esc w wierszu poleceń przełącza na tryb Ruch.
@@ -45,6 +54,8 @@ export function useKeyboardControl(): void {
     const onKeyDown = (event: KeyboardEvent) => {
       const view = useViewStore.getState();
       if (view.focusMode !== 'move') return;
+      // Pisanie w polach paneli (ustawienia, wyszukiwarka ściągi) nie steruje dowódcą.
+      if (view.dialog !== null || isEditable(event.target)) return;
       if (event.ctrlKey || event.metaKey || event.altKey) return;
       if (event.key === 'Enter' || event.key === '/') {
         event.preventDefault();
@@ -73,6 +84,7 @@ export function useKeyboardControl(): void {
 
     const unsubscribe = useViewStore.subscribe((state, prev) => {
       if (state.focusMode !== prev.focusMode && state.focusMode === 'command') release();
+      if (state.dialog !== null && prev.dialog === null) release();
     });
 
     window.addEventListener('keydown', onKeyDown);

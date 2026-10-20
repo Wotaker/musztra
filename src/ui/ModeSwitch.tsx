@@ -14,7 +14,7 @@ const OPTIONS: readonly { mode: WritingMode; label: string; hint: string }[] = [
   },
 ];
 
-/** Przełącznik trybu zapisu (SPEC 3.8). Pełne ustawienia dochodzą w etapie E5. */
+/** Przełącznik trybu zapisu (SPEC 3.8) — w panelu ustawień. */
 export function ModeSwitch() {
   const mode = useCommandStore((s) => s.mode);
   const setMode = useCommandStore((s) => s.setMode);

@@ -1,6 +1,7 @@
 import { formatPoints, groupName, type Stage } from '../core/catalog';
 import { worstLevel, type Diagnostic, type InterpretResult } from '../core/interpreter';
-import { useCommandStore } from './commandStore';
+import { isExplainable, useCommandStore } from './commandStore';
+import { ExplainButton, ExplanationBox } from './Explanation';
 
 const TITLES = {
   ok: { icon: '✔', title: 'Komenda poprawna' },
@@ -93,23 +94,27 @@ export function FeedbackPanel() {
           ))}
         </ul>
       )}
-      {result.suggestion && (
+      {(result.suggestion || isExplainable(result)) && (
         <div className="feedback__actions">
-          <button
-            type="button"
-            className="feedback__use"
-            data-testid="use-suggestion"
-            onMouseDown={(event) => {
-              event.preventDefault();
-            }}
-            onClick={() => {
-              if (result.suggestion) setDraft(result.suggestion);
-            }}
-          >
-            Użyj: {result.suggestion}
-          </button>
+          {result.suggestion && (
+            <button
+              type="button"
+              className="feedback__use"
+              data-testid="use-suggestion"
+              onMouseDown={(event) => {
+                event.preventDefault();
+              }}
+              onClick={() => {
+                if (result.suggestion) setDraft(result.suggestion);
+              }}
+            >
+              Użyj: {result.suggestion}
+            </button>
+          )}
+          <ExplainButton result={result} />
         </div>
       )}
+      <ExplanationBox result={result} />
       {result.verdict === 'accepted' && entry && outcome?.pendingStage && (
         <p className="feedback__note" data-testid="feedback-pending">
           {groupName(entry.group)}: {entry.description} Komenda jest poprawna, ale jej wykonanie na placu dojdzie w
