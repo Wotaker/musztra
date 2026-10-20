@@ -1,6 +1,27 @@
 # Backlog usprawnień
 
-Propozycje usprawnień zebrane przy etapach E2–E4 (decyzja autora z 2026-10-20: propozycje trafiają tu, nie do bieżącego etapu). Nowe funkcje poza MVP są w `SPEC.md`, sekcja 2.2 — ten plik ich nie powtarza. Kolejność w sekcjach — od najważniejszych. Pozycje do przeglądu przez autora; naturalne miejsce realizacji to E7 (Szlif) albo później.
+Propozycje usprawnień zebrane przy etapach E2–E4 (decyzja autora z 2026-10-20: propozycje trafiają tu, nie do bieżącego etapu). Nowe funkcje poza MVP są w `SPEC.md`, sekcja 2.2 — ten plik ich nie powtarza. Kolejność w sekcjach — od najważniejszych. Pozycje do przeglądu przez autora; realizacja po etapie końcowym EF (zob. niżej).
+
+## Poza zakresem EF (z pierwotnych etapów E5 i E7)
+
+Decyzja autora z 2026-10-20: etapy E5, E6 i E7 połączono w etap końcowy EF o zamkniętym zakresie (`SPEC.md`, sekcja 10). Poniżej wszystko z E5 i E7 (oraz z SPEC sekcje 3 i 8), czego EF nie obejmuje.
+
+Z E5 (Nauka):
+
+1. Autouzupełnianie w wierszu poleceń (SPEC 3.3): szara podpowiedź pod kursorem przyjmowana klawiszem `Tab`, lista do 5 pasujących wzorców nad wierszem, sloty (liczby, nazwiska, obiekty) wypełniane wartościami z bieżącego stanu.
+2. Wyszarzanie wzorców niewykonalnych w obecnym stanie z krótkim powodem (np. „wymaga BACZNOŚĆ”) i przełącznik „Podpowiedzi wł./wył.” w ustawieniach.
+3. „Czy chodziło o…” bez LLM — propozycja na podstawie odległości edycyjnej od wzorców katalogu (SPEC 4.3). W EF rozpoznawanie intencji przy `E_SYNTAX_UNKNOWN` robi tylko LLM.
+4. Pozostałe ustawienia z SPEC 3.8: nazwa drużyny (Drużyna / Pierwsza … Czwarta drużyna), „losuj ponownie” nazwiska, prędkość symulacji w ustawieniach (dziś przycisk ⏱ w pasku), reset placu ze startem „rozproszona / szereg”, wybór modelu LLM (SPEC 8.2: „konfigurowalny w ustawieniach”; w EF stały `claude-haiku-5-5`).
+5. Szuflada katalogu w pełnym kształcie SPEC 3.7: warianty, cytat z regulaminu i przykład przy każdej komendzie (ściąga EF pokazuje formę kanoniczną, krótki opis i punkt regulaminu).
+6. Kryterium E5 „nowy użytkownik wydaje poprawną komendę w < 1 min” — pomiar z udziałem osób z grupy.
+
+Z E7 (Szlif):
+
+1. Dopracowanie grafiki i animacji (zob. sekcja „Wygląd” niżej).
+2. Dostępność: pełna obsługa klawiaturą wszystkich paneli, kontrast, czytniki ekranu (role ARIA, opisy stanu placu).
+3. Wydajność: pomiar 60 kl./s przy 12 żołnierzach z dymkami, interpreter < 20 ms (SPEC 9.6) — zob. „Testy i infrastruktura”, p. 2.
+4. Lista kontrolna UX z SPEC sekcja 3 jako formalne kryterium ukończenia.
+5. Wersja angielska README i dokumentacja dla deweloperów (README EF jest dla kolegów z grupy, po polsku).
 
 ## Uwagi UI autora
 

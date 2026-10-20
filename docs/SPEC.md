@@ -368,6 +368,8 @@ Testy są głównym mechanizmem kontroli jakości: autor weryfikuje działanie i
 
 Każdy etap kończy się działającą, wdrożoną wersją, którą autor może sprawdzić w przeglądarce, oraz listą kontrolną weryfikacji ręcznej.
 
+Zmiana zakresu (2026-10-20, decyzja autora): pierwotne etapy E5 Nauka, E6 LLM i E7 Szlif połączono w jeden etap końcowy **EF**. Elementy E5 i E7 spoza zakresu EF przeniesiono do `docs/BACKLOG.md` (sekcja „Poza zakresem EF”).
+
 | Etap | Zawartość | Kryterium ukończenia (oprócz zielonych testów) |
 |---|---|---|
 | **E0 Szkielet** | Vite + React + TS, Vitest, Playwright, lint, CI, wdrożenie na GitHub Pages, pusty plac z siatką | strona otwiera się pod publicznym adresem Pages |
@@ -375,9 +377,7 @@ Każdy etap kończy się działającą, wdrożoną wersją, którą autor może 
 | **E2 Stan i obraz** | model stanu, renderer, kamera, obiekty terenowe, dowódca na klawiaturze, tryby fokusu; postawy, zwroty, 3 sposoby zbiórki, ROZEJŚĆ SIĘ, WRÓĆ | scenariusze zbiórek i zwrotów przechodzą; widać to na placu |
 | **E3 Szyki w miejscu** | odliczanie z dymkami i meldunkiem „Niepełny”, równanie, zmiany szyku w miejscu, odstępowanie i łączenie, przesunięcie, dziennik | scenariusze szyków w miejscu przechodzą |
 | **E4 Ruch** | marsz, kroki, marsz w miejscu, bieg, zatrzymania, zmiany kierunku, „Za mną”, zachodzenie, zmiany szyku w marszu, „Stawaj”, „Czoło – STÓJ” | scenariusze marszowe przechodzą; ruch płynny |
-| **E5 Nauka** | autouzupełnianie z wyszarzaniem, szuflada katalogu, „czy chodziło o”, ustawienia, pierwsze uruchomienie | nowy użytkownik wydaje poprawną komendę w < 1 min |
-| **E6 LLM** | klucz API, objaśnienia, walidacja propozycji, obsługa błędów | testy z zamockowanym API; ręczny test z prawdziwym kluczem |
-| **E7 Szlif** | dopracowanie grafiki i animacji, dostępność, wydajność, instrukcja w README | lista kontrolna UX z sekcji 3 spełniona |
+| **EF Etap końcowy** | (połączone E5, E6 i E7 — decyzja autora z 2026-10-20; zakres zamknięty, reszta w `docs/BACKLOG.md`) **K1** LLM w całości (sekcja 8) z panelem ustawień (klucz API, auto-objaśnianie, tryb zapisu, liczebność drużyny) i Content Security Policy; **K2** ściąga z katalogu (F1), „Podstawowe ćwiczenia”, regulamin PDF w aplikacji z odnośnikami „pkt N”; **K3** nakładka pierwszego uruchomienia, poprawka „STÓJ podczas zmiany kierunku kolumny”, README dla grupy | testy z zamockowanym API; ręczny test z prawdziwym kluczem; każdy kamień milowy (K1, K2, K3) wdrożony osobno |
 
 ---
 
