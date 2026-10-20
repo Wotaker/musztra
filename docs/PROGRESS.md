@@ -8,10 +8,110 @@ Etapy według `SPEC.md`, sekcja 10. Każdy etap kończy się wdrożoną wersją 
 | E1 Interpreter | ✔ ukończony | 2026-10-19 |
 | E2 Stan i obraz | ✔ ukończony | 2026-10-20 |
 | E3 Szyki w miejscu | ✔ ukończony | 2026-10-20 |
-| E4 Ruch | — | |
+| E4 Ruch | ✔ ukończony | 2026-10-20 |
 | E5 Nauka | — | |
 | E6 LLM | — | |
 | E7 Szlif | — | |
+
+---
+
+## E4 Ruch — podsumowanie (2026-10-20)
+
+### Status
+
+**✔ Ukończony.** Przechodzą `npm run lint`, `npm test` (879 testów, **0 testów „todo”** — wszystkie przykłady katalogu zależne od stanu są zwykłymi testami), `npm run build`, `npm run e2e` (32 testy). CI na GitHubie zielone, strona wdrożona przez CI.
+
+- Wszystkie 20 testów „todo” etapu E4 (Z-1 w marszu, S-4 w rzędzie, M-2 w szeregu, M-3 w biegu, M-6 stojąc, M-8 w biegu, M-9 stojąc, M-10 w szeregu, MS-1 w rzędzie, MS-2 bez odliczenia w marszu — po 2 tryby) są zwykłymi testami.
+- Scenariusze akceptacyjne E4: S09, S10, S11, S22, S23, S24, S26 — z kontrolą niezmienników SPEC 5.4. Wszystkie 27 scenariuszy z `COMMANDS.md` są teraz testami.
+- Dodatkowe testy: rozpoczęcie marszu z każdego szyku (I-2 rozwieranie, I-3 kierunek w szyku rozwiniętym, w skos, w tył), zatrzymania (STÓJ, samo „STÓJ”, „Czoło – STÓJ”, „Stawaj”), marsz w miejscu i „Na wprost”, kroki (defiladowy, zwykły, dowolny), bieg, zmiana kierunku w kolumnie dwójkowej, „Za mną” z dowódcą, zachodzenie (I-13, blokada innych komend), odliczanie w marszu (I-4), WRÓĆ i rozejście w ruchu, determinizm marszu, ustępowanie dowódcy.
+- **Zmieniony test (zgłoszenie zgodnie z CLAUDE.md):** test z E2 „poprawna komenda marszowa jest rozpoznana, ale jeszcze nie zmienia stanu” sprawdzał zachowanie przejściowe sprzed E4 (komendy marszowe czekały na E4). Od E4 jest odwrotnie, więc zastąpiłem go testem „od E4 komenda marszowa jest wykonywana” i testem, że każda komenda MVP ma etap ≤ E4. Analogicznie test E2E „komenda kolejnego etapu…” sprawdza teraz, że drużyna rusza. Żadnego testu nie usunięto bez zastępstwa.
+- Zrzuty ekranu: `docs/screenshots/e4-*.png` (szereg w marszu, kolumna na zakręcie, bieg rzędu, zachodzenie, dwuszereg po „Stawaj”).
+
+### 1. Co działa
+
+- **Marsz**: „Drużyna, kierunek na wprost (w prawo, w lewo, w tył na prawo/lewo, w prawo/lewo w skos) – MARSZ”. Pierwsze trzy kroki defiladowe (w pasku „krok defiladowy”), potem krok zwykły; widać ruch nóg i rąk. Szereg i dwuszereg idą równo całym szykiem; rząd i kolumna dwójkowa — kierunkowy prowadzi, reszta po jego śladzie. Rząd utworzony zwrotem z szeregu (0,6 m) po ruszeniu sam rozwiera się do 1,2 m.
+- **Zmiana kierunku**: „Kierunek – W LEWO (W PRAWO, W TYŁ NA PRAWO, …)” — kierunkowy robi trzy kroki, skręca po łuku, kolumna wchodzi w zakręt w tym samym miejscu. W szyku rozwiniętym — wykonanie indywidualne z uwagą (szereg staje się rzędem).
+- **Zatrzymania**: „Drużyna – STÓJ” (jeszcze jeden krok, wszyscy jednocześnie, postawa zasadnicza); „Czoło – STÓJ” (czoło staje, reszta dochodzi, postawa swobodna); „Stawaj – W LEWO (W PRAWO)” (dochodzą, robią zwrot — z rzędu szereg, z kolumny dwuszereg).
+- **Marsz w miejscu** („W miejscu – MARSZ”) i „Na wprost – MARSZ”; **bieg** („Biegiem – MARSZ”), „Zwykły – KROK” (z biegu jeszcze trzy kroki biegiem), „Dowolny – KROK” (marsz nie w nogę). BACZNOŚĆ w marszu → krok defiladowy, SPOCZNIJ → zwykły. STÓJ z biegu → błąd z pkt 29.
+- **„Za mną – MARSZ”** (rząd, kolumna): kolumna idzie śladem dowódcy, którym sterujesz klawiszami (Esc, WASD); gdy dowódca stanie, drużyna dochodzi i maszeruje w miejscu (uwaga w Dzienniku).
+- **Zachodzenie**: „Drużyna, w prawo (w lewo) zachodź – MARSZ” — szyk obraca się wokół skrzydłowego, aż do „Drużyna – STÓJ”.
+- **Zmiany szyku w marszu**: „Do dwóch – ODLICZ” w rzędzie w marszu (liczby od czoła), „W dwójki – W PRZÓD” (dwójki wychodzą w lewo do przodu, czoło skraca krok; po wyrównaniu uwaga w Dzienniku „podaj Zwykły – KROK”), „W rząd – W TYŁ”.
+- Pasek stanu pokazuje ruch („marsz”, „marsz w miejscu”, „bieg”, „zachodzenie”) i krok („krok defiladowy”, „krok dowolny”, „skrócony krok”, „za dowódcą”). Dowódca, którym nie sterujesz, odsuwa się z drogi maszerującej kolumny.
+
+### 2. Lista kontrolna do ręcznego sprawdzenia w przeglądarce
+
+Otwórz **https://wotaker.github.io/musztra/**, odśwież przed każdą sekcją. Kamera sama śledzi drużynę; kółkiem myszy możesz oddalić widok. Prędkość ⏱ 2× skraca czekanie.
+
+**A. Marsz i zatrzymanie (S09, S10)**
+
+1. `Pierwsza drużyna, w rzędzie – ZBIÓRKA` → rząd za dowódcą.
+2. `Drużyna, kierunek na wprost – MARSZ` → rząd rusza na północ; przez pierwsze trzy kroki pasek pokazuje „krok defiladowy” (wyższy krok), potem zwykły; dowódca odsuwa się w bok, gdy kolumna do niego dochodzi. Pasek: „rząd · zasadnicza · marsz · front 0°”.
+3. Po kilku sekundach `Kierunek – W LEWO` → kierunkowy robi trzy kroki, skręca w lewo po łuku; każdy kolejny żołnierz skręca w tym samym miejscu; po chwili wszyscy idą na zachód (front 270°).
+4. `Drużyna – STÓJ` → jeszcze jeden krok i wszyscy stają jednocześnie, postawa zasadnicza, odległości równe.
+5. `Drużyna – STÓJ` jeszcze raz → ✖ „Drużyna stoi. Nie ma czego zatrzymywać.”
+
+**B. Bieg i kroki (S11)**
+
+6. `Pierwsza drużyna, w rzędzie – ZBIÓRKA`, `Biegiem – MARSZ` → rząd biegnie (szybciej, krótszy wymach rąk), pasek „bieg”.
+7. `Drużyna – STÓJ` → ✖ „Z biegu nie zatrzymuje się drużyny: najpierw „Zwykły – KROK”…” (pkt 29); bieg trwa.
+8. `Zwykły – KROK` → jeszcze trzy kroki biegiem, potem marsz. `Dowolny – KROK` → żołnierze idą nie w nogę (różne fazy kroku), pasek „krok dowolny”. `Zwykły – KROK` → znów w nogę.
+9. `BACZNOŚĆ` → krok defiladowy (pasek „krok defiladowy”); `Zwykły – KROK` → ✖ „…przechodzi się komendą SPOCZNIJ” (pkt 26); `SPOCZNIJ` → krok zwykły.
+10. `W miejscu – MARSZ` → jeszcze krok i marsz w miejscu (nogi pracują, kolumna stoi), pasek „marsz w miejscu”. `Na wprost – MARSZ` → rusza dalej. `Drużyna – STÓJ`.
+
+**C. Kolumna dwójkowa, „Stawaj” (S22) i „Czoło – STÓJ”**
+
+11. `Pierwsza drużyna, w kolumnie dwójkowej – ZBIÓRKA`, `Drużyna, kierunek na wprost – MARSZ`, po kilku sekundach `Kierunek – W PRAWO W SKOS` → kolumna skręca o 45°, pary zostają razem.
+12. `Stawaj – W LEWO` → czoło staje, kolejne pary dochodzą blisko i kolejno robią zwrot w lewo → dwuszereg, pierwszy szereg to dawny lewy rząd, postawa swobodna; pasek „dwuszereg · swobodna · stoi” i „odstępy nieregulaminowe”. `SPOCZNIJ` → szeregi rozsuwają się na regulaminową odległość.
+13. `Pierwsza drużyna, w rzędzie – ZBIÓRKA`, `Drużyna, kierunek na wprost – MARSZ`, `Czoło – STÓJ` → kierunkowy staje, pozostali dochodzą na 1,2 m i stają; wszyscy w postawie swobodnej.
+
+**D. Zachodzenie (S23)**
+
+14. `Pierwsza drużyna, w szeregu – ZBIÓRKA`, `Drużyna, w prawo zachodź – MARSZ` → Wieczorek (prawe skrzydło) drepcze w miejscu, reszta szeregu zatacza łuk; pasek „zachodzenie”, front rośnie.
+15. W trakcie `Kierunek – W PRAWO` → ✖ „Drużyna zachodzi — zachodzenie trwa do komendy Drużyna – STÓJ”.
+16. Gdy pasek pokaże ok. „front 90°” — `Drużyna – STÓJ` → szereg stoi frontem na wschód, Wieczorek na swoim miejscu.
+
+**E. Zmiany szyku w marszu (S24)**
+
+17. `Pierwsza drużyna, w rzędzie – ZBIÓRKA`, `Drużyna, kierunek na wprost – MARSZ`.
+18. `W dwójki – W PRZÓD` → ✖ „…potrzebne jest odliczenie „do dwóch” w marszu…”.
+19. `Do dwóch – ODLICZ` → w marszu, od czoła, dymki 1, 2, 1, 2…; marsz bez zmiany tempa.
+20. `W dwójki – W PRZÓD` → dwójki wychodzą w lewo i do przodu obok swoich jedynek, czoło idzie skróconym krokiem (pasek „skrócony krok”); po wyrównaniu w Dzienniku uwaga „Kolumna wyrównała odstępy… podaj Zwykły – KROK” (W_AWAIT_QUICK_STEP).
+21. `Zwykły – KROK` → normalny krok. `W rząd – W TYŁ` → lewy rząd zwalnia i wchodzi za prawych sąsiadów, dalsi skracają krok; powstaje rząd z odległościami 1,2 m. `Drużyna – STÓJ`.
+
+**F. „Za mną” i dowódca**
+
+22. `Pierwsza drużyna, w szeregu – ZBIÓRKA`, `Za mną – MARSZ` → ✖ „„Za mną – MARSZ” podaje się drużynie w rzędzie lub kolumnie dwójkowej…” (I-15).
+23. `Pierwsza drużyna, w rzędzie – ZBIÓRKA`, `Za mną – MARSZ` (pasek „za dowódcą”), potem **Esc** i chodź dowódcą (W, A, D, łuki, Shift) → kierunkowy idzie dokładnie po śladzie dowódcy, 3 kroki za nim, reszta za kierunkowym.
+24. Zatrzymaj dowódcę → kolumna dochodzi i maszeruje w miejscu; w Dzienniku „Dowódca stanął — drużyna maszeruje w miejscu…”. Ruszysz — idą dalej.
+25. **Enter**, `Drużyna – STÓJ` → drużyna staje.
+
+**G. Pozostałe reguły**
+
+26. W marszu: `W prawo – ZWROT`, `W szeregu – ZBIÓRKA`, `Równaj – W PRAWO` → ✖ „Drużyna maszeruje… Najpierw zatrzymaj ją: Drużyna – STÓJ” (`E_PRECOND_MOTION`).
+27. `Pierwsza drużyna, w szeregu – ZBIÓRKA`, `W prawo – ZWROT`, `Drużyna, kierunek na wprost – MARSZ` → rząd rozwiera się (tylni ruszają, gdy poprzednik oddali się na 1,2 m); flaga „odstępy nieregulaminowe” znika po rozwarciu. `Drużyna – STÓJ`, `W lewo – ZWROT` → szereg z odstępami 1,2 m; `SPOCZNIJ` → 0,6 m (S26).
+28. W marszu `WRÓĆ` → drużyna szybko wraca na miejsce sprzed ostatniej komendy (po ruszeniu — do postoju). `ROZEJŚĆ SIĘ` w marszu → żołnierze się rozchodzą.
+29. `Pierwsza drużyna, w szeregu – ZBIÓRKA`, `Drużyna, kierunek w prawo – MARSZ` → ⚠ „Szyk rozwinięty zmienia kierunek marszu indywidualnie…”; po trzech krokach każdy skręca w prawo i szereg idzie jako rząd na wschód.
+
+### 3. Decyzje i otwarte pytania
+
+Decyzje (szczegóły w `docs/DECISIONS.md`, wszystkie **do akceptacji**):
+
+- D-040 Dowódca niesterowany klawiszami ustępuje maszerującym.
+- D-041 Model ruchu ciągłego (ślad kierunkowego, łuk 0,6 m, rozwieranie i doganianie, „jeszcze jeden krok”, czynności przejściowe w ruchu, WRÓĆ w ruchu).
+- D-042 Warunki ruchu tam, gdzie `COMMANDS.md` milczy (`E_PRECOND_MOTION`, `W_NO_EFFECT`).
+- D-043 Zachodzenie: tempo, STÓJ bez dodatkowego kroku.
+- D-044 „Stawaj” (szeregi 0,6 m — nieregularne do SPOCZNIJ) i „Czoło – STÓJ” bez cofania.
+- D-045 „Za mną”: ślad dowódcy, kiedy pojawia się W_FOLLOW_HALT.
+- D-046 Szyk rozwinięty „w skos”: rzut ukośny, nieregularny do SPOCZNIJ.
+- D-047 Propozycje doprecyzowań w `COMMANDS.md` (dokumentu nie zmieniano).
+
+Interpretacje E4 — każda jako osobna reguła w `src/core/interpretations.ts`: I-2 (rozwieranie po ruszeniu, `marchDepth`), I-3 (`deployedDirectionIsIndividual`), I-5 (`COLUMN_FOLLOWS_GUIDE_TRAIL`), I-13 (`WHEEL_ANGLE_LIMIT`), I-15 (`followAllowed`), I-17 (`POSTURE_AFTER_HEAD_HALT`). Wszystkie I-1…I-17 działają.
+
+Otwarte pytania: zob. D-047.
+
+### 4. Adres wdrożenia
+
+**https://wotaker.github.io/musztra/** · CI: https://github.com/Wotaker/musztra/actions
 
 ---
 
@@ -106,6 +206,8 @@ Decyzje (szczegóły w `docs/DECISIONS.md`):
 W E3 działają dodatkowo interpretacje I-4 (odliczanie w miejscu tylko w szyku rozwiniętym), I-8 (samotna jedynka) i I-14 (postawa swobodna po ŁĄCZ) — każda jako osobna reguła w `src/core/interpretations.ts`.
 
 Otwarte pytania: patrz „Do akceptacji” w `DECISIONS.md` (D-024…D-029, D-032…D-039).
+
+**Po bramce E3 (2026-10-20):** autor zatwierdził wszystkie decyzje D-022…D-039, w tym propozycje D-032 i D-039 — wprowadzone do `COMMANDS.md` (R-2: unieważnianie odliczenia i szyk odwrócony; O-1: strona odstępowania; O-2: łączenie w całym szyku; S-1: pary według liczb; „Dane pomocnicze”: wymiary i orientacja obiektów) i `SPEC.md` (5.4: żołnierz bez pary w szyku odwróconym; 5.5: lista czynności przejściowych). „Uwagi UI na później” — po ukończeniu wszystkich etapów (decyzja autora).
 
 ### 4. Adres wdrożenia
 
@@ -320,7 +422,7 @@ Każdy z 40 testów oznaczonych jako `todo` (20 przykładów zależnych od stanu
 
 - **E2** (4 przykłady, 8 testów) — ✔ zwykłe testy od E2: Z-1 w postawie swobodnej, ZB-1 bez wezwania, ZB-3 na początku sesji, X-1 na początku sesji.
 - **E3** (6 przykładów, 12 testów) — ✔ zwykłe testy od E3: R-1 w kolumnie, R-2 w postawie swobodnej, O-1 z nazwiskiem spoza składu, O-2 bez ODSTĄP, S-1 bez odliczenia, S-1 w dwuszeregu.
-- **E4** (10 przykładów, 20 testów): Z-1 w marszu, S-4 w rzędzie, M-2 w szeregu, M-3 w biegu, M-6 stojąc, M-8 w biegu, M-9 stojąc, M-10 w szeregu, MS-1 w rzędzie, MS-2 bez odliczenia w marszu.
+- **E4** (10 przykładów, 20 testów) — ✔ zwykłe testy od E4: Z-1 w marszu, S-4 w rzędzie, M-2 w szeregu, M-3 w biegu, M-6 stojąc, M-8 w biegu, M-9 stojąc, M-10 w szeregu, MS-1 w rzędzie, MS-2 bez odliczenia w marszu.
 
 Etap nie jest ukończony, dopóki zostają w nim testy `todo` przypisane do tego etapu.
 

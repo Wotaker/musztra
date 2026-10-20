@@ -167,6 +167,9 @@ export function regularizedLayout(
   options: { anchorSide?: 'RIGHT' | 'LEFT'; fileGaps?: readonly number[] } = {},
 ): Layout {
   const { interval, distance } = regulationSpacing(formation);
+  if ((formation === 'SINGLE_RANK' || formation === 'FILE') && !options.anchorSide && !options.fileGaps) {
+    return regularizedLine(formation, layout);
+  }
   const lateralCenters = clusters(layout.slots.map((s) => s.lateral));
   const depthCenters = clusters(layout.slots.map((s) => s.depth));
   const lateralOf = (fileIndex: number): number => {
@@ -187,6 +190,21 @@ export function regularizedLayout(
     const shift = oldLeft - lateralOf(leftIndex);
     origin = fromFormationFrame(layout.origin, layout.facing, shift, 0);
   }
+  return { facing: layout.facing, origin, slots };
+}
+
+/**
+ * Szereg lub rząd regulaminowy według kolejności od prawego skrzydła (czoła), względem prawoskrzydłowego
+ * (kierunkowego) — także z szyku ukośnego po marszu w skos (D-046).
+ */
+function regularizedLine(formation: 'SINGLE_RANK' | 'FILE', layout: Layout): Layout {
+  const rank = formation === 'SINGLE_RANK';
+  const ordered = [...layout.slots].sort((a, b) => (rank ? a.lateral - b.lateral : a.depth - b.depth));
+  const first = ordered[0];
+  if (!first) return layout;
+  const origin = fromFormationFrame(layout.origin, layout.facing, first.lateral, first.depth);
+  const step = rank ? INTERVAL : DISTANCE;
+  const slots = ordered.map((s, i) => ({ id: s.id, lateral: rank ? i * step : 0, depth: rank ? 0 : i * step }));
   return { facing: layout.facing, origin, slots };
 }
 

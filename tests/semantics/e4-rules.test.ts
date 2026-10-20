@@ -14,6 +14,11 @@ const FILE = 'Pierwsza drużyna, w rzędzie – ZBIÓRKA';
 const COLUMN = 'Pierwsza drużyna, w kolumnie dwójkowej – ZBIÓRKA';
 const MARCH = 'Drużyna, kierunek na wprost – MARSZ';
 
+const gapsLateral = (state: SimState): number[] => {
+  const slots = state.squad.layout?.slots ?? [];
+  return slots.slice(1).map((s, i) => s.lateral - (slots[i]?.lateral ?? 0));
+};
+
 const gaps = (state: SimState): number[] => {
   const slots = state.squad.layout?.slots ?? [];
   return slots.slice(1).map((s, i) => s.depth - (slots[i]?.depth ?? 0));
@@ -43,6 +48,16 @@ describe('rozpoczęcie marszu (M-1, I-2, I-3)', () => {
     expect(codes(run, 1)).toContain('W_DIRECTION_DEPLOYED');
     expect(run.state.squad.formation).toBe('FILE');
     expect(run.state.soldiers.every((s) => Math.abs(angleDelta(s.facing, 90)) < 1)).toBe(true);
+  });
+  it('I-3: szereg „kierunek w prawo w skos” — każdy idzie w skos (45°), szyk nieregularny; po STÓJ i SPOCZNIJ szereg regularny', () => {
+    const run = scenario([RANK, 'Drużyna, kierunek w prawo w skos – MARSZ', { wait: 6 }, 'Drużyna – STÓJ', { wait: 1.5 }]);
+    expect(codes(run, 1)).toContain('W_DIRECTION_DEPLOYED');
+    expect(run.state.squad.irregularSpacing).toBe(true);
+    expect(run.state.soldiers.every((s) => Math.abs(angleDelta(s.facing, 45)) < 1)).toBe(true);
+    const eased = continueScript(run.session, ['SPOCZNIJ']);
+    expect(eased.violations).toEqual([]);
+    expect(eased.state.squad.irregularSpacing).toBe(false);
+    expect(gapsLateral(eased.state).every((g) => Math.abs(g - 0.6) < 0.05)).toBe(true);
   });
   it('rząd „kierunek w tył na lewo”: po trzech krokach kolumna zawraca przez lewe ramię', () => {
     const run = scenario([FILE, 'Drużyna, kierunek w tył na lewo – MARSZ', { wait: 15 }]);

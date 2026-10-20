@@ -363,7 +363,13 @@ function turnMarch(state: SimState, delta: number): SimState {
     const trail = trailFromPositions(state.soldiers, heading, formation, march);
     return { ...state, squad: { ...squad, formation, irregularSpacing: true, countMode: null, march: trail } };
   }
-  return { ...state, squad: { ...squad, march: { ...march, heading } } };
+  // Zwrot o 45° (lub w tył) w szyku rozwiniętym: każdy idzie w nowym kierunku; przy 45° szyk staje się
+  // ukośny (rzut) — odstępy nieregularne do zatrzymania i SPOCZNIJ (D-046).
+  const oblique = Math.abs(delta) % 180 !== 0;
+  return {
+    ...state,
+    squad: { ...squad, irregularSpacing: oblique || squad.irregularSpacing, march: { ...march, heading } },
+  };
 }
 
 function turnToward(facing: number, target: number, dt: number): number {
@@ -438,9 +444,7 @@ function stepRigid(state: SimState, march: MarchState): SimState {
       motion: soldierMotion(march, ds > 0),
     };
   });
-  const layout = state.squad.layout
-    ? { ...state.squad.layout, origin: add(state.squad.layout.origin, offset), facing: march.heading }
-    : null;
+  const layout = layoutFromPositions(new Map(soldiers.map((s) => [s.id, s.position])), march.heading);
   return { ...state, soldiers, squad: { ...state.squad, layout, march: { ...march, distance: march.distance + ds } } };
 }
 

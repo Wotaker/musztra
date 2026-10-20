@@ -24,6 +24,8 @@ export function checkInvariants(state: SimState): string[] {
   // W marszu (SPEC 5.4): kolumna sprawdzana, gdy idzie prosto i każdy jest na swoim miejscu; w trakcie
   // zmiany kierunku, rozwierania lub zmiany szyku — tylko gdy ruch się ustali.
   const march = squad.march;
+  // Szyk rozwinięty idący ukośnie po zwrocie o 45° (I-3, D-046) nie ma regularnej struktury do sprawdzenia.
+  if (march?.kind === 'RIGID' && squad.irregularSpacing) return [];
   if (march?.kind === 'TRAIL') {
     const head = march.trail[march.trail.length - 1]?.s ?? 0;
     const straight = soldiers.every((s) => Math.abs(angleDelta(s.facing, layout.facing)) <= FACING_TOLERANCE);
@@ -55,26 +57,28 @@ export function checkInvariants(state: SimState): string[] {
   const actualOrder = actual.slots.map((s) => s.id).join(',');
   if (expectedOrder !== actualOrder) problems.push(`Kolejność w szyku ${actualOrder} zamiast ${expectedOrder}.`);
 
-  // Struktura szyku.
+  // Struktura szyku. Szereg (rząd) oznaczony jako nieregularny może stać ukośnie do frontu po marszu
+  // w skos (D-046) — wtedy liczby szeregów nie sprawdzamy; krycie w dwuszeregu i kolumnie zawsze.
   const ranks = ranksOf(actual);
   const files = filesOf(actual);
   const formation = squad.formation;
-  if (formation === 'SINGLE_RANK' && ranks.length !== 1) problems.push(`${name}: ${String(ranks.length)} szeregi zamiast jednego.`);
+  const oblique = squad.irregularSpacing && (formation === 'SINGLE_RANK' || formation === 'FILE');
+  if (formation === 'SINGLE_RANK' && !oblique && ranks.length !== 1) problems.push(`${name}: ${String(ranks.length)} szeregi zamiast jednego.`);
   if (formation === 'DOUBLE_RANK' && ranks.length !== 2) problems.push(`${name}: ${String(ranks.length)} szeregi zamiast dwóch.`);
-  if (formation === 'FILE' && files.length !== 1) problems.push(`${name}: ${String(files.length)} rzędy zamiast jednego.`);
+  if (formation === 'FILE' && !oblique && files.length !== 1) problems.push(`${name}: ${String(files.length)} rzędy zamiast jednego.`);
   if (formation === 'COLUMN_OF_TWOS' && files.length !== 2) problems.push(`${name}: ${String(files.length)} rzędy zamiast dwóch.`);
 
   // Odstępy i odległości.
-  if (!squad.irregularSpacing) {
-    if (squad.extension && isDeployed(formation)) {
-      const extended = INTERVAL + squad.extension.steps * STEP;
-      const gaps = fileGapsOf(actual);
-      if (!gaps.every((g) => Math.abs(g - INTERVAL) <= POSITION_TOLERANCE || Math.abs(g - extended) <= POSITION_TOLERANCE)) {
-        problems.push(`Odstępy po odstępowaniu ${gaps.join(', ')} m; oczekiwano ${INTERVAL.toFixed(1)} lub ${extended.toFixed(1)} m.`);
-      }
-    } else if (!hasRegulationSpacing(formation, actual)) {
-      problems.push(`${name}: odstępy lub odległości nieregulaminowe, a szyk nie jest oznaczony jako nieregularny.`);
+  if (squad.irregularSpacing) {
+    // I-1, I-2: odstępy (odległości) nieregulaminowe do korekty przez SPOCZNIJ lub „Równaj”.
+  } else if (squad.extension && isDeployed(formation)) {
+    const extended = INTERVAL + squad.extension.steps * STEP;
+    const gaps = fileGapsOf(actual);
+    if (!gaps.every((g) => Math.abs(g - INTERVAL) <= POSITION_TOLERANCE || Math.abs(g - extended) <= POSITION_TOLERANCE)) {
+      problems.push(`Odstępy po odstępowaniu ${gaps.join(', ')} m; oczekiwano ${INTERVAL.toFixed(1)} lub ${extended.toFixed(1)} m.`);
     }
+  } else if (!hasRegulationSpacing(formation, actual)) {
+    problems.push(`${name}: odstępy lub odległości nieregulaminowe, a szyk nie jest oznaczony jako nieregularny.`);
   }
 
   // Krycie i żołnierz bez pary.

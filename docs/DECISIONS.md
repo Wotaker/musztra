@@ -6,7 +6,16 @@ Decyzje podjęte tam, gdzie `SPEC.md`, `COMMANDS.md` i regulamin milczą lub są
 
 Decyzje, które autor powinien potwierdzić lub odrzucić. Po akceptacji pozycja przechodzi do sekcji „Zatwierdzone” (wpis w dzienniku zostaje).
 
-Brak pozycji oczekujących.
+| Decyzja | Czego dotyczy | Etap |
+|---|---|---|
+| [D-040](#d-040-dowódca-ustępuje-maszerującym) | dowódca niesterowany klawiszami odsuwa się z drogi maszerującej drużyny | E4 |
+| [D-041](#d-041-model-ruchu-ciągłego) | ślad kierunkowego, łuk zakrętu 0,6 m, doganianie, „jeszcze jeden krok” | E4 |
+| [D-042](#d-042-warunki-ruchu-tam-gdzie-commands-milczy) | warunki ruchu tam, gdzie COMMANDS milczy (np. „Na wprost” w marszu, BACZNOŚĆ w biegu) | E4 |
+| [D-043](#d-043-zachodzenie) | tempo zachodzenia, STÓJ bez dodatkowego kroku | E4 |
+| [D-044](#d-044-stawaj-i-czoło--stój) | „Stawaj”: dosunięcie na 0,6 m, szeregi 0,6 m od siebie (nieregularne); „Czoło – STÓJ” bez cofania | E4 |
+| [D-045](#d-045-za-mną) | „Za mną”: ślad dowódcy, uwaga W_FOLLOW_HALT dopiero po ruszeniu dowódcy | E4 |
+| [D-046](#d-046-marsz-w-skos-w-szyku-rozwiniętym) | szyk rozwinięty „w skos”: rzut ukośny, nieregularny do SPOCZNIJ | E4 |
+| [D-047](#d-047-propozycje-zmian-w-commandsmd-po-e4) | propozycje doprecyzowań w `COMMANDS.md` po E4 | E4 |
 
 ## Zatwierdzone
 
@@ -391,3 +400,69 @@ Brak pozycji oczekujących.
 - O-2: dopisać, że łączenie przywraca odstępy regulaminowe w całym szyku, a wskazany żołnierz musi być w pierwszym szeregu (D-033).
 - R-2: dopisać, kiedy odliczenie pozostaje ważne (D-034) i że w dwuszeregu odwróconym (po „W tył – ZWROT”) liczy szereg, który jest z przodu.
 - S-1: doprecyzować, że pary tworzą się według liczb z odliczania (D-036).
+
+## D-040 Dowódca ustępuje maszerującym
+
+- **Data:** 2026-10-20 · **Etap:** E4
+- **Kontekst:** Po zbiórce w rzędzie (kolumnie) dowódca stoi 3 kroki przed kierunkowym (I-6). Po „kierunek na wprost – MARSZ” kolumna szłaby przez niego. SPEC 6 mówi, że dowódcą steruje użytkownik.
+- **Decyzja:** dowódca, którym użytkownik w tej chwili nie porusza (żaden klawisz ruchu), odsuwa się krokiem w bok, gdy maszerujący lub biegnący żołnierz podejdzie bliżej niż 0,55 m — w stronę, po której już stoi. Nie dotyczy żołnierzy biegnących na zbiórkę ani poprawiających miejsce. Pozycja dowódcy nadal nie jest cofana przez WRÓĆ.
+- **Alternatywy:** brak kolizji (żołnierze przechodzą przez dowódcę) — wyglądało źle; automatyczne wyjście dowódcy na czoło kolumny — odbiera użytkownikowi sterowanie.
+
+## D-041 Model ruchu ciągłego
+
+- **Data:** 2026-10-20 · **Etap:** E4
+- **Kontekst:** SPEC 5.5 (prowadzenie kolumny, rozwieranie odległości, ruchy ciągłe), COMMANDS M, MS.
+- **Decyzja:**
+  - Trzy rodzaje ruchu: szyk rozwinięty przesuwa się równolegle (cały szyk naraz); kolumna idzie **po śladzie kierunkowego** — każdy żołnierz ma drogę po śladzie i przesunięcie w bok (I-5); zachodzenie to obrót sztywny wokół skrzydłowego.
+  - Kierunkowy zmienia kierunek po łuku o promieniu 0,6 m; pozostali przechodzą ten sam łuk, gdy do niego dojdą.
+  - Każdy w kolumnie dąży do odległości regulaminowej za poprzednikiem (1,2 m; I-2): jeśli jest bliżej — maszeruje w miejscu, aż poprzednik się oddali; jeśli dalej — dogania (najwyżej 1,3 × tempo). Zmiany szyku w marszu: najpierw krok w bok, potem dogonienie (MS-2), albo najpierw zwolnienie, potem krok w bok (MS-1); przesunięcie w bok 0,8 m/s.
+  - Pierwsze trzy kroki po komendzie marszu — defiladowe (pkt 24). „Jeszcze jeden krok” (STÓJ, „W miejscu”, „Biegiem” z marszu) to 0,7 m drogi czoła; w marszu w miejscu — 0,53 s. „Zwykły – KROK” z biegu: jeszcze trzy kroki biegiem (2,7 m). Zmiana kierunku (M-9): trzy kroki na wprost, potem zakręt.
+  - Flaga odstępów nieregularnych znika, gdy kolumna się rozewrze. W trakcie zakrętu, rozwierania i zmian szyku niezmienniki są sprawdzane dopiero po ustaleniu ruchu (SPEC 5.4: „poza czasem trwania zmiany kierunku kolumny”).
+  - Czynności przejściowe w ruchu (E_BUSY): odliczanie, „W rząd – W TYŁ”, „W dwójki – W PRZÓD” (do wyrównania), „Czoło – STÓJ”, „Stawaj”. Sam marsz, bieg, zmiana kierunku i kroki — nie.
+  - WRÓĆ w ruchu przywraca stan sprzed ostatniej komendy (np. postój sprzed marszu albo marsz sprzed zmiany kierunku), a ruch zapisany w migawce trwa dalej.
+- **Alternatywy:** każdy żołnierz z własnym kierunkiem i sterowaniem — trudniejsze do sprawdzenia testami i mniej wierne „po śladzie kierunkowego” (I-5).
+
+## D-042 Warunki ruchu tam, gdzie COMMANDS milczy
+
+- **Data:** 2026-10-20 · **Etap:** E4
+- **Decyzja:**
+  - Komendy wykonywane w miejscu (zwroty, zbiórki, równanie, odliczanie w miejscu, odstępowanie, łączenie, dwójki, przesunięcie, zachodzenie, rozpoczęcie marszu M-1) w ruchu → `E_PRECOND_MOTION` z podpowiedzią („najpierw Drużyna – STÓJ” albo komenda marszowa). Warunek ruchu jest sprawdzany przed postawą (w marszu reguła BACZNOŚĆ nie obowiązuje).
+  - „Na wprost – MARSZ” w marszu lub biegu → `E_PRECOND_MOTION`. „Dowolny – KROK” w biegu lub w miejscu → `E_PRECOND_MOTION`. „Czoło – STÓJ”, „Stawaj”, „W rząd – W TYŁ”, „W dwójki – W PRZÓD” — tylko w marszu (nie w biegu ani w miejscu).
+  - `W_NO_EFFECT`: wezwanie w ruchu; BACZNOŚĆ w biegu, w miejscu albo przy kroku defiladowym; SPOCZNIJ, gdy krok nie jest defiladowy; „W miejscu – MARSZ” w miejscu; „Biegiem – MARSZ” w biegu; „Zwykły – KROK” przy kroku zwykłym (także w miejscu); „Dowolny – KROK” przy kroku dowolnym.
+  - Zbiórka w marszu → `E_PRECOND_MOTION` (zbiórka w marszu jest w backlogu SPEC 2.2).
+  - W czasie zachodzenia przyjmowane są tylko: STÓJ, ROZEJŚĆ SIĘ, WRÓĆ i postawy; pozostałe → `E_PRECOND_MOTION` (I-13).
+
+## D-043 Zachodzenie
+
+- **Data:** 2026-10-20 · **Etap:** E4
+- **Kontekst:** COMMANDS S-4, pkt 75, I-13, scenariusz S23 (front 90° ± 3°).
+- **Decyzja:** prędkość kątowa taka, by najdalszy od skrzydłowego żołnierz szedł krokiem zwykłym (1,33 m/s); skrzydłowy nieruchomego skrzydła maszeruje w miejscu. „Drużyna – STÓJ” zatrzymuje zachodzenie od razu, bez dodatkowego kroku (pkt 75: dowódca podaje STÓJ „po dojściu drużyny do odpowiedniego miejsca”) — inaczej front przesunąłby się jeszcze o kilka stopni. Drugi szereg obraca się razem z pierwszym.
+- **Alternatywy:** jeszcze jeden krok po STÓJ jak w M-8 — przy 9 żołnierzach to ok. 8° dalej niż w chwili komendy.
+
+## D-044 „Stawaj” i „Czoło – STÓJ”
+
+- **Data:** 2026-10-20 · **Etap:** E4
+- **Kontekst:** COMMANDS M-10, M-11, pkt 100, I-17, scenariusz S22.
+- **Decyzja:**
+  - „Czoło – STÓJ”: kierunkowy staje od razu, pozostali dochodzą na 1,2 m i stają; nikt się nie cofa — kto już stoi bliżej (np. w trakcie rozwierania rzędu), staje od razu i szyk dostaje flagę odstępów nieregularnych. Wszyscy przyjmują postawę swobodną (I-17).
+  - „Stawaj – W LEWO (W PRAWO)”: kolejni dochodzą do poprzedników na 0,6 m (odstęp szeregu), a potem kolejno od czoła robią zwrot i przyjmują postawę swobodną. Z rzędu powstaje szereg, z kolumny dwójkowej dwuszereg, w którym pierwszym szeregiem jest rząd po stronie zwrotu. Odległość między szeregami takiego dwuszeregu to 0,6 m (dawny odstęp rzędów) — szyk jest oznaczony jako nieregularny, SPOCZNIJ rozsuwa szeregi na 1,2 m.
+
+## D-045 „Za mną”
+
+- **Data:** 2026-10-20 · **Etap:** E4
+- **Kontekst:** COMMANDS M-2, SPEC 6, I-15.
+- **Decyzja:** ślad prowadzi od kierunkowego do dowódcy i dalej po każdym ruchu dowódcy; kierunkowy idzie po nim 3 kroki (2,1 m) za dowódcą, reszta jak w kolumnie. Gdy dowódca stoi, kolumna dochodzi i maszeruje w miejscu; uwaga `W_FOLLOW_HALT` trafia do Dziennika, gdy dowódca ruszył i stanął (nie na starcie, kiedy kolumna czeka, aż dowódca odejdzie). „Za mną” kończą STÓJ, zmiana kierunku, „W miejscu – MARSZ”, „Czoło – STÓJ”, „Stawaj” i rozejście.
+
+## D-046 Marsz w skos w szyku rozwiniętym
+
+- **Data:** 2026-10-20 · **Etap:** E4
+- **Kontekst:** I-3 opisuje „kierunek w lewo/prawo” w szyku rozwiniętym (wykonanie indywidualne, szyk staje się marszowym); nie mówi o kierunkach w skos.
+- **Decyzja:** przy zwrocie o 90° szereg staje się rzędem, a dwuszereg kolumną dwójkową (dalej po śladzie, z rozwieraniem — I-2). Przy kierunku „w skos” (45°) każdy żołnierz idzie w nowym kierunku równolegle do pozostałych — szyk jest ukośny do frontu i oznaczony jako nieregularny; po zatrzymaniu SPOCZNIJ ustawia regulaminowy szereg względem prawoskrzydłowego. „W tył na prawo / na lewo” — szyk zawraca i idzie dalej równolegle. W każdym przypadku uwaga `W_DIRECTION_DEPLOYED` (dla zawrócenia — bez uwagi).
+
+## D-047 Propozycje zmian w COMMANDS.md po E4
+
+- **Data:** 2026-10-20 · **Etap:** E4 · do decyzji autora (dokumentów nie zmieniano)
+- S-4: dopisać, że „Drużyna – STÓJ” kończy zachodzenie bez dodatkowego kroku (D-043).
+- M-11: dopisać odległość między szeregami po „Stawaj” z kolumny dwójkowej (0,6 m, nieregularna) albo zdecydować, że prawy rząd odsuwa się na 1,2 m (D-044).
+- M-1 / M-9: dopisać zachowanie szyku rozwiniętego przy kierunku w skos (D-046).
+- Tabela warunków ruchu z D-042 jako uzupełnienie pól „Warunki” komend M.
