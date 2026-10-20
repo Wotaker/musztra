@@ -1,6 +1,7 @@
 import { squadName } from '../core/catalog';
 import { describeStatus } from '../core/sim/describe';
 import { useSimStore } from './simStore';
+import { regulationHref } from './regulationPdf';
 import { SPEEDS, useViewStore } from './store';
 
 /** Tekst stanu wybierany z sesji — zmienia się rzadko, więc pasek nie odświeża się co klatkę. */
@@ -30,6 +31,8 @@ export function StatusBar() {
   const showRoles = useViewStore((s) => s.showRoles);
   const toggleRoles = useViewStore((s) => s.toggleRoles);
   const setDialog = useViewStore((s) => s.setDialog);
+  const cheatsheet = useViewStore((s) => s.cheatsheet);
+  const setCheatsheet = useViewStore((s) => s.setCheatsheet);
 
   const nextSpeed = SPEEDS[(SPEEDS.indexOf(speed) + 1) % SPEEDS.length] ?? 1;
 
@@ -106,6 +109,34 @@ export function StatusBar() {
         <button
           type="button"
           className="status-chip"
+          aria-pressed={cheatsheet !== null}
+          data-testid="open-cheatsheet"
+          title="Ściąga: komendy z katalogu i podstawowe ćwiczenia (F1)"
+          onMouseDown={(event) => {
+            event.preventDefault();
+          }}
+          onClick={() => {
+            setCheatsheet(cheatsheet ? null : 'commands');
+          }}
+        >
+          Ściąga <kbd>F1</kbd>
+        </button>
+        <a
+          className="status-chip"
+          data-testid="open-regulation"
+          href={regulationHref()}
+          target="_blank"
+          rel="noopener"
+          title="Regulamin musztry SZ RP (1994) — PDF w nowej karcie"
+          onMouseDown={(event) => {
+            event.preventDefault();
+          }}
+        >
+          Regulamin
+        </a>
+        <button
+          type="button"
+          className="status-chip"
           data-testid="open-settings"
           title="Ustawienia: klucz API, objaśnienia AI, tryb zapisu, liczebność drużyny"
           aria-label="Ustawienia"
@@ -116,7 +147,7 @@ export function StatusBar() {
             setDialog('settings');
           }}
         >
-          <span aria-hidden="true">⚙</span> Ustawienia
+          <span aria-hidden="true">⚙</span>
         </button>
       </div>
     </header>

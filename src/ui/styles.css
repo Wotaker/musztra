@@ -971,3 +971,239 @@ body,
   font-size: 12px;
   color: var(--color-graphite-soft);
 }
+
+/* ------------------------------------------------------------ odnośniki do regulaminu („pkt N”) */
+
+.point-link {
+  color: inherit;
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.point-link:hover,
+.point-link:focus-visible {
+  color: var(--color-olive-dark);
+  text-decoration-style: solid;
+}
+
+a.status-chip {
+  text-decoration: none;
+}
+
+/* ------------------------------------------------------------ ściąga (F1) */
+
+.app--drawer .command-dock {
+  left: calc((100% - 424px) / 2);
+  width: min(880px, calc(100% - 424px - 32px));
+}
+
+.cheatsheet {
+  position: absolute;
+  top: 112px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  width: 400px;
+  border: 1px solid var(--border-overlay);
+  border-radius: 12px;
+  background: var(--surface-panel);
+  box-shadow: 0 6px 28px rgba(30, 30, 20, 0.2);
+  backdrop-filter: blur(6px);
+  overflow: hidden;
+}
+
+.cheatsheet__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 8px 4px 14px;
+}
+
+.cheatsheet__title {
+  margin: 0;
+  font-size: 16px;
+  color: var(--color-olive-dark);
+}
+
+.cheatsheet__hint {
+  flex: 1;
+  font-size: 12px;
+  color: var(--color-graphite-soft);
+}
+
+.cheatsheet__tabs {
+  display: flex;
+  gap: 4px;
+  padding: 0 10px;
+  border-bottom: 1px solid var(--border-overlay);
+}
+
+.cheatsheet__tab {
+  padding: 7px 10px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  font: 600 13px var(--font-ui);
+  color: var(--color-graphite-soft);
+  cursor: pointer;
+}
+
+.cheatsheet__tab[aria-selected='true'] {
+  border-bottom-color: var(--color-olive);
+  color: var(--color-olive-dark);
+}
+
+.cheatsheet__search {
+  margin: 10px 12px 4px;
+  padding: 7px 10px;
+  border: 1px solid rgba(51, 53, 47, 0.25);
+  border-radius: 7px;
+  background: #fffdf7;
+  font: 14px var(--font-ui);
+  color: var(--color-graphite);
+}
+
+.cheatsheet__search:focus {
+  outline: 2px solid rgba(91, 99, 56, 0.5);
+  border-color: var(--color-olive);
+}
+
+.cheatsheet__list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 12px 12px;
+}
+
+.cheatsheet__intro,
+.cheatsheet__empty {
+  margin: 8px 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-graphite-soft);
+}
+
+.cheatsheet__group-title {
+  position: sticky;
+  top: 0;
+  margin: 10px 0 4px;
+  padding: 4px 0;
+  background: #f1eee4;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-olive-dark);
+}
+
+.cheatsheet__entry {
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(51, 53, 47, 0.08);
+}
+
+.cheatsheet__command,
+.exercise__command {
+  display: block;
+  max-width: 100%;
+  padding: 3px 6px;
+  margin-left: -6px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  font: 600 14px var(--font-command);
+  color: var(--color-graphite);
+  text-align: left;
+  cursor: pointer;
+}
+
+.cheatsheet__command:hover,
+.cheatsheet__command:focus-visible,
+.exercise__command:hover,
+.exercise__command:focus-visible {
+  background: rgba(91, 99, 56, 0.14);
+  color: var(--color-olive-dark);
+}
+
+.cheatsheet__desc {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--color-graphite-soft);
+}
+
+.cheatsheet__name {
+  font-weight: 600;
+  color: var(--color-graphite);
+}
+
+.cheatsheet__points {
+  font-weight: 600;
+  color: var(--color-olive-dark);
+  white-space: nowrap;
+}
+
+.exercise {
+  margin: 10px 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(51, 53, 47, 0.12);
+  border-radius: 9px;
+  background: rgba(255, 253, 247, 0.6);
+}
+
+.exercise__title {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-olive-dark);
+}
+
+.exercise__goal {
+  margin: 3px 0 6px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--color-graphite-soft);
+}
+
+.exercise__steps {
+  margin: 0;
+  padding-left: 22px;
+  font-size: 12px;
+  color: var(--color-graphite-soft);
+}
+
+.exercise__step--done .exercise__command {
+  color: var(--color-graphite-soft);
+  font-weight: 400;
+}
+
+.exercise__step--next .exercise__command {
+  background: rgba(91, 99, 56, 0.1);
+}
+
+.exercise__step .exercise__command {
+  margin-left: 0;
+  font-size: 13px;
+}
+
+.exercise__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.exercise__actions .feedback__use:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.exercise__restart {
+  border: 0;
+  background: transparent;
+  font: 13px var(--font-ui);
+  color: var(--color-graphite-soft);
+  text-decoration: underline;
+  cursor: pointer;
+}
+

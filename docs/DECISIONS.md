@@ -15,6 +15,8 @@ Decyzje, które autor powinien potwierdzić lub odrzucić. Po akceptacji pozycja
 | [D-053](#d-053-content-security-policy) | CSP jako `<meta>` w buildzie |
 | [D-054](#d-054-panel-ustawień-i-przycisk-objaśnij) | panel ustawień, wskaźnik trybu, „Objaśnij” bez klucza |
 | [D-055](#d-055-drużyna--stój-w-trakcie-zmiany-kierunku-kolumny) | STÓJ na zakręcie kolumny: zatrzymanie po wyjściu ostatniego z zakrętu |
+| [D-056](#d-056-ściąga-i-podstawowe-ćwiczenia) | ściąga niemodalna, bez grupy „Poza MVP”; 7 ćwiczeń |
+| [D-057](#d-057-regulamin-pdf-w-aplikacji-i-odnośniki-pkt-n) | PDF w buildzie, odnośniki `#page=`, mapa punkt → strona |
 
 ## Zatwierdzone
 
@@ -530,3 +532,23 @@ Decyzje, które autor powinien potwierdzić lub odrzucić. Po akceptacji pozycja
 - **Kontekst:** błąd z backlogu: STÓJ podany, gdy czoło już skręciło, a reszta kolumny była jeszcze przed zakrętem lub na łuku, zatrzymywał kolumnę wygiętą — żołnierze z różnymi frontami, poza liniami szyku (naruszenie niezmienników SPEC 5.4). Regulamin (pkt 29, 30, 100) nie opisuje zatrzymania w trakcie zmiany kierunku; zakłada, że zmiana kierunku kolumny trwa, aż wszyscy przejdą zakręt „w tym samym miejscu”.
 - **Decyzja:** zatrzymanie jest odroczone: kolumna kończy zmianę kierunku i staje (jeszcze jeden krok, wszyscy jednocześnie, postawa zasadnicza), gdy ostatni żołnierz minie zakręt i cała kolumna idzie po prostej. W Dzienniku uwaga: „Kolumna kończy zmianę kierunku — zatrzyma się, gdy ostatni żołnierz minie zakręt.” STÓJ na prostym odcinku działa jak dotąd. STÓJ przed skrętem czoła (w trakcie trzech kroków po „Kierunek – …”) zatrzymuje kolumnę bez zakrętu. Z marszu w miejscu (także „Za mną”, gdy dowódca stanął) — bez odraczania: jeszcze jeden krok w miejscu i zatrzymanie (wcześniej kierunkowy robił w tej sytuacji jeszcze krok do przodu).
 - **Alternatywy:** zatrzymanie natychmiast i samoczynne wyrównanie frontów — kolumna stałaby w kształcie litery L, nie na linii szyku; zatrzymanie natychmiast i obrót wszystkich do frontu czoła — sprzeczne z „po śladzie kierunkowego” (I-5).
+
+## D-056 Ściąga i podstawowe ćwiczenia
+
+- **Data:** 2026-10-20 · **Etap:** EF (K2)
+- **Kontekst:** zakres K2: szuflada (F1 lub przycisk) generowana z danych katalogu, grupy jak w `COMMANDS.md`, wyszukiwarka, forma kanoniczna, krótki opis i punkt regulaminu, klik wstawia komendę; zakładka „Podstawowe ćwiczenia” (5–7 sekwencji z celem).
+- **Decyzja:**
+  - Szuflada z prawej strony (nad Dziennikiem), niemodalna: można dalej pisać i wysyłać komendy; wiersz poleceń przesuwa się w lewo, żeby nie był zasłonięty. F1 otwiera i zamyka (zawsze, także w trakcie pisania), „?” — w trybie Ruch (SPEC 3.1); przycisk „Ściąga F1” w pasku górnym. Esc w polu wyszukiwania czyści zapytanie, drugi Esc zamyka szufladę.
+  - Przy komendzie: pierwsza forma kanoniczna z katalogu (to ona jest wstawiana — wiersz nie jest wysyłany), numer i nazwa wpisu, krótki opis (`description`), punkty regulaminu jako odnośniki. Grupa „Poza MVP” pominięta — symulator tych komend nie wykonuje (są rozpoznawane przez interpreter z `E_OUT_OF_SCOPE`).
+  - Wyszukiwarka: bez wielkości liter, polskich znaków i myślników; każde słowo zapytania musi być początkiem słowa w numerze, nazwie, wzorcu, opisie, formach lub „pkt N”; numer komendy (np. „M-11”) wskazuje dokładnie ją.
+  - Ćwiczenia (`src/core/exercises.ts`, 7 sekwencji): zbiórka i postawy → zwroty → odliczanie i równanie → marsz i zatrzymanie → bieg i kroki → zmiana szyku w miejscu → zmiany szyku w marszu. Każde zaczyna się od zbiórki (niezależne od siebie). Komendy w formie kanonicznej; test wykonuje każdą sekwencję w trybie ścisłym (z 4 s symulacji między komendami) i wymaga przyjęcia bez błędów i uwag oraz spełnienia niezmienników. „Wstaw następną (n/N)” wstawia kolejną komendę, klik w komendę z listy wstawia ją i ustawia postęp za nią; postęp nie jest zapamiętywany po odświeżeniu.
+- **Alternatywy:** szuflada modalna — zasłaniałaby plac, na którym widać skutek wstawionej komendy; wysyłanie komendy od razu po kliknięciu — użytkownik nie przećwiczyłby wpisania/wysłania.
+
+## D-057 Regulamin PDF w aplikacji i odnośniki „pkt N”
+
+- **Data:** 2026-10-20 · **Etap:** EF (K2)
+- **Decyzja:**
+  - PDF z `docs/` dołączany do buildu przez Vite (import `?url`, plik z hashem w `assets/`) — jedna kopia w repozytorium. Przycisk „Regulamin” w pasku górnym otwiera go w nowej karcie.
+  - Każde „pkt N” w panelu informacji (komunikaty, punkty, rozpoznany wpis), w ściądze i w objaśnieniach LLM (tekst i lista punktów) to odnośnik `…pdf#page=S` (nowa karta, fokus zostaje w wierszu poleceń). Lista „pkt 22, 76, 83” — każdy numer osobnym odnośnikiem; „25b” i „57–59” prowadzą do strony punktu 25 i 57.
+  - Mapa punkt → strona (`src/core/regulationPages.ts`) wygenerowana skryptem `scripts/regulation-pages.mjs` z tekstu PDF (pdftotext): strona, na której zaczyna się punkt. Wszystkie 130 punktów na 44 stronach; punkt 89 ma w PDF zniekształcony numer („W.”), przypisany do strony 32 (sprawdzone ręcznie). Testy: komplet i monotoniczność mapy, ręcznie sprawdzone strony, strona dla każdego punktu katalogu i każdego punktu zapisanego w komunikatach `src/core`.
+- **Alternatywy:** podgląd PDF wbudowany w aplikację (np. pdf.js) — nowa zależność i większa paczka; wbudowana przeglądarka PDF przeglądarki internetowej wystarcza i obsługuje `#page=`.

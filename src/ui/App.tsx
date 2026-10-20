@@ -1,3 +1,4 @@
+import { Cheatsheet } from './Cheatsheet';
 import { CommandLine } from './CommandLine';
 import { CompassRose } from './CompassRose';
 import { FeedbackPanel } from './FeedbackPanel';
@@ -6,12 +7,14 @@ import { PlazaCanvas } from './PlazaCanvas';
 import { SettingsPanel } from './SettingsPanel';
 import { SoldierTooltip } from './SoldierTooltip';
 import { StatusBar } from './StatusBar';
+import { useViewStore } from './store';
 import { useKeyboardControl } from './useKeyboardControl';
 
 export function App() {
   useKeyboardControl();
+  const drawer = useViewStore((s) => s.cheatsheet !== null);
   return (
-    <main className="app">
+    <main className={drawer ? 'app app--drawer' : 'app'}>
       <PlazaCanvas />
       <StatusBar />
       <CompassRose />
@@ -21,6 +24,7 @@ export function App() {
         <FeedbackPanel />
         <CommandLine />
       </div>
+      <Cheatsheet />
       <SettingsPanel />
     </main>
   );

@@ -2,6 +2,7 @@ import { formatPoints, groupName, type Stage } from '../core/catalog';
 import { worstLevel, type Diagnostic, type InterpretResult } from '../core/interpreter';
 import { isExplainable, useCommandStore } from './commandStore';
 import { ExplainButton, ExplanationBox } from './Explanation';
+import { PointLinks } from './PointLinks';
 
 const TITLES = {
   ok: { icon: '✔', title: 'Komenda poprawna' },
@@ -41,8 +42,14 @@ function DiagnosticItem({ diagnostic }: { diagnostic: Diagnostic }) {
   const points = formatPoints(diagnostic.points);
   return (
     <li className={`feedback__item feedback__item--${diagnostic.level}`} data-testid="feedback-message">
-      <span className="feedback__message">{diagnostic.message}</span>
-      {points && <span className="feedback__points">{points}</span>}
+      <span className="feedback__message">
+        <PointLinks text={diagnostic.message} />
+      </span>
+      {points && (
+        <span className="feedback__points">
+          <PointLinks text={points} />
+        </span>
+      )}
       <code className="feedback__code">{diagnostic.code}</code>
       {diagnostic.details.length > 0 && (
         <ul className="feedback__details">
@@ -77,7 +84,7 @@ export function FeedbackPanel() {
         {entry && (
           <span className="feedback__entry" data-testid="feedback-entry" title={entry.quote}>
             {result.verdict === 'rejected' ? 'Rozpoznano: ' : ''}
-            {entry.id} · {entry.name} · {formatPoints(entry.points)}
+            {entry.id} · {entry.name} · <PointLinks text={formatPoints(entry.points)} />
           </span>
         )}
       </header>

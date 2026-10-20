@@ -172,6 +172,9 @@ test.describe('objaśnienia LLM', () => {
     await expect(page.getByTestId('llm-explanation')).toHaveAttribute('data-status', 'done');
     await expect(page.getByTestId('llm-explanation-text')).toHaveText(POSTURE_ANSWER.explanation);
     await expect(page.getByTestId('llm-points')).toContainText('pkt 11, 22');
+    // Punkty regulaminu w objaśnieniu to odnośniki do PDF (K2).
+    await expect(page.getByTestId('llm-points').getByTestId('point-link').first()).toHaveAttribute('href', /\.pdf#page=4$/);
+    await expect(page.getByTestId('llm-explanation-text').getByTestId('point-link').first()).toHaveAttribute('data-page', '4');
     await expect(page.getByTestId('command-input')).toBeFocused();
 
     expect(requests).toHaveLength(1);

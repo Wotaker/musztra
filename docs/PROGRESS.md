@@ -9,7 +9,7 @@ Etapy według `SPEC.md`, sekcja 10. Każdy etap kończy się wdrożoną wersją 
 | E2 Stan i obraz | ✔ ukończony | 2026-10-20 |
 | E3 Szyki w miejscu | ✔ ukończony | 2026-10-20 |
 | E4 Ruch | ✔ ukończony | 2026-10-20 |
-| EF Etap końcowy (dawne E5–E7, D-048) | w toku: K1 ✔, K2 —, K3 — | |
+| EF Etap końcowy (dawne E5–E7, D-048) | w toku: K1 ✔, K2 ✔, K3 częściowo (poprawka STÓJ ✔) | |
 
 ---
 
@@ -27,6 +27,18 @@ Zakres (decyzja autora, D-048): K1 LLM + ustawienia + CSP → K2 ściąga, podst
 - Testy: `tests/llm/*` (prompt, schemat, klient z zamockowanym `fetch`, propozycje), `tests/ui/persist.test.ts`, `tests/regulation/pages.test.ts`, `e2e/llm.spec.ts` (ustawienia, objaśnienia z atrapą API, zła propozycja, zły klucz, brak sieci, 15 s, intencja, auto-objaśnianie, CSP). Zmienione 3 testy w `e2e/command-line.spec.ts` — przełączanie trybu przez panel ustawień (D-054).
 - Decyzje: D-048…D-054 (D-049…D-054 do akceptacji).
 - Zrzuty: `docs/screenshots/k1-*.png`.
+- CI zielone, wdrożone (przebieg 18).
+
+### K3 (wcześniej) — poprawka „STÓJ podczas zmiany kierunku kolumny” ✔
+
+- Wykryta testem ćwiczenia „Marsz i zatrzymanie” (K2), więc zrobiona przed K2: zatrzymanie odroczone do wyjścia ostatniego żołnierza z zakrętu, uwaga w Dzienniku (D-055). Testy: `tests/semantics/e4-rules.test.ts`, opis „STÓJ w trakcie zmiany kierunku kolumny”.
+
+### K2 — ściąga, podstawowe ćwiczenia, regulamin PDF ✔ (2026-10-20)
+
+- `src/ui/Cheatsheet.tsx` + `cheatsheet.ts` (szuflada F1 / „?” / przycisk; zakładki „Komendy” z wyszukiwarką i „Podstawowe ćwiczenia”), `src/core/exercises.ts` (7 sekwencji).
+- `src/ui/regulationPdf.ts` (PDF z `docs/` w buildzie), `PointLinks.tsx` + `pointLinks.ts` (odnośniki „pkt N” → `#page=`), przycisk „Regulamin” w pasku.
+- Testy: `tests/exercises.test.ts`, `tests/ui/cheatsheet.test.ts`, `tests/ui/pointLinks.test.ts`, `e2e/cheatsheet.spec.ts`, odnośniki w `e2e/llm.spec.ts`.
+- Decyzje: D-056, D-057 (do akceptacji). Zrzuty: `docs/screenshots/k2-*.png`.
 
 ---
 

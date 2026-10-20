@@ -11,6 +11,8 @@ export type Speed = (typeof SPEEDS)[number];
 /** Okno modalne nad placem: ustawienia albo wskazówki pierwszego uruchomienia (SPEC 3.8, 3.10). */
 export type Dialog = 'settings' | 'welcome';
 
+export type CheatsheetTab = 'commands' | 'exercises';
+
 export interface Hover {
   readonly soldierId: number;
   /** Położenie kursora na ekranie (px). */
@@ -26,12 +28,15 @@ interface ViewState {
   showRoles: boolean;
   hover: Hover | null;
   dialog: Dialog | null;
+  /** Szuflada „Ściąga” (F1): komendy z katalogu i podstawowe ćwiczenia. */
+  cheatsheet: CheatsheetTab | null;
   setCamera: (camera: Camera) => void;
   setFocusMode: (mode: FocusMode) => void;
   setSpeed: (speed: Speed) => void;
   toggleRoles: () => void;
   setHover: (hover: Hover | null) => void;
   setDialog: (dialog: Dialog | null) => void;
+  setCheatsheet: (tab: CheatsheetTab | null) => void;
 }
 
 /** Stan widoku placu. Renderer i pętla symulacji czytają go poza cyklem Reacta. */
@@ -42,6 +47,7 @@ export const useViewStore = create<ViewState>()((set) => ({
   showRoles: false,
   hover: null,
   dialog: null,
+  cheatsheet: null,
   setCamera: (camera) => {
     set({ camera });
   },
@@ -59,5 +65,8 @@ export const useViewStore = create<ViewState>()((set) => ({
   },
   setDialog: (dialog) => {
     set({ dialog });
+  },
+  setCheatsheet: (cheatsheet) => {
+    set({ cheatsheet });
   },
 }));

@@ -54,7 +54,7 @@ for (const scene of SCENES) {
       continue;
     }
     if (typeof step === 'object' && step.click) {
-      await page.getByTestId(step.click).click();
+      await page.getByTestId(step.click).first().click();
       await page.waitForTimeout(step.ms ?? 300);
       continue;
     }

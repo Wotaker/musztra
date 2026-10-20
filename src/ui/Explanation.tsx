@@ -1,5 +1,6 @@
 import type { InterpretResult } from '../core/interpreter';
 import { isExplainable, useCommandStore } from './commandStore';
+import { PointLinks } from './PointLinks';
 import { useExplainStore } from './explainStore';
 import { hasApiKey, useSettingsStore } from './settingsStore';
 import { useViewStore } from './store';
@@ -57,12 +58,12 @@ export function ExplanationBox({ result }: { result: InterpretResult }) {
         <span aria-hidden="true">✦</span> Objaśnienie AI{state.status === 'streaming' ? ' — piszę…' : ''}
       </span>
       <p className="explanation__text" data-testid="llm-explanation-text">
-        {state.text}
+        {state.status === 'done' ? <PointLinks text={state.text} /> : state.text}
         {state.status === 'streaming' && <span className="explanation__cursor" aria-hidden="true" />}
       </p>
       {state.status === 'done' && state.regulationPoints.length > 0 && (
         <p className="explanation__points" data-testid="llm-points">
-          Regulamin: pkt {state.regulationPoints.join(', ')}
+          Regulamin: <PointLinks text={`pkt ${state.regulationPoints.join(', ')}`} />
         </p>
       )}
       {state.status === 'done' && suggestion?.ok && (
