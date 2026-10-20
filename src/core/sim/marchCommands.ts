@@ -43,7 +43,9 @@ function afterOneStep(state: SimState, march: MarchState, event: Parameters<type
   const inPlace = march.motion === 'MARCHING_IN_PLACE' || (march.follow && march.followHalted);
   return schedule(
     march,
-    inPlace ? { at: state.time + STEP_TIME, basis: 'time', event } : { at: march.distance + length, basis: 'distance', event },
+    inPlace
+      ? { at: state.time + STEP_TIME, basis: 'time', event: event.kind === 'HALT' ? { ...event, inPlace: true } : event }
+      : { at: march.distance + length, basis: 'distance', event },
   );
 }
 
@@ -151,7 +153,7 @@ export function executeMarchCommand(state: SimState, command: CommandAst): SimSt
       if (!march) return state;
       if (march.kind === 'WHEEL') return halt(state, 'ATTENTION');
       // Pkt 29, 100: jeszcze jeden krok i zatrzymanie, wszyscy jednocześnie.
-      return withMarch(state, afterOneStep(state, endFollow(march), { kind: 'HALT' }));
+      return withMarch(state, endFollow(afterOneStep(state, march, { kind: 'HALT' })));
     case 'M-9':
       if (!march) return state;
       // Pkt 30: kierunkowy robi trzy kroki na wprost, potem zmienia kierunek.

@@ -187,7 +187,13 @@ export type MarchEvent =
   | { readonly kind: 'QUICK' }
   | { readonly kind: 'FORWARD' }
   | { readonly kind: 'MARK_TIME' }
-  | { readonly kind: 'HALT' };
+  | {
+      readonly kind: 'HALT';
+      /** Zatrzymanie już odroczone do końca zakrętu kolumny (D-055). */
+      readonly deferred?: boolean;
+      /** Z marszu w miejscu: bez odraczania — kolumna się nie posuwa. */
+      readonly inPlace?: boolean;
+    };
 
 export interface PendingMarchEvent {
   /** Droga prowadzącego (`distance`) albo czas symulacji, po którym zdarzenie zachodzi. */

@@ -328,7 +328,30 @@ export function followersConverged(march: MarchState, leaderS: number): boolean 
 
 const leaderS = (march: MarchState): number => march.trail[march.trail.length - 1]?.s ?? 0;
 
-function applyEvent(state: SimState, event: MarchEvent): SimState {
+/** Odcinki śladu różniące się kierunkiem od kierunku marszu o więcej niż tyle stopni należą do zakrętu. */
+const STRAIGHT_TOLERANCE = 0.5;
+/** Ponowne sprawdzenie, gdy czoło jest jeszcze na łuku (m drogi). */
+const RECHECK = 0.2;
+
+/**
+ * Ile drogi musi jeszcze przejść kolumna, by ostatni żołnierz minął zakręt (D-055): 0, gdy cała kolumna
+ * idzie po prostej w kierunku marszu.
+ */
+export function turnRemaining(march: MarchState): number {
+  if (march.kind !== 'TRAIL') return 0;
+  if (march.turnLeft !== 0) return RECHECK;
+  const tail = Math.min(...march.followers.map((f) => f.s));
+  let end = -Infinity;
+  for (let i = 0; i + 1 < march.trail.length; i++) {
+    const a = march.trail[i];
+    const b = march.trail[i + 1];
+    if (!a || !b || distance(a.p, b.p) < 1e-6) continue;
+    if (Math.abs(angleDelta(bearing(a.p, b.p), march.heading)) > STRAIGHT_TOLERANCE) end = b.s;
+  }
+  return Math.max(0, end - tail);
+}
+
+function applyEvent(state: SimState, event: MarchEvent, reports: Report[]): SimState {
   const march = state.squad.march;
   if (!march) return state;
   const set = (m: Partial<MarchState>): SimState => ({ ...state, squad: { ...state.squad, march: { ...march, ...m } } });
@@ -341,8 +364,18 @@ function applyEvent(state: SimState, event: MarchEvent): SimState {
       return set({ motion: 'MARCHING', paradeUntil: march.distance + THREE_STEPS });
     case 'MARK_TIME':
       return set({ motion: 'MARCHING_IN_PLACE' });
-    case 'HALT':
+    case 'HALT': {
+      // D-055: STÓJ w trakcie zakrętu kolumny — kolumna kończy zmianę kierunku i staje dopiero na prostej
+      // (inaczej stanęłaby wygięta, z różnymi frontami). W marszu w miejscu zakręt i tak się nie posuwa.
+      const remaining = turnRemaining(march);
+      if (remaining > 0 && !event.inPlace && leaderSpeed(march) > 0) {
+        if (!event.deferred) {
+          reports.push(note(state.time, undefined, 'Kolumna kończy zmianę kierunku — zatrzyma się, gdy ostatni żołnierz minie zakręt.'));
+        }
+        return set({ pending: [...march.pending, { at: march.distance + remaining, basis: 'distance', event: { kind: 'HALT', deferred: true } }] });
+      }
       return halt(state, 'ATTENTION');
+    }
     case 'TURN':
       return turnMarch(state, event.delta);
   }
@@ -408,7 +441,7 @@ export function stepMarch(state: SimState, reports: Report[]): SimState {
       ...current,
       squad: current.squad.march ? { ...current.squad, march: { ...current.squad.march, pending: current.squad.march.pending.filter((p) => p !== item) } } : current.squad,
     };
-    current = applyEvent(current, item.event);
+    current = applyEvent(current, item.event, reports);
   }
   const march = current.squad.march;
   if (!march) return current;

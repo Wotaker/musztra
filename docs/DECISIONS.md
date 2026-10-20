@@ -14,6 +14,7 @@ Decyzje, które autor powinien potwierdzić lub odrzucić. Po akceptacji pozycja
 | [D-052](#d-052-kontrola-propozycji-llm-przez-interpreter) | kontrola propozycji LLM w stanie z chwili odpowiedzi; co jest odrzucane |
 | [D-053](#d-053-content-security-policy) | CSP jako `<meta>` w buildzie |
 | [D-054](#d-054-panel-ustawień-i-przycisk-objaśnij) | panel ustawień, wskaźnik trybu, „Objaśnij” bez klucza |
+| [D-055](#d-055-drużyna--stój-w-trakcie-zmiany-kierunku-kolumny) | STÓJ na zakręcie kolumny: zatrzymanie po wyjściu ostatniego z zakrętu |
 
 ## Zatwierdzone
 
@@ -522,3 +523,10 @@ Decyzje, które autor powinien potwierdzić lub odrzucić. Po akceptacji pozycja
   - W wierszu poleceń został mały wskaźnik trybu („łagodny”/„ścisły”); kliknięcie otwiera ustawienia. Zmienione testy E2E (zgłoszenie zgodnie z CLAUDE.md): trzy testy `command-line.spec.ts` przełączały tryb przyciskiem w wierszu poleceń — teraz robią to przez panel ustawień; sprawdzają to samo zachowanie.
   - „Objaśnij” — przy każdym błędzie i uwadze (także „nikt nie reaguje”), obok „Użyj”. Bez klucza przycisk ma dopisek „wymaga klucza API” i otwiera ustawienia (nie łączy się z siecią). Po błędzie wywołania — „Objaśnij ponownie”. Nowa komenda przerywa trwające objaśnienie. Auto-objaśnianie wywołuje objaśnienie od razu po błędzie lub uwadze, gdy jest klucz.
   - Objaśnienie oznaczone jako „Objaśnienie AI” z dopiskiem „Werdykt wydaje interpreter; objaśnienie AI może być nieprecyzyjne”.
+
+## D-055 „Drużyna – STÓJ” w trakcie zmiany kierunku kolumny
+
+- **Data:** 2026-10-20 · **Etap:** EF (K3, wykonane razem z K2 — ćwiczenie „Marsz i zatrzymanie” trafiało w ten błąd)
+- **Kontekst:** błąd z backlogu: STÓJ podany, gdy czoło już skręciło, a reszta kolumny była jeszcze przed zakrętem lub na łuku, zatrzymywał kolumnę wygiętą — żołnierze z różnymi frontami, poza liniami szyku (naruszenie niezmienników SPEC 5.4). Regulamin (pkt 29, 30, 100) nie opisuje zatrzymania w trakcie zmiany kierunku; zakłada, że zmiana kierunku kolumny trwa, aż wszyscy przejdą zakręt „w tym samym miejscu”.
+- **Decyzja:** zatrzymanie jest odroczone: kolumna kończy zmianę kierunku i staje (jeszcze jeden krok, wszyscy jednocześnie, postawa zasadnicza), gdy ostatni żołnierz minie zakręt i cała kolumna idzie po prostej. W Dzienniku uwaga: „Kolumna kończy zmianę kierunku — zatrzyma się, gdy ostatni żołnierz minie zakręt.” STÓJ na prostym odcinku działa jak dotąd. STÓJ przed skrętem czoła (w trakcie trzech kroków po „Kierunek – …”) zatrzymuje kolumnę bez zakrętu. Z marszu w miejscu (także „Za mną”, gdy dowódca stanął) — bez odraczania: jeszcze jeden krok w miejscu i zatrzymanie (wcześniej kierunkowy robił w tej sytuacji jeszcze krok do przodu).
+- **Alternatywy:** zatrzymanie natychmiast i samoczynne wyrównanie frontów — kolumna stałaby w kształcie litery L, nie na linii szyku; zatrzymanie natychmiast i obrót wszystkich do frontu czoła — sprzeczne z „po śladzie kierunkowego” (I-5).

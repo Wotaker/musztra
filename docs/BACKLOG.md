@@ -38,7 +38,7 @@ Z D-047 — doprecyzowania zgodne z obecnym działaniem symulatora:
 
 ## Symulacja i ruch
 
-1. „Drużyna – STÓJ” w trakcie zakrętu kolumny zatrzymuje kolumnę wygiętą (żołnierze mają różne fronty). Propozycja: zatrzymanie po wyjściu czoła z łuku albo samoczynne wyrównanie frontów przy zatrzymaniu.
+1. ~~„Drużyna – STÓJ” w trakcie zakrętu kolumny zatrzymuje kolumnę wygiętą~~ — naprawione w etapie EF (D-055). Pozostaje: „Czoło – STÓJ” i „Stawaj” w trakcie zakrętu — kolumna może dojść do czoła częściowo na łuku (do sprawdzenia).
 2. Żołnierze biegnący na zbiórkę i rozchodzący się po rozejściu mogą przenikać przez siebie nawzajem. Propozycja: proste omijanie (rozsunięcie torów, kolejność dobiegania od najbliższych miejsc).
 3. „Stawaj” z kolumny dwójkowej: prawy rząd mógłby sam odsunąć się na regulaminowe 1,2 m, bez flagi odstępów nieregularnych (alternatywa z D-044).
 4. Dwuszereg idący „w skos” (D-046): obecnie szyk ukośny; propozycja — dokładniejsze odwzorowanie wykonania indywidualnego dla dwuszeregu.

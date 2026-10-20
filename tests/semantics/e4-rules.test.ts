@@ -250,3 +250,40 @@ describe('dowódca ustępuje maszerującym (D-040)', () => {
     for (const s of run.state.soldiers) expect(Math.hypot(s.position.x - c.x, s.position.y - c.y)).toBeGreaterThan(0.4);
   });
 });
+
+describe('„Drużyna – STÓJ” w trakcie zmiany kierunku kolumny (etap EF, K3, D-055)', () => {
+  // Błąd z backlogu: STÓJ podany, gdy część kolumny jest jeszcze przed zakrętem albo na łuku, zatrzymywał
+  // kolumnę wygiętą — żołnierze z różnymi frontami (naruszenie niezmienników SPEC 5.4).
+  const LEFT = 'Kierunek – W LEWO';
+
+  it.each([
+    ['rząd', FILE, 270],
+    ['kolumna dwójkowa', COLUMN, 270],
+  ])('%s: STÓJ zaraz po skręcie czoła — kolumna kończy zakręt i staje prosto, wszyscy frontem 270°', (_name, assemble, facing) => {
+    const run = scenario([assemble, MARCH, { wait: 3 }, LEFT, { wait: 4 }, 'Drużyna – STÓJ', { wait: 15 }]);
+    expect(run.state.squad.march).toBeNull();
+    for (const s of run.state.soldiers) {
+      expect(Math.abs(angleDelta(s.facing, facing)), `nr ${String(s.id)}: front ${s.facing.toFixed(1)}°`).toBeLessThanOrEqual(1);
+      expect(s.posture).toBe('ATTENTION');
+    }
+    expect(run.state.squad.irregularSpacing).toBe(false);
+  });
+
+  it('w Dzienniku uwaga, że kolumna zatrzyma się po zakręcie; do tego czasu nadal maszeruje', () => {
+    const run = scenario([FILE, MARCH, { wait: 3 }, LEFT, { wait: 4 }, 'Drużyna – STÓJ', { wait: 1 }]);
+    expect(run.state.squad.march?.motion).toBe('MARCHING');
+    expect(run.session.journal.some((e) => e.kind === 'note' && e.text.includes('zakręt'))).toBe(true);
+  });
+
+  it('STÓJ na prostym odcinku po zakręcie — jak dotąd: jeszcze jeden krok i wszyscy stają jednocześnie', () => {
+    const run = scenario([FILE, MARCH, { wait: 3 }, LEFT, { wait: 20 }, 'Drużyna – STÓJ', { wait: 1 }]);
+    expect(run.state.squad.march).toBeNull();
+    expect(run.session.journal.some((e) => e.kind === 'note' && e.text.includes('zakręt'))).toBe(false);
+  });
+
+  it('STÓJ przed skrętem czoła (w trakcie trzech kroków) — zakręt nie następuje, kolumna staje frontem 0°', () => {
+    const run = scenario([FILE, MARCH, { wait: 3 }, LEFT, { wait: 0.5 }, 'Drużyna – STÓJ', { wait: 3 }]);
+    expect(run.state.squad.march).toBeNull();
+    for (const s of run.state.soldiers) expect(Math.abs(angleDelta(s.facing, 0))).toBeLessThanOrEqual(1);
+  });
+});
