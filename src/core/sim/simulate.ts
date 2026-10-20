@@ -1,5 +1,5 @@
 import { DT, MARCH_SPEED, RUN_SPEED } from './constants';
-import { angleDelta, bearing, distance, easeInOut, lerpVec, normalizeAngle, vec } from './geometry';
+import { angleDelta, bearing, distance, easeInOut, lerpVec, normalizeAngle, rightOf, vec } from './geometry';
 import { marchTransitional, stepMarch } from './march';
 import { isBusy } from './plan';
 import type { Commander, Report, SimState, Soldier } from './state';
@@ -87,19 +87,46 @@ function stepCommander(c: Commander): Commander {
   return { ...c, position, heading, facing, stride, gait };
 }
 
+/** Odległość, na jaką dowódca ustępuje maszerującym żołnierzom (m) — D-040. */
+const COMMANDER_CLEARANCE = 0.55;
+
+/**
+ * Dowódca niesterowany z klawiatury ustępuje krokiem w bok żołnierzom, którzy na niego nachodzą
+ * (np. kolumna rusza na wprost, a dowódca stoi przed nią) — D-040.
+ */
+function yieldCommander(c: Commander, soldiers: readonly Soldier[]): Commander {
+  if (c.input.x !== 0 || c.input.y !== 0) return c;
+  let push = vec(0, 0);
+  for (const s of soldiers) {
+    if ((s.motion !== 'MARCHING' && s.motion !== 'RUNNING') || s.gait === 'MARK') continue;
+    const d = distance(s.position, c.position);
+    if (d >= COMMANDER_CLEARANCE) continue;
+    // W bok od kierunku ruchu żołnierza, po tej stronie, po której dowódca już jest.
+    const r = rightOf(s.facing);
+    const side = (c.position.x - s.position.x) * r.x + (c.position.y - s.position.y) * r.y >= 0 ? 1 : -1;
+    push = vec(push.x + r.x * side, push.y + r.y * side);
+  }
+  const len = Math.hypot(push.x, push.y);
+  if (len < 1e-9) return c;
+  const stepLength = MARCH_SPEED * 1.4 * DT;
+  const position = vec(c.position.x + (push.x / len) * stepLength, c.position.y + (push.y / len) * stepLength);
+  return { ...c, position, stride: c.stride + stepLength, gait: 'SIDESTEP' };
+}
+
 export function step(state: SimState): SimState {
   const reports: Report[] = [];
   const soldiers = state.soldiers.map((s) => stepSoldier(s, state.time, reports));
   const commander = stepCommander(state.commander);
   // Ruch ciągły (marsz, zachodzenie) po planach żołnierzy — dowódca już przesunięty („Za mną”).
   const moved = stepMarch({ ...state, soldiers, commander }, reports);
-  const busy = moved.soldiers.some(isBusy) || marchTransitional(moved);
-  const activity = moved.squad.activity && busy ? moved.squad.activity : null;
+  const yielded = { ...moved, commander: yieldCommander(moved.commander, moved.soldiers) };
+  const busy = yielded.soldiers.some(isBusy) || marchTransitional(yielded);
+  const activity = yielded.squad.activity && busy ? yielded.squad.activity : null;
   return {
-    ...moved,
+    ...yielded,
     time: state.time + DT,
     tick: state.tick + 1,
-    squad: activity === moved.squad.activity ? moved.squad : { ...moved.squad, activity },
+    squad: activity === yielded.squad.activity ? yielded.squad : { ...yielded.squad, activity },
     reports: reports.length > 0 ? [...state.reports, ...reports] : state.reports,
   };
 }

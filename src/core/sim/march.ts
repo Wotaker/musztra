@@ -532,7 +532,8 @@ function stepTrail(state: SimState, march0: MarchState, reports: Report[]): SimS
   const converged = followersConverged(march, head);
   if (following) {
     const halted = !guideMoved && converged;
-    if (halted && !march.followHalted) {
+    // Uwaga dopiero, gdy dowódca ruszył i stanął (na starcie kolumna czeka, aż dowódca odejdzie).
+    if (halted && !march.followHalted && march.distance > 0) {
       reports.push(note(state.time, 'W_FOLLOW_HALT', 'Dowódca stanął — drużyna maszeruje w miejscu. Do zatrzymania służy „Drużyna – STÓJ”.'));
     }
     march = { ...march, followHalted: halted };

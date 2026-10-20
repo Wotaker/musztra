@@ -226,3 +226,12 @@ describe('determinizm marszu', () => {
     expect(createSession().sim.squad.march).toBeNull();
   });
 });
+
+describe('dowódca ustępuje maszerującym (D-040)', () => {
+  it('kolumna rusza na wprost na stojącego przed nią dowódcę — dowódca odsuwa się w bok, nie jest „przechodzony”', () => {
+    const run = scenario(['Pierwsza drużyna, w rzędzie – ZBIÓRKA', 'Drużyna, kierunek na wprost – MARSZ', { wait: 12 }]);
+    const c = run.state.commander.position;
+    expect(Math.abs(c.x)).toBeGreaterThan(0.4);
+    for (const s of run.state.soldiers) expect(Math.hypot(s.position.x - c.x, s.position.y - c.y)).toBeGreaterThan(0.4);
+  });
+});
