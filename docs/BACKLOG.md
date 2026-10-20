@@ -1,0 +1,49 @@
+# Backlog usprawnień
+
+Propozycje usprawnień zebrane przy etapach E2–E4 (decyzja autora z 2026-10-20: propozycje trafiają tu, nie do bieżącego etapu). Nowe funkcje poza MVP są w `SPEC.md`, sekcja 2.2 — ten plik ich nie powtarza. Kolejność w sekcjach — od najważniejszych. Pozycje do przeglądu przez autora; naturalne miejsce realizacji to E7 (Szlif) albo później.
+
+## Uwagi UI autora
+
+- Uwagi UI „na później” — autor zgłosi je po ukończeniu wszystkich etapów (decyzja z 2026-10-20).
+
+## Dokumentacja (`COMMANDS.md`)
+
+Z D-047 — doprecyzowania zgodne z obecnym działaniem symulatora:
+
+1. S-4: „Drużyna – STÓJ” kończy zachodzenie bez dodatkowego kroku (D-043).
+2. M-11: odległość między szeregami po „Stawaj” z kolumny dwójkowej — 0,6 m, szyk nieregularny do SPOCZNIJ (D-044); albo decyzja, że prawy rząd sam odsuwa się na 1,2 m (zob. „Symulacja”, p. 3).
+3. M-1, M-9: zachowanie szyku rozwiniętego przy kierunku „w skos” (D-046).
+4. Pola „Warunki” komend M uzupełnione o tabelę warunków ruchu z D-042 (`E_PRECOND_MOTION`, `W_NO_EFFECT`).
+
+## Symulacja i ruch
+
+1. „Drużyna – STÓJ” w trakcie zakrętu kolumny zatrzymuje kolumnę wygiętą (żołnierze mają różne fronty). Propozycja: zatrzymanie po wyjściu czoła z łuku albo samoczynne wyrównanie frontów przy zatrzymaniu.
+2. Żołnierze biegnący na zbiórkę i rozchodzący się po rozejściu mogą przenikać przez siebie nawzajem. Propozycja: proste omijanie (rozsunięcie torów, kolejność dobiegania od najbliższych miejsc).
+3. „Stawaj” z kolumny dwójkowej: prawy rząd mógłby sam odsunąć się na regulaminowe 1,2 m, bez flagi odstępów nieregularnych (alternatywa z D-044).
+4. Dwuszereg idący „w skos” (D-046): obecnie szyk ukośny; propozycja — dokładniejsze odwzorowanie wykonania indywidualnego dla dwuszeregu.
+5. Rozproszona drużyna stoi nieruchomo; COMMANDS ZB-4 przewiduje „drobny, spokojny ruch” po rozejściu (np. żołnierz co jakiś czas obraca się lub przestępuje). Do dodania w rendererze lub w symulacji (z ziarnem).
+6. Ustępowanie dowódcy (D-040) jest proste (krok w bok, gdy żołnierz podejdzie bliżej niż 0,55 m). Propozycja: płynniejsze schodzenie z drogi z wyprzedzeniem, także przy zbiórce.
+7. Zakręt kolumny dwójkowej: obie kolumny rzędów skręcają po śladzie kierunkowego z przesunięciem w bok; propozycja — wierniejsze „zachodzenie” pary na zakręcie (wewnętrzny skraca, zewnętrzny wydłuża krok).
+8. Komendy w takt kroku (lewa/prawa noga) — już w SPEC 2.2, p. 7; tu przypomnienie, że czasy „jeszcze jeden krok” (D-041) są uproszczeniem.
+
+## Wygląd
+
+1. Zwrot głowy (równanie, odliczanie) jest słabo widoczny przy małym przybliżeniu — wyraźniejszy znacznik (np. mała strzałka nad głową).
+2. Panel informacji zwrotnej po poprawnej komendzie zasłania dolną część placu — automatyczne zwijanie po kilku sekundach albo wersja skrócona.
+3. Postacie: więcej szczegółów przy dużym zbliżeniu (pas, kieszenie, buty w kroku defiladowym), płynniejsze przejście postawa zasadnicza ↔ swobodna.
+4. Nawierzchnia placu: subtelna faktura i winieta przy krawędziach; obiekty: więcej detali (okna koszar, ławki trybuny).
+5. Etykiety obiektów poza kadrem mogą się zagęszczać w rogach ekranu — lepsze rozmieszczenie.
+6. Dymki odzywek: lekkie „wyskoczenie” przy pojawieniu się, dźwięk (opcjonalnie, wyłączony domyślnie).
+
+## Interfejs
+
+1. Dziennik: filtr (tylko komendy / tylko meldunki), kopiowanie całej sesji, czas rzeczywisty obok czasu symulacji.
+2. Strzałka „dowódca” na krawędzi ekranu: klik przenosi kamerę do dowódcy.
+3. Przycisk „pokaż ślad” — rysowanie śladu kierunkowego (I-5) w czasie marszu, do nauki zmian kierunku.
+4. Skrót klawiszowy do pauzy symulacji (spacja w trybie Ruch).
+
+## Testy i infrastruktura
+
+1. E2E także w Firefoksie i WebKicie (D-005).
+2. Automatyczny pomiar wydajności (60 kl./s przy 12 żołnierzach z dymkami, SPEC 9.6) w przeglądarce.
+3. Zrzuty ekranu generowane w CI jako artefakt (dziś `scripts/screenshots.mjs` uruchamiany ręcznie).

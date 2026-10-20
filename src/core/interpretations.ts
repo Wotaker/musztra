@@ -9,7 +9,7 @@ import type { Formation, Posture } from './sim/state';
  * Interpretacje regulaminu I-1…I-17 (SPEC 11), jeszcze niepotwierdzone z prowadzącym.
  * Każda jest jedną, wyraźnie wydzieloną regułą w tym pliku — zmiana interpretacji to zmiana
  * tej jednej funkcji (stałej) i odpowiadających jej testów, bez przebudowy reszty kodu.
- * Interpretacje dotyczące marszu (I-3, I-5, I-13, I-15, I-17) dojdą w etapie E4; I-16 działa od E1
+ * Interpretacje dotyczące marszu (I-3, I-5, I-13, I-15, I-17) działają od etapu E4; I-16 działa od E1
  * (kontrola formy, `grammar/form.ts`).
  */
 

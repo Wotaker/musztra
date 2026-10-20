@@ -6,16 +6,7 @@ Decyzje podjęte tam, gdzie `SPEC.md`, `COMMANDS.md` i regulamin milczą lub są
 
 Decyzje, które autor powinien potwierdzić lub odrzucić. Po akceptacji pozycja przechodzi do sekcji „Zatwierdzone” (wpis w dzienniku zostaje).
 
-| Decyzja | Czego dotyczy | Etap |
-|---|---|---|
-| [D-040](#d-040-dowódca-ustępuje-maszerującym) | dowódca niesterowany klawiszami odsuwa się z drogi maszerującej drużyny | E4 |
-| [D-041](#d-041-model-ruchu-ciągłego) | ślad kierunkowego, łuk zakrętu 0,6 m, doganianie, „jeszcze jeden krok” | E4 |
-| [D-042](#d-042-warunki-ruchu-tam-gdzie-commands-milczy) | warunki ruchu tam, gdzie COMMANDS milczy (np. „Na wprost” w marszu, BACZNOŚĆ w biegu) | E4 |
-| [D-043](#d-043-zachodzenie) | tempo zachodzenia, STÓJ bez dodatkowego kroku | E4 |
-| [D-044](#d-044-stawaj-i-czoło--stój) | „Stawaj”: dosunięcie na 0,6 m, szeregi 0,6 m od siebie (nieregularne); „Czoło – STÓJ” bez cofania | E4 |
-| [D-045](#d-045-za-mną) | „Za mną”: ślad dowódcy, uwaga W_FOLLOW_HALT dopiero po ruszeniu dowódcy | E4 |
-| [D-046](#d-046-marsz-w-skos-w-szyku-rozwiniętym) | szyk rozwinięty „w skos”: rzut ukośny, nieregularny do SPOCZNIJ | E4 |
-| [D-047](#d-047-propozycje-zmian-w-commandsmd-po-e4) | propozycje doprecyzowań w `COMMANDS.md` po E4 | E4 |
+Brak pozycji oczekujących.
 
 ## Zatwierdzone
 
@@ -35,6 +26,8 @@ Decyzje, które autor powinien potwierdzić lub odrzucić. Po akceptacji pozycja
 | [D-032](#d-032-propozycje-zmian-w-commandsmd-i-specmd-po-e2) | propozycje po E2 — wprowadzone do `COMMANDS.md` i `SPEC.md` | 2026-10-20 |
 | D-033 … D-038 | wszystkie decyzje etapu E3 (odstępowanie i łączenie, odliczanie, równanie, dwójki, przesunięcie, Dziennik) | 2026-10-20 |
 | [D-039](#d-039-propozycje-zmian-w-commandsmd-po-e3) | propozycje po E3 — wprowadzone do `COMMANDS.md` | 2026-10-20 |
+| D-040 … D-046 | wszystkie decyzje etapu E4 (ustępowanie dowódcy, model ruchu ciągłego, warunki ruchu, zachodzenie, „Stawaj” i „Czoło – STÓJ”, „Za mną”, marsz w skos) | 2026-10-20 |
+| [D-047](#d-047-propozycje-zmian-w-commandsmd-po-e4) | propozycje po E4 — przeniesione do backlogu (`docs/BACKLOG.md`, decyzja autora) | 2026-10-20 |
 
 ---
 
@@ -461,7 +454,7 @@ Decyzje, które autor powinien potwierdzić lub odrzucić. Po akceptacji pozycja
 
 ## D-047 Propozycje zmian w COMMANDS.md po E4
 
-- **Data:** 2026-10-20 · **Etap:** E4 · do decyzji autora (dokumentów nie zmieniano)
+- **Data:** 2026-10-20 · **Etap:** E4 · **Zatwierdzona 2026-10-20:** propozycje przeniesione do backlogu (`docs/BACKLOG.md`, sekcja „Dokumentacja”); `COMMANDS.md` bez zmian
 - S-4: dopisać, że „Drużyna – STÓJ” kończy zachodzenie bez dodatkowego kroku (D-043).
 - M-11: dopisać odległość między szeregami po „Stawaj” z kolumny dwójkowej (0,6 m, nieregularna) albo zdecydować, że prawy rząd odsuwa się na 1,2 m (D-044).
 - M-1 / M-9: dopisać zachowanie szyku rozwiniętego przy kierunku w skos (D-046).

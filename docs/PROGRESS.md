@@ -94,7 +94,7 @@ Otwórz **https://wotaker.github.io/musztra/**, odśwież przed każdą sekcją.
 
 ### 3. Decyzje i otwarte pytania
 
-Decyzje (szczegóły w `docs/DECISIONS.md`, wszystkie **do akceptacji**):
+Decyzje (szczegóły w `docs/DECISIONS.md`; wszystkie zatwierdzone 2026-10-20):
 
 - D-040 Dowódca niesterowany klawiszami ustępuje maszerującym.
 - D-041 Model ruchu ciągłego (ślad kierunkowego, łuk 0,6 m, rozwieranie i doganianie, „jeszcze jeden krok”, czynności przejściowe w ruchu, WRÓĆ w ruchu).
@@ -103,7 +103,7 @@ Decyzje (szczegóły w `docs/DECISIONS.md`, wszystkie **do akceptacji**):
 - D-044 „Stawaj” (szeregi 0,6 m — nieregularne do SPOCZNIJ) i „Czoło – STÓJ” bez cofania.
 - D-045 „Za mną”: ślad dowódcy, kiedy pojawia się W_FOLLOW_HALT.
 - D-046 Szyk rozwinięty „w skos”: rzut ukośny, nieregularny do SPOCZNIJ.
-- D-047 Propozycje doprecyzowań w `COMMANDS.md` (dokumentu nie zmieniano).
+- D-047 Propozycje doprecyzowań w `COMMANDS.md` — przeniesione do backlogu (zob. p. 5).
 
 Interpretacje E4 — każda jako osobna reguła w `src/core/interpretations.ts`: I-2 (rozwieranie po ruszeniu, `marchDepth`), I-3 (`deployedDirectionIsIndividual`), I-5 (`COLUMN_FOLLOWS_GUIDE_TRAIL`), I-13 (`WHEEL_ANGLE_LIMIT`), I-15 (`followAllowed`), I-17 (`POSTURE_AFTER_HEAD_HALT`). Wszystkie I-1…I-17 działają.
 
@@ -112,6 +112,12 @@ Otwarte pytania: zob. D-047.
 ### 4. Adres wdrożenia
 
 **https://wotaker.github.io/musztra/** · CI: https://github.com/Wotaker/musztra/actions
+
+### 5. Po bramce E4 (2026-10-20)
+
+- Autor zatwierdził wszystkie decyzje etapu E4 (D-040…D-047). Etap zamknięty.
+- Propozycje usprawnień — w tym doprecyzowania `COMMANDS.md` z D-047, znane ograniczenia (STÓJ w trakcie zakrętu kolumny, przenikanie żołnierzy przy zbiórce, brak drobnego ruchu po rozejściu) i pomysły na wygląd, interfejs i testy — przeniesione do **`docs/BACKLOG.md`** (decyzja autora). `COMMANDS.md` i `SPEC.md` bez zmian.
+- Następny etap: E5 Nauka (podpowiedzi, szuflada katalogu, „czy chodziło o”, ustawienia, pierwsze uruchomienie).
 
 ---
 
