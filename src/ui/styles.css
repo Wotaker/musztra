@@ -1207,3 +1207,85 @@ a.status-chip {
   cursor: pointer;
 }
 
+/* ------------------------------------------------------------ pierwsze uruchomienie (SPEC 3.10) */
+
+.welcome {
+  width: min(560px, 100%);
+}
+
+.welcome__tips {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.welcome__tip {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.welcome__tip + .welcome__tip {
+  border-top: 1px solid var(--border-overlay);
+}
+
+.welcome__number {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--color-olive);
+  font-weight: 700;
+  color: #f4f1e8;
+}
+
+.welcome__command {
+  display: block;
+  margin: 6px 0 2px;
+  padding: 6px 10px;
+  border: 1px solid var(--color-olive);
+  border-radius: 7px;
+  background: #fffdf7;
+  font: 600 15px var(--font-command);
+  color: var(--color-olive-dark);
+  cursor: pointer;
+}
+
+.welcome__command:hover,
+.welcome__command:focus-visible {
+  background: rgba(91, 99, 56, 0.12);
+}
+
+.welcome__note {
+  font-size: 13px;
+  color: var(--color-graphite-soft);
+}
+
+.welcome kbd {
+  padding: 0 5px;
+  border: 1px solid rgba(51, 53, 47, 0.35);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: #fffdf7;
+  font: 600 12px var(--font-ui);
+}
+
+.welcome__start {
+  padding: 8px 20px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--color-olive);
+  font: 700 15px var(--font-ui);
+  color: #f4f1e8;
+  cursor: pointer;
+}
+
+.welcome__start:hover,
+.welcome__start:focus-visible {
+  background: var(--color-olive-dark);
+}

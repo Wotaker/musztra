@@ -9,17 +9,103 @@ Etapy według `SPEC.md`, sekcja 10. Każdy etap kończy się wdrożoną wersją 
 | E2 Stan i obraz | ✔ ukończony | 2026-10-20 |
 | E3 Szyki w miejscu | ✔ ukończony | 2026-10-20 |
 | E4 Ruch | ✔ ukończony | 2026-10-20 |
-| EF Etap końcowy (dawne E5–E7, D-048) | w toku: K1 ✔, K2 ✔, K3 częściowo (poprawka STÓJ ✔) | |
+| EF Etap końcowy (dawne E5–E7, D-048) | ✔ ukończony (K1, K2, K3) — decyzje D-049…D-058 do akceptacji | 2026-10-20 |
 
 ---
 
-## EF Etap końcowy — postęp prac (do wznowienia po przerwie)
+## EF Etap końcowy — podsumowanie (2026-10-20)
+
+### Status
+
+**✔ Ukończony.** Trzy kamienie milowe, każdy osobno przetestowany i wdrożony: K1 (LLM, ustawienia, CSP), K2 (ściąga, podstawowe ćwiczenia, regulamin PDF z odnośnikami), K3 (pierwsze uruchomienie, poprawka STÓJ na zakręcie kolumny, README). Przechodzą `npm run lint`, `npm test` (1077 testów), `npm run build`, `npm run e2e` (56 testów; lokalnie na preinstalowanym Chromium). CI na GitHubie zielone dla K1 i K2; K3 — zob. ostatni przebieg CI.
+
+- Testy LLM wyłącznie z zamockowanym API (Vitest: podstawiony `fetch`; Playwright: przechwycone żądania do `api.anthropic.com`): strumień, propozycja przyjęta i odrzucona przez interpreter (także wymyślona komenda), zły klucz, brak sieci, limit zapytań, przeciążenie, brak środków, przekroczony czas 15 s, odmowa modelu, intencja przy `E_SYNTAX_UNKNOWN`, auto-objaśnianie. Klucz w testach jest fikcyjny; testy sprawdzają, że nie trafia do adresu URL, treści żądania ani komunikatów.
+- **Zmienione testy (zgłoszenie zgodnie z CLAUDE.md):** trzy testy E2E trybu zapisu przełączają tryb przez panel ustawień (przełącznik przeniesiony — D-054); pliki E2E, które czyszczą pamięć przeglądarki, oznaczają wskazówki startowe jako obejrzane (D-058). Asercje bez zmian; nic nie usunięto ani nie pominięto.
+- Zrzuty: `docs/screenshots/k1-*.png`, `k2-*.png`, `k3-*.png`.
+
+### 1. Co działa
+
+- **Ustawienia (⚙ w pasku górnym)**: klucz API Anthropic (pole hasła, „Pokaż”, „Usuń”; domyślnie pamiętany tylko do zamknięcia karty, „Zapamiętaj na tym urządzeniu” z ostrzeżeniem; zalecenie osobnego workspace'u z niskim limitem wydatków), „Objaśniaj automatycznie”, tryb zapisu (przeniesiony z wiersza poleceń — w wierszu został mały wskaźnik „łagodny/ścisły”, klik otwiera ustawienia), liczebność drużyny 3–12 (zmiana ustawia drużynę od nowa i jest zapamiętana).
+- **Objaśnij**: przy każdym błędzie i uwadze obok „Użyj”. Bez klucza przycisk ma dopisek „wymaga klucza API” i otwiera ustawienia. Z kluczem: objaśnienie pisze się na żywo (fioletowa ramka „Objaśnienie AI”), po nim punkty regulaminu i — jeśli interpreter przyjął propozycję modelu w obecnym stanie drużyny — przycisk „Użyj: …”. Propozycję niepoprawną program pomija (adnotacja „nie przeszła kontroli interpretera”). Przy nierozpoznanym tekście model zgaduje, o jaką komendę chodziło. Błędy (zły klucz, brak sieci, limity, brak środków, 15 s) — komunikat po polsku i „Objaśnij ponownie”; reszta aplikacji działa dalej.
+- **Bezpieczeństwo**: strona ma Content Security Policy — połączenia tylko do `api.anthropic.com`, skrypty i style tylko z tej strony. Klient API pobierany dopiero przy pierwszym objaśnieniu.
+- **Ściąga (F1, „?” w trybie Ruch albo przycisk „Ściąga” w pasku)**: szuflada z prawej; zakładka „Komendy” — wszystkie komendy z katalogu w grupach jak w `COMMANDS.md`, wyszukiwarka (bez polskich znaków, po numerze komendy i „pkt N”), przy każdej forma kanoniczna (klik wstawia ją do wiersza), opis i punkty regulaminu. Zakładka „Podstawowe ćwiczenia” — 7 ćwiczeń z celem, od zbiórki i postaw po zmiany szyku w marszu; „Wstaw następną (n/N)” wstawia kolejną komendę. Szuflada nie blokuje placu ani wiersza poleceń.
+- **Regulamin w aplikacji**: przycisk „Regulamin” otwiera PDF; każde „pkt N” w panelu informacji, w ściądze i w objaśnieniach AI to odnośnik otwierający PDF na stronie z tym punktem.
+- **Pierwsze uruchomienie**: okno z trzema wskazówkami (zbiórka z przykładem do kliknięcia, Esc/Enter i WASD, F1); ponownie — przycisk „?” w pasku.
+- **Poprawka**: „Drużyna – STÓJ” podane, gdy kolumna jest w trakcie zmiany kierunku — kolumna kończy zakręt i staje prosto (wszyscy jednym frontem), w Dzienniku uwaga „Kolumna kończy zmianę kierunku — zatrzyma się, gdy ostatni żołnierz minie zakręt”.
+- **README.md** po polsku dla grupy: co to jest, link, klawisze, 5 pierwszych komend, klucz API i limit wydatków, bezpieczeństwo klucza.
+
+### 2. Lista kontrolna do ręcznego sprawdzenia w przeglądarce
+
+Otwórz **https://wotaker.github.io/musztra/**. Do sekcji A otwórz stronę w oknie prywatnym (czysta pamięć przeglądarki).
+
+**A. Pierwsze uruchomienie**
+
+1. Okno „Musztra — trzy rzeczy na start” z trzema punktami. Kliknij ramkę z komendą `Pierwsza drużyna, w dwuszeregu – ZBIÓRKA` → okno znika, komenda jest w wierszu poleceń; **Enter** → drużyna zbiera się w dwuszeregu.
+2. Odśwież stronę → okno się nie pojawia. Kliknij **?** w pasku → okno wraca; **Esc** je zamyka, kursor wraca do wiersza poleceń.
+
+**B. Ustawienia**
+
+3. Kliknij **⚙**. Są tylko cztery rzeczy: klucz API, „Zapamiętaj klucz na tym urządzeniu”, „Objaśniaj automatycznie…”, tryb zapisu i liczebność drużyny. Wpisz cokolwiek w pole klucza → status „tylko w pamięci tej karty”. Zaznacz „Zapamiętaj…” → żółte ostrzeżenie. Kliknij „Usuń”.
+4. Przełącz tryb na **Ścisły**, zamknij (Esc) → w wierszu poleceń wskaźnik „ścisły”. Wpisz `w prawo zwrot` → błędy formy. Wróć do trybu łagodnego.
+5. Liczebność: wybierz **12 żołnierzy** → plac od nowa, 12 rozproszonych żołnierzy; `Pierwsza drużyna, w dwuszeregu – ZBIÓRKA` → dwa szeregi po 6. Odśwież — nadal 12. Ustaw z powrotem 9.
+6. Naciśnij **Esc** (tryb Ruch), otwórz ⚙ i pisz w polu klucza litery w, a, s, d → dowódca się nie rusza.
+
+**C. Ściąga i ćwiczenia**
+
+7. **F1** → szuflada „Ściąga” z prawej, wiersz poleceń przesuwa się w lewo. Wpisz w wyszukiwarkę `zbiorka` → trzy komendy zbiórki. Kliknij pierwszą → trafia do wiersza poleceń, **Enter** ją wykonuje. Wyszukaj `pkt 75` → zachodzenie; `M-11` → „Stawaj”.
+8. Kliknij podkreśloną liczbę przy punkcie regulaminu w ściądze → nowa karta z regulaminem na właściwej stronie (np. pkt 22 → strona 8 „Zwroty w miejscu”).
+9. Zakładka **Podstawowe ćwiczenia**: 7 ćwiczeń. W „Zbiórka i postawy” klikaj **Wstaw następną** i Enter po kolei → licznik rośnie (2/5, 3/5…), wykonane komendy szarzeją. Przejdź ćwiczenie „Marsz i zatrzymanie” (w marszu odczekaj kilka kroków między komendami) i „Zmiany szyku w marszu”.
+10. **F1** zamyka szufladę.
+
+**D. Regulamin i odnośniki**
+
+11. Przycisk **Regulamin** w pasku → PDF w nowej karcie.
+12. `Pierwsza drużyna, w szeregu – ZBIÓRKA`, `SPOCZNIJ`, `W prawo – ZWROT` → ✖ z „pkt 11”; liczby w „pkt 11” i „pkt 22, 76, 83” (u góry panelu) są podkreślone; klik → PDF na stronie 4 (pkt 11) / 8 (pkt 22). Kursor zostaje w wierszu poleceń.
+
+**E. Poprawka STÓJ na zakręcie**
+
+13. `Pierwsza drużyna, w rzędzie – ZBIÓRKA`, `Drużyna, kierunek na wprost – MARSZ`, po 3 s `Kierunek – W LEWO`, a gdy kierunkowy skręci (ok. 3–4 s) — od razu `Drużyna – STÓJ` → kolumna dalej idzie, w Dzienniku uwaga „Kolumna kończy zmianę kierunku…”; gdy ostatni minie zakręt — wszyscy stają jednocześnie w prostym rzędzie frontem na zachód (pasek: „front 270°”).
+
+**F. Objaśnienia bez klucza**
+
+14. Bez klucza przy błędzie widać „✦ Objaśnij · wymaga klucza API”; klik otwiera ustawienia (nic nie jest wysyłane do sieci).
+
+**G. Test z prawdziwym kluczem API** (zob. README: osobny workspace z limitem np. 2 USD i klucz w nim)
+
+15. Wklej klucz w ⚙. Szereg w postawie swobodnej (`Pierwsza drużyna, w szeregu – ZBIÓRKA`, `SPOCZNIJ`), wpisz `W prawo – ZWROT` → **Objaśnij**. Oczekiwane w ciągu kilku sekund: tekst pisze się na żywo; 2–4 zdania po polsku, że w szyku przed zwrotem potrzebna jest postawa zasadnicza / komenda „BACZNOŚĆ”, z „pkt 11” (może też pkt 22); pod spodem „Regulamin: pkt 11…” jako odnośniki i przycisk **Użyj: BACZNOŚĆ**.
+16. Rozproszona drużyna (odśwież stronę), wpisz `chłopaki ustawcie się w dwóch rzędach` (✖ „Nie rozpoznano komendy”) → **Objaśnij**. Oczekiwane: „prawdopodobnie chodziło o zbiórkę w dwuszeregu”, objaśnienie budowy komendy (adresat, zapowiedź, hasło, pkt 10 / 69) i **Użyj: Pierwsza drużyna, w dwuszeregu – ZBIÓRKA** (albo „w szeregu” — dopuszczalne). Użyj → Enter → zbiórka.
+17. `Pierwsza drużyna, w rzędzie – ZBIÓRKA`, `Drużyna, kierunek na wprost – MARSZ`, `Biegiem – MARSZ`, potem `Drużyna – STÓJ` (✖ pkt 29) → **Objaśnij**. Oczekiwane: z biegu najpierw przechodzi się na krok zwykły („Zwykły – KROK”), dopiero potem STÓJ; propozycja **Użyj: Zwykły – KROK**.
+18. W marszu wpisz samo `STÓJ` (⚠ uwaga) → **Objaśnij**. Oczekiwane: regulamin podaje komendę z adresatem „Drużyna – STÓJ” (pkt 100); propozycja może zostać pominięta, jeśli drużyna już stoi — to poprawne zachowanie (interpreter odrzuca propozycję niewykonalną w obecnym stanie).
+19. Szereg w postawie zasadniczej: `W dwójki – W PRZÓD` → ✖ → **Objaśnij**. Oczekiwane: to komenda marszowa dla rzędu po odliczeniu; w miejscu z szeregu przechodzi się „W dwójki, w prawo – ZWROT” po „Do dwóch – ODLICZ”; propozycja np. **Użyj: Do dwóch – ODLICZ**.
+20. W ⚙ włącz „Objaśniaj automatycznie” → `W lewo – MARSZ` → objaśnienie pojawia się samo, bez klikania. Oczekiwane: że brakuje części zapowiedzi — zwrot to „W lewo – ZWROT”, marsz w lewo to „Drużyna, kierunek w lewo – MARSZ” (pkt 22, 24), a zachodzenie „Drużyna, w lewo zachodź – MARSZ” (pkt 75); model powinien wskazać najbardziej prawdopodobną.
+21. Charakter wszystkich objaśnień: po polsku, krótko (3–4 zdania), bez wymyślonych komend, punkt regulaminu przy każdym objaśnieniu, żadnego podważania werdyktu. Jeśli model coś pomyli — zanotuj komendę i treść (do poprawy promptu).
+22. Zły klucz: w ⚙ zmień klucz na `sk-ant-zly` → **Objaśnij** → „Klucz API jest nieprawidłowy albo nieaktywny…”. Wyłącz internet → **Objaśnij** → „Brak połączenia z api.anthropic.com…”; plac i komendy działają dalej.
+23. W Claude Console → Usage sprawdź koszt (kilkanaście objaśnień — ułamek centa); przy kolejnych objaśnieniach powinny pojawiać się tokeny odczytane z cache (prompt caching katalogu).
+
+### 3. Decyzje i otwarte pytania
+
+Decyzje (szczegóły w `docs/DECISIONS.md`):
+
+- D-048 Etap końcowy EF zamiast E5–E7 (decyzja autora; SPEC 10 i BACKLOG zaktualizowane).
+- **Do akceptacji:** D-049 zależność `@anthropic-ai/sdk` (ładowana leniwie); D-050 format odpowiedzi (structured outputs + walidacja), prompt z katalogiem w cache, `effort: low`; D-051 klucz w pamięci sesji / urządzenia; D-052 kontrola propozycji LLM (co jest odrzucane); D-053 CSP jako `<meta>` w buildzie; D-054 panel ustawień i „Objaśnij” bez klucza; D-055 STÓJ na zakręcie kolumny — zatrzymanie po wyjściu ostatniego żołnierza z zakrętu; D-056 ściąga (bez grupy „Poza MVP”) i 7 ćwiczeń; D-057 PDF w buildzie i mapa punkt → strona; D-058 nakładka pierwszego uruchomienia.
+
+Otwarte pytania i propozycje:
+
+- `COMMANDS.md` M-8 / M-9: dopisać zachowanie STÓJ w trakcie zmiany kierunku kolumny (D-055) — propozycja, `COMMANDS.md` bez zmian.
+- SPEC 8.2 mówi o modelu „konfigurowalnym w ustawieniach”, a zakres EF ograniczył panel do czterech pozycji — wybór modelu jest w backlogu.
+- Nowe pozycje w `docs/BACKLOG.md`: „Poza zakresem EF” (wszystko z E5/E7 poza zakresem), „Czoło – STÓJ” i „Stawaj” w trakcie zakrętu (do sprawdzenia).
+
+### 4. Adres wdrożenia
+
+**https://wotaker.github.io/musztra/** · CI: https://github.com/Wotaker/musztra/actions
+
+### 5. Przebieg prac (notatki do wznowienia)
 
 Zakres (decyzja autora, D-048): K1 LLM + ustawienia + CSP → K2 ściąga, podstawowe ćwiczenia, regulamin PDF z odnośnikami → K3 pierwsze uruchomienie, poprawka STÓJ na zakręcie kolumny, README. Po każdym kamieniu: testy, zielone CI, wdrożenie, wpis tutaj. Wszystko spoza zakresu → `docs/BACKLOG.md`.
 
 Środowisko w chmurze: Node 26 z nodejs.org w `/opt/node26/…/bin` (dopisać do `PATH`); E2E lokalnie na preinstalowanym Chromium — `/opt/pw-browsers/chromium_headless_shell-1248` to dowiązania do wersji 1194 (obejście tylko w kontenerze, bez zmian w repozytorium i CI).
 
-### K1 — LLM, ustawienia, CSP ✔ (2026-10-20)
+#### K1 — LLM, ustawienia, CSP ✔ (2026-10-20)
 
 - `src/llm/`: `prompt.ts` (prompt systemowy z katalogiem z danych, cache), `schema.ts` (walidacja JSON, objaśnienie ze strumienia), `client.ts` (SDK Anthropic, limit 15 s, błędy po polsku), `suggestion.ts` (kontrola propozycji przez interpreter).
 - `src/ui/`: `SettingsPanel.tsx` + `settingsStore.ts` + `persist.ts` (klucz: sesja / urządzenie), `explainStore.ts` + `Explanation.tsx` („Objaśnij”, strumień, „Użyj”), `Dialog.tsx`; tryb zapisu przeniesiony do ustawień (wskaźnik w wierszu poleceń).
@@ -29,16 +115,23 @@ Zakres (decyzja autora, D-048): K1 LLM + ustawienia + CSP → K2 ściąga, podst
 - Zrzuty: `docs/screenshots/k1-*.png`.
 - CI zielone, wdrożone (przebieg 18).
 
-### K3 (wcześniej) — poprawka „STÓJ podczas zmiany kierunku kolumny” ✔
+#### K3 (wcześniej) — poprawka „STÓJ podczas zmiany kierunku kolumny” ✔
 
 - Wykryta testem ćwiczenia „Marsz i zatrzymanie” (K2), więc zrobiona przed K2: zatrzymanie odroczone do wyjścia ostatniego żołnierza z zakrętu, uwaga w Dzienniku (D-055). Testy: `tests/semantics/e4-rules.test.ts`, opis „STÓJ w trakcie zmiany kierunku kolumny”.
 
-### K2 — ściąga, podstawowe ćwiczenia, regulamin PDF ✔ (2026-10-20)
+#### K2 — ściąga, podstawowe ćwiczenia, regulamin PDF ✔ (2026-10-20)
 
 - `src/ui/Cheatsheet.tsx` + `cheatsheet.ts` (szuflada F1 / „?” / przycisk; zakładki „Komendy” z wyszukiwarką i „Podstawowe ćwiczenia”), `src/core/exercises.ts` (7 sekwencji).
 - `src/ui/regulationPdf.ts` (PDF z `docs/` w buildzie), `PointLinks.tsx` + `pointLinks.ts` (odnośniki „pkt N” → `#page=`), przycisk „Regulamin” w pasku.
 - Testy: `tests/exercises.test.ts`, `tests/ui/cheatsheet.test.ts`, `tests/ui/pointLinks.test.ts`, `e2e/cheatsheet.spec.ts`, odnośniki w `e2e/llm.spec.ts`.
 - Decyzje: D-056, D-057 (do akceptacji). Zrzuty: `docs/screenshots/k2-*.png`.
+
+#### K3 — pierwsze uruchomienie, README ✔ (2026-10-20)
+
+- `src/ui/WelcomeOverlay.tsx` (trzy wskazówki, przykład do kliknięcia, „?” w pasku), `README.md` (po polsku, dla grupy).
+- Testy: `e2e/welcome.spec.ts`; pozostałe pliki E2E ustawiają znacznik „wskazówki obejrzane” (D-058).
+- Decyzja: D-058 (do akceptacji). Zrzut: `docs/screenshots/k3-pierwsze-uruchomienie.png`.
+
 
 ---
 

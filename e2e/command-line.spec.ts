@@ -20,6 +20,8 @@ test.beforeEach(async ({ page }) => {
   await page.goto('./');
   await page.evaluate(() => {
     localStorage.clear();
+    // Wskazówki pierwszego uruchomienia (K3) mają osobne testy w welcome.spec.ts.
+    localStorage.setItem('musztra.firstRunSeen', 'true');
   });
   await page.reload();
 });

@@ -149,6 +149,21 @@ export function StatusBar() {
         >
           <span aria-hidden="true">⚙</span>
         </button>
+        <button
+          type="button"
+          className="status-chip"
+          data-testid="open-welcome"
+          title="Wskazówki na start"
+          aria-label="Wskazówki na start"
+          onMouseDown={(event) => {
+            event.preventDefault();
+          }}
+          onClick={() => {
+            setDialog('welcome');
+          }}
+        >
+          ?
+        </button>
       </div>
     </header>
   );

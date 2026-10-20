@@ -93,12 +93,12 @@ function ApiKeySection() {
         </p>
       )}
       <p className="settings__tip">
-        Zalecenie: utwórz w{' '}
-        <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener noreferrer">
+        Zalecenie: w{' '}
+        <a href="https://console.anthropic.com/" target="_blank" rel="noopener noreferrer">
           Claude Console
         </a>{' '}
-        osobny klucz tylko do tej aplikacji i ustaw niski miesięczny limit wydatków (Settings → Limits). Objaśnienie kosztuje
-        ułamek centa.
+        utwórz osobny workspace z niskim miesięcznym limitem wydatków (np. 2 USD) i klucz API tylko dla tej aplikacji.
+        Objaśnienie kosztuje ułamek centa.
       </p>
       <label className="settings__check">
         <input

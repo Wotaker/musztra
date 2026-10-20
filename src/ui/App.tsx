@@ -9,6 +9,7 @@ import { SoldierTooltip } from './SoldierTooltip';
 import { StatusBar } from './StatusBar';
 import { useViewStore } from './store';
 import { useKeyboardControl } from './useKeyboardControl';
+import { WelcomeOverlay } from './WelcomeOverlay';
 
 export function App() {
   useKeyboardControl();
@@ -26,6 +27,7 @@ export function App() {
       </div>
       <Cheatsheet />
       <SettingsPanel />
+      <WelcomeOverlay />
     </main>
   );
 }

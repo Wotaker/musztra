@@ -17,6 +17,7 @@ Decyzje, które autor powinien potwierdzić lub odrzucić. Po akceptacji pozycja
 | [D-055](#d-055-drużyna--stój-w-trakcie-zmiany-kierunku-kolumny) | STÓJ na zakręcie kolumny: zatrzymanie po wyjściu ostatniego z zakrętu |
 | [D-056](#d-056-ściąga-i-podstawowe-ćwiczenia) | ściąga niemodalna, bez grupy „Poza MVP”; 7 ćwiczeń |
 | [D-057](#d-057-regulamin-pdf-w-aplikacji-i-odnośniki-pkt-n) | PDF w buildzie, odnośniki `#page=`, mapa punkt → strona |
+| [D-058](#d-058-nakładka-pierwszego-uruchomienia) | wskazówki raz na urządzeniu, przykład do kliknięcia, „?” w pasku |
 
 ## Zatwierdzone
 
@@ -552,3 +553,11 @@ Decyzje, które autor powinien potwierdzić lub odrzucić. Po akceptacji pozycja
   - Każde „pkt N” w panelu informacji (komunikaty, punkty, rozpoznany wpis), w ściądze i w objaśnieniach LLM (tekst i lista punktów) to odnośnik `…pdf#page=S` (nowa karta, fokus zostaje w wierszu poleceń). Lista „pkt 22, 76, 83” — każdy numer osobnym odnośnikiem; „25b” i „57–59” prowadzą do strony punktu 25 i 57.
   - Mapa punkt → strona (`src/core/regulationPages.ts`) wygenerowana skryptem `scripts/regulation-pages.mjs` z tekstu PDF (pdftotext): strona, na której zaczyna się punkt. Wszystkie 130 punktów na 44 stronach; punkt 89 ma w PDF zniekształcony numer („W.”), przypisany do strony 32 (sprawdzone ręcznie). Testy: komplet i monotoniczność mapy, ręcznie sprawdzone strony, strona dla każdego punktu katalogu i każdego punktu zapisanego w komunikatach `src/core`.
 - **Alternatywy:** podgląd PDF wbudowany w aplikację (np. pdf.js) — nowa zależność i większa paczka; wbudowana przeglądarka PDF przeglądarki internetowej wystarcza i obsługuje `#page=`.
+
+## D-058 Nakładka pierwszego uruchomienia
+
+- **Data:** 2026-10-20 · **Etap:** EF (K3)
+- **Kontekst:** SPEC 3.10: nakładka z trzema wskazówkami (komenda zbiórki; Esc/Enter i WASD; F1), do ponownego otwarcia.
+- **Decyzja:** okno modalne pokazywane raz na urządzeniu (znacznik w pamięci przeglądarki zapisywany w chwili pokazania — odświeżenie strony nie pokazuje go ponownie). Pierwsza wskazówka zawiera przykład „Pierwsza drużyna, w dwuszeregu – ZBIÓRKA” jako przycisk: klik zamyka okno i wstawia komendę do wiersza (wystarczy Enter — pierwsza poprawna komenda w kilka sekund, SPEC 1.1). „Zaczynamy”, Esc lub klik w tło zamykają. Ponowne otwarcie — przycisk „?” w pasku górnym.
+- **Zmienione testy E2E (zgłoszenie zgodnie z CLAUDE.md):** testy, które na początku czyszczą pamięć przeglądarki, ustawiają teraz znacznik „wskazówki obejrzane”, żeby okno nie zasłaniało placu; sama nakładka ma osobne testy (`e2e/welcome.spec.ts`). Asercje testów bez zmian.
+- **Alternatywy:** niemodalna karta na placu — łatwiej ją przeoczyć, a zasłaniałaby środek placu przy kliknięciach.

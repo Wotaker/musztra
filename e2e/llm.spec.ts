@@ -68,6 +68,8 @@ test.beforeEach(async ({ page }) => {
   await page.goto('./');
   await page.evaluate(() => {
     localStorage.clear();
+    // Wskazówki pierwszego uruchomienia (K3) mają osobne testy w welcome.spec.ts.
+    localStorage.setItem('musztra.firstRunSeen', 'true');
     sessionStorage.clear();
   });
   await page.reload();
@@ -83,7 +85,7 @@ test.describe('ustawienia', () => {
     await expect(page.getByTestId('settings-auto-explain')).not.toBeChecked();
     await expect(page.getByTestId('mode-lenient')).toHaveAttribute('aria-checked', 'true');
     await expect(page.getByTestId('settings-squad-size')).toHaveValue('9');
-    await expect(dialog).toContainText('niski miesięczny limit wydatków');
+    await expect(dialog).toContainText('niskim miesięcznym limitem wydatków');
     await expect(page.getByTestId('settings-key-status')).toContainText('Brak klucza');
     await page.getByTestId('settings-close').click();
     await expect(dialog).toHaveCount(0);
